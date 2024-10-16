@@ -1,0 +1,237 @@
+---
+title: "Predicting Mental Health Service Utilization"
+subtitle: "BMIN503/EPID600 Final Project"
+author: "Nicolas Lescano"
+format:
+  html:
+    css: styles.css
+    number-sections: true
+    toc: true
+    embed-resources: true
+escape: false
+editor: visual
+---
+
+
+
+------------------------------------------------------------------------
+
+# Overview {#sec-overview}
+
+The aim of this project is to develop a predictive model for mental health outpatient utilization (appointment frequency and duration, complexity, and type of provider). The dataset comes from outpatient mental health visits at the Penn Medicine Outpatient Psychiatry Clinic over the last 10 years. I consulted with Dr. Theodore Satterthwaithe, Director of Penn Lifespan Informatics and Neuroimaging Center (PennLINC), who helped me narrow down the scope of this project. Additionally, I discussed the potential operational impact of this project with Dr. Olga Barg, Director of Clinical Informatics for the Department of Psychiatry.
+
+<https://github.com/lescanico/BMIN503_Final_Project>
+
+# Introduction {#sec-introduction}
+
+Mental health service utilization is a critical area in healthcare management, where efficient resource allocation is essential to ensure timely, appropriate care for patients. However, matching patients with the right provider type—whether an attending psychiatrist, nurse practitioner, or psychiatric resident—can be challenging due to the complex nature of mental health conditions. Additionally, predicting future service utilization, including appointment frequency, duration, provider communication between visits, and overall complexity of care, remains difficult. This often leads to mismatches between the patient's needs and the provider's availability or expertise, resulting in time-consuming transitions of care, which negatively impact patient care and continuity.
+
+This project aims to address these challenges by developing a machine learning model to predict key factors that influence mental health appointment utilization. The model will forecast variables such as appointment frequency, duration, provider type, likelihood of attendance, and the complexity of care needed. By improving these predictions, healthcare systems can better allocate resources, enhance provider-patient matching, and minimize unnecessary transitions, ultimately improving patient outcomes and operational efficiency.
+
+This interdisciplinary project integrates expertise from psychiatry, healthcare management, and data science. Psychiatry defines patient care needs, healthcare management provides the operational framework for resource allocation, and data science leverages historical data—such as electronic health records and Epic Analytics—to develop predictive models. These models will inform better decision-making for scheduling and provider assignment, optimizing both the quality of care and resource utilization.
+
+# Methods {#sec-methods}
+
+To develop a predictive model for mental health appointment utilization and optimize resource allocation, we will employ a comprehensive methodology encompassing data collection, preprocessing, feature engineering, model development, validation, and implementation. The following steps outline our approach:
+
+## Data Collection
+
+### Sources
+
+-   **Epic Analytics:** Data from the last 10 years of appointments scheduled at the Penn Behavioral Health (PBH) Outpatient Psychiatry Clinic (OPC) was extracted through Epic Analytics. The dataset consisted of over 433,000 records and included the following key data types:
+
+    -   **Appointment Data:**
+
+        -   Visit dates, appointment lengths, appointment types (e.g., medication management, therapy), and status (completed, canceled, no-show).
+
+        -   Built-in PennChart no-show probability scores, appointment creation date, and lead time.
+
+        -   Scheduling source and portal activity during scheduling.
+
+    -   **Patient Demographics:**
+
+        -   Age, legal sex, sex assigned at birth, gender identity, and sexual orientation.
+
+        -   Race, ethnic group, religion, and postal code.
+
+        -   Rural/urban commuting areas and Census tract FIPS codes.
+
+        -   MyChart status and University of Pennsylvania student status.
+
+    -   **Provider Information:**
+
+        -   Primary provider type (e.g., attending psychiatrist, nurse practitioner, psychiatric resident), provider title, and information on continuity of care.
+
+        -   Indicators for whether the patient was new to the provider, service area, or department specialty.
+
+    -   **Geographical Information:**
+
+        -   Patient's state, county, and postal code, along with the rural/urban commuting area.
+
+    -   **Financial Data:**
+
+        -   Primary payer, benefit plan, copay, prepayment, and self-pay details.
+
+        -   Insurance billing status and copay collected.
+
+    -   **Clinical Data:**
+
+        -   Diagnoses, medications ordered, procedures ordered, and patient height, weight, BMI, and blood pressure (though many values were missing).
+
+        -   Interaction data with the provider, including time spent pre-charting, post-charting, and time waiting for or with the physician.
+
+### Time Frame
+
+The dataset covered appointments from the last 10 years, providing robust historical data with sufficient variation in patient demographics, appointment types, and provider interactions. This timeframe allowed for the identification of trends in appointment utilization, provider matching, and predictions for future resource allocation.
+
+## Data Preprocessing
+
+### Data Loading
+
+
+
+```{r}
+# Necessary libraries loaded
+library(dplyr)
+
+# Data loaded
+data <- readRDS("anon_dataset.rds")
+```
+
+
+
+### First Structure Check
+
+
+
+```{r}
+# Structure of data checked
+str(data)
+```
+
+
+
+### Missing Values Check
+
+
+
+```{r}
+# Number of missing values in each column checked
+colSums(is.na(data))
+```
+
+
+
+### Removal of Columns with More than 50% Missing Values
+
+
+
+```{r}
+# Percentage of missing values for each column was calculated
+missing_percent <- colSums(is.na(data)) / nrow(data) * 100
+
+# Columns with more than 50% missing values were identified and removed
+data_clean <- data[, missing_percent <= 50]
+
+# Structure of the cleaned data was checked
+str(data_clean)
+```
+
+
+
+### Imputation of Missing Values for Numeric Columns
+
+
+
+```{r}
+# Numeric columns with missing values were imputed with their mean
+data_clean <- data_clean %>%
+  mutate_if(is.numeric, ~ifelse(is.na(.), mean(., na.rm = TRUE), .))
+```
+
+
+
+### Removal of Rows with Missing Values for Categorical Columns
+
+
+
+```{r}
+# Rows with missing values in categorical columns were removed
+data_clean <- na.omit(data_clean)
+```
+
+
+
+### Second Structure Check
+
+
+
+```{r}
+# Structure of cleaned data checked
+str(data_clean)
+```
+
+
+
+## Exploratory Data Analysis
+
+### Summary Statistics
+
+
+
+```{r}
+# Summary of numeric variables
+summary(select_if(data_clean, is.numeric))
+
+# Summary of categorical variables
+summary(select_if(data_clean, is.character))
+```
+
+
+
+## Feature Engineering
+
+New features were created, such as a Complexity Score and Time Since Last Visit, to improve model predictions.
+
+## Data Splitting
+
+The dataset was split into training, validation, and test sets to ensure proper model evaluation and avoid overfitting.
+
+## Model Development
+
+Machine learning models, including Random Forest and XGBoost, were developed to predict key outcomes such as appointment no-shows.
+
+## Hyperparameter Tuning
+
+Grid Search with cross-validation was used to find the optimal parameters for each model to maximize performance.
+
+## Model Training
+
+Models were trained on the training dataset, with performance evaluated on the validation set to fine-tune parameters.
+
+## Model Evaluation
+
+Models were evaluated using metrics such as accuracy, precision, recall, F1 score, and AUC-ROC. Confusion matrices were generated for performance assessment.
+
+## Cross-Validation
+
+A k-fold cross-validation approach was employed to ensure model generalizability and reduce the risk of overfitting.
+
+## Ethical Considerations
+
+To ensure the privacy and confidentiality of patient data, the Medical Record Numbers (MRNs) in the dataset were anonymized. This process involved the following steps:
+
+1.  **Handling Missing or Empty MRNs**: First, rows with missing or empty `MRN` values were identified and removed to ensure data consistency before applying the anonymization process.
+
+2.  **Generating Unique Numeric IDs**: Each unique `MRN` was mapped to a new numeric identifier (`ID`). A unique, 5-digit numeric ID was assigned to each distinct `MRN`. The use of leading zeros ensured that all IDs maintained a consistent format (e.g., `00001`, `00002`, etc.).
+
+3.  **Replacing MRNs with Numeric IDs**: The new `ID` values were merged back into the original dataset. For each patient record, the original `MRN` was replaced with the corresponding anonymized `ID`. This maintained the integrity of the dataset while protecting patient privacy.
+
+4.  **Saving the Mapping for Reversibility**: A separate file was created (`mrn_mapping.csv`), which stores the mapping between the original `MRN` values and the new `ID` values. This file is securely stored and can be referenced if the original MRNs need to be restored in a controlled and secure manner.
+
+By following these steps, the dataset was fully anonymized while retaining the ability to reverse the anonymization if required, ensuring both privacy and flexibility in data handling.
+
+# Results {#sec-results}
+
+# Conclusion
+

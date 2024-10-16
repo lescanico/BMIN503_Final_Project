@@ -1,0 +1,74 @@
+/* General layout */
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+h1, h2, h3, h4, h5, h6 {
+    color: #003366;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+/* Links */
+a {
+    color: #0072ce;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Button styles */
+button, .btn {
+    background-color: #0072ce;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    background-color: #005bb5;
+}
+
+/* Banner / header styling */
+.banner {
+    background-color: #003366;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Footer */
+footer {
+    background-color: #003366;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+footer a {
+    color: #0072ce;
+}
+
+footer a:hover {
+    color: #005bb5;
+}
