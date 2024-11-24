@@ -1,0 +1,126 @@
+/* General Typography */
+body {
+  font-family: 'Arial', sans-serif;
+  color: #333; /* Dark grey text color */
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #990000; /* Penn's primary red color */
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #990000; /* Red color for the main header */
+}
+
+h2 {
+  font-size: 2em;
+  color: #003366; /* Penn's primary blue for subheaders */
+}
+
+h3 {
+  font-size: 1.5em;
+  color: #003366;
+}
+
+p, li {
+  font-size: 1em;
+  color: #333;
+}
+
+/* Links */
+a {
+  color: #990000; /* Red for links */
+  text-decoration: none;
+}
+a:hover {
+  color: #660000; /* Darker red on hover */
+  text-decoration: underline;
+}
+
+/* Horizontal Line */
+hr {
+  border: 0;
+  height: 2px;
+  background-color: #990000; /* Red line for emphasis */
+  margin: 1.5em 0;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 1em;
+}
+th, td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+th {
+  background-color: #003366; /* Blue header background */
+  color: white;
+  font-weight: bold;
+}
+
+/* Buttons */
+button, .btn {
+  background-color: #003366;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+}
+button:hover, .btn:hover {
+  background-color: #002244; /* Darker blue on hover */
+}
+
+/* Code Blocks */
+code, pre {
+  font-family: "Courier New", Courier, monospace;
+  background-color: #f4f4f4;
+  padding: 4px;
+  color: #003366; /* Blue for code blocks */
+  border-left: 4px solid #990000; /* Red accent for code */
+}
+
+/* Block Quotes */
+blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 4px solid #990000; /* Red border for emphasis */
+  color: #555;
+  background-color: #f9f9f9;
+  font-style: italic;
+}
+
+/* Lists */
+ul, ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+li {
+  margin-bottom: 0.5em;
+}
+
+/* Responsive Images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Page Margins and Alignment */
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
