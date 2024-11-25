@@ -1,0 +1,313 @@
+<html>
+<head>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5em 0;
+      font-size: 1.1em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      vertical-align: middle;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #003366;
+      color: white;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td {
+      background-color: #f9f9f9;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover td {
+      background-color: #e6e6e6;
+    }
+
+    caption {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #003366;
+      padding: 10px;
+      text-align: center;
+      caption-side: top;
+    }
+
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Original Column</th>
+        <th>Final Column</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Age (At Visit) (years)</td>
+        <td>age_at_visit_years</td>
+      </tr>
+      <tr>
+        <td>Appointment Creation Date</td>
+        <td>appointment_creation_date</td>
+      </tr>
+      <tr>
+        <td>Appointment Length (minutes)</td>
+        <td>appointment_length_minutes</td>
+      </tr>
+      <tr>
+        <td>Appointment Status</td>
+        <td>appointment_status</td>
+      </tr>
+      <tr>
+        <td>Appointment Time</td>
+        <td>appointment_time</td>
+      </tr>
+      <tr>
+        <td>BMI (kg/m^2)</td>
+        <td>bmi_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>BP (Diastolic)</td>
+        <td>bp_diastolic_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>BP (Systolic)</td>
+        <td>bp_systolic_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Continuity of Care?</td>
+        <td>continuity_of_care</td>
+      </tr>
+      <tr>
+        <td>Copay Collected ($)</td>
+        <td>copay_collected</td>
+      </tr>
+      <tr>
+        <td>Copay Due ($)</td>
+        <td>copay_due</td>
+      </tr>
+      <tr>
+        <td>Country</td>
+        <td>country_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Country/County</td>
+        <td>country_county_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Diagnosis</td>
+        <td>diagnosis_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Encounter to Close (day)</td>
+        <td>encounter_to_close_day</td>
+      </tr>
+      <tr>
+        <td>Encounter Type</td>
+        <td>encounter_type</td>
+      </tr>
+      <tr>
+        <td>End Date</td>
+        <td>Not Retained</td>
+      </tr>
+      <tr>
+        <td>Gender Identity</td>
+        <td>gender_identity_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Interpreter Needed?</td>
+        <td>interpreter_needed_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Language</td>
+        <td>language_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Lead Time (days)</td>
+        <td>lead_time_days</td>
+      </tr>
+      <tr>
+        <td>Legal Sex</td>
+        <td>legal_sex_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Level of Service</td>
+        <td>level_of_service_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Medications Ordered</td>
+        <td>medications_ordered_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>MyChart Status</td>
+        <td>mychart_status_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>New to Department Specialty?</td>
+        <td>new_to_department_specialty</td>
+      </tr>
+      <tr>
+        <td>New to Facility?</td>
+        <td>new_to_facility</td>
+      </tr>
+      <tr>
+        <td>New to Provider?</td>
+        <td>new_to_provider</td>
+      </tr>
+      <tr>
+        <td>No Show Probability (%)</td>
+        <td>no_show_probability</td>
+      </tr>
+      <tr>
+        <td>Patient Ethnic Group</td>
+        <td>patient_ethnic_group_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Patient Race</td>
+        <td>patient_race_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Portal Active at Scheduling?</td>
+        <td>portal_active_at_scheduling</td>
+      </tr>
+      <tr>
+        <td>Prepayment Collected ($)</td>
+        <td>prepayment_collected</td>
+      </tr>
+      <tr>
+        <td>Prepayment Due ($)</td>
+        <td>prepayment_due</td>
+      </tr>
+      <tr>
+        <td>Primary Benefit Plan</td>
+        <td>primary_benefit_plan</td>
+      </tr>
+      <tr>
+        <td>Primary Diagnosis</td>
+        <td>primary_diagnosis</td>
+      </tr>
+      <tr>
+        <td>Primary Payer</td>
+        <td>primary_payer</td>
+      </tr>
+      <tr>
+        <td>Primary Payer Financial Class</td>
+        <td>primary_payer_financial_class</td>
+      </tr>
+      <tr>
+        <td>Primary Provider Title</td>
+        <td>primary_provider_title</td>
+      </tr>
+      <tr>
+        <td>Primary Provider Type</td>
+        <td>primary_provider_type</td>
+      </tr>
+      <tr>
+        <td>Primary Subscriber Group Number</td>
+        <td>primary_subscriber_group_number</td>
+      </tr>
+      <tr>
+        <td>Procedures Ordered</td>
+        <td>procedures_ordered_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Religion</td>
+        <td>religion_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Rural-Urban Commuting Area (Primary)</td>
+        <td>rural_urban_commuting_area_primary_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Rural-Urban Commuting Area (Secondary)</td>
+        <td>rural_urban_commuting_area_secondary_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Scheduling Source</td>
+        <td>scheduling_source</td>
+      </tr>
+      <tr>
+        <td>Self Pay?</td>
+        <td>self_pay</td>
+      </tr>
+      <tr>
+        <td>Sex Assigned at Birth</td>
+        <td>sex_assigned_at_birth_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Sexual Orientation</td>
+        <td>sexual_orientation_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Start Date</td>
+        <td>Not Retained</td>
+      </tr>
+      <tr>
+        <td>State</td>
+        <td>state_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Time Physician Spent Post-Charting (minutes)</td>
+        <td>time_physician_spent_post_charting_minutes</td>
+      </tr>
+      <tr>
+        <td>Time Physician Spent Pre-Charting (minutes)</td>
+        <td>time_physician_spent_pre_charting_minutes</td>
+      </tr>
+      <tr>
+        <td>Time Waiting for Physician (minutes)</td>
+        <td>time_waiting_for_physician_minutes</td>
+      </tr>
+      <tr>
+        <td>Time with Physician (minutes)</td>
+        <td>time_with_physician_minutes</td>
+      </tr>
+      <tr>
+        <td>University of Pennsylvania Student</td>
+        <td>university_of_pennsylvania_student_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>Visit Date</td>
+        <td>visit_date</td>
+      </tr>
+      <tr>
+        <td>Visit Type</td>
+        <td>visit_type</td>
+      </tr>
+      <tr>
+        <td>patient_id</td>
+        <td>patient_id</td>
+      </tr>
+      <tr>
+        <td>year_of_birth</td>
+        <td>year_of_birth_from_visit_dataset</td>
+      </tr>
+      <tr>
+        <td>postal_code</td>
+        <td>postal_code_from_visit_dataset</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

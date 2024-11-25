@@ -1,0 +1,245 @@
+<html>
+<head>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5em 0;
+      font-size: 1.1em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      vertical-align: middle;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #003366;
+      color: white;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td {
+      background-color: #f9f9f9;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover td {
+      background-color: #e6e6e6;
+    }
+
+    caption {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #003366;
+      padding: 10px;
+      text-align: center;
+      caption-side: top;
+    }
+
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Original Column</th>
+        <th>Final Column</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ADI National Percentile (%)</td>
+        <td>adi_national_percentile</td>
+      </tr>
+      <tr>
+        <td>ADI State Decile</td>
+        <td>adi_state_decile</td>
+      </tr>
+      <tr>
+        <td>Allergies and Contraindications</td>
+        <td>allergies_and_contraindications</td>
+      </tr>
+      <tr>
+        <td>BMI</td>
+        <td>bmi_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>BP (Diastolic) (mmHg)</td>
+        <td>bp_diastolic_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>BP (Systolic) (mmHg)</td>
+        <td>bp_systolic_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Chief Complaint</td>
+        <td>chief_complaint</td>
+      </tr>
+      <tr>
+        <td>Country</td>
+        <td>country_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Country/County</td>
+        <td>country_county_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Diagnosis</td>
+        <td>diagnosis_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>End Date</td>
+        <td>Not Retained</td>
+      </tr>
+      <tr>
+        <td>Gender Identity</td>
+        <td>gender_identity_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>General Risk Score</td>
+        <td>general_risk_score</td>
+      </tr>
+      <tr>
+        <td>Hospital or Clinic-Administered Medications</td>
+        <td>hospital_or_clinic_administered_medications</td>
+      </tr>
+      <tr>
+        <td>Interpreter Needed?</td>
+        <td>interpreter_needed_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Language</td>
+        <td>language_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Legal Sex</td>
+        <td>legal_sex_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Level of Service</td>
+        <td>level_of_service_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Marital Status</td>
+        <td>marital_status</td>
+      </tr>
+      <tr>
+        <td>Medical History</td>
+        <td>medical_history</td>
+      </tr>
+      <tr>
+        <td>Medications</td>
+        <td>medications</td>
+      </tr>
+      <tr>
+        <td>Medications Ordered</td>
+        <td>medications_ordered_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>MyChart Status</td>
+        <td>mychart_status_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Outpatient Medications</td>
+        <td>outpatient_medications</td>
+      </tr>
+      <tr>
+        <td>Patient Ethnic Group</td>
+        <td>patient_ethnic_group_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Patient Race</td>
+        <td>patient_race_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>PHQ-2 Total Score</td>
+        <td>phq_2_total_score</td>
+      </tr>
+      <tr>
+        <td>PHQ-9</td>
+        <td>phq_9</td>
+      </tr>
+      <tr>
+        <td>Procedures</td>
+        <td>procedures</td>
+      </tr>
+      <tr>
+        <td>Procedures Ordered</td>
+        <td>procedures_ordered_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Religion</td>
+        <td>religion_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Rural-Urban Commuting Area (Primary)</td>
+        <td>rural_urban_commuting_area_primary_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Rural-Urban Commuting Area (Secondary)</td>
+        <td>rural_urban_commuting_area_secondary_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>SDOH Domains</td>
+        <td>sdoh_domains</td>
+      </tr>
+      <tr>
+        <td>SDOH Risk Level</td>
+        <td>sdoh_risk_level</td>
+      </tr>
+      <tr>
+        <td>Sex Assigned at Birth</td>
+        <td>sex_assigned_at_birth_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Sexual Orientation</td>
+        <td>sexual_orientation_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>Start Date</td>
+        <td>Not Retained</td>
+      </tr>
+      <tr>
+        <td>State</td>
+        <td>state_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>SVI 2020 Socioeconomic Percentile (Census Tract) (%)</td>
+        <td>svi_2020_socioeconomic_percentile_census_tract</td>
+      </tr>
+      <tr>
+        <td>University of Pennsylvania Student</td>
+        <td>university_of_pennsylvania_student_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>patient_id</td>
+        <td>patient_id</td>
+      </tr>
+      <tr>
+        <td>year_of_birth</td>
+        <td>year_of_birth_from_patient_dataset</td>
+      </tr>
+      <tr>
+        <td>postal_code</td>
+        <td>postal_code_from_patient_dataset</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

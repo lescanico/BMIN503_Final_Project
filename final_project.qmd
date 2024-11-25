@@ -167,6 +167,18 @@ cat("\nColumns in visit_data_renamed:\n")
 print(colnames(visit_data_renamed))
 ```
 
+##### Patient Dataset Column Handling
+
+<iframe src="figures/patient_column_handling.html">
+
+</iframe>
+
+##### Visit Dataset Column Handling
+
+<iframe src="figures/visit_column_handling.html">
+
+</iframe>
+
 The patient and visit datasets were standardized to ensure consistency in data types, enabling accurate analysis and modeling. Date and time columns, such as `visit_date` and `appointment_time`, were converted to `Date` or `POSIX` formats, while categorical fields like `gender_identity` and `visit_type` were transformed into factors. Numeric variables, including `bmi` and `bp_diastolic`, were safely converted to numeric types, addressing irregularities, and logical fields, such as `interpreter_needed`, were standardized to Boolean values. Additionally, list-based columns like `diagnoses` and `medications` were parsed into structured lists for enhanced interpretability. This process established a uniform data framework, supporting robust downstream analysis.
 
 ```{r conversions, eval=FALSE}
@@ -339,6 +351,18 @@ saveRDS(variable_type_lookup, file = "datasets/variable_type_lookup.rds")
 cat("Variable type lookup dataframe saved as 'variable_type_lookup.rds'.\n")
 print(head(variable_type_lookup))
 ```
+
+##### Patient Dataset Type Conversion
+
+<iframe src="figures/patient_type_conversions.html">
+
+</iframe>
+
+##### Visit Dataset Type Conversion
+
+<iframe src="figures/visit_type_conversions.html">
+
+</iframe>
 
 #### Data Integration
 
@@ -1116,12 +1140,12 @@ generate_data_handling_table <- function(dataset) {
   # Create a styled table with summary stats and handling strategies
   table <- missing_data_summary %>%
     select(
-      `Variables grouped by level of missingness` = variable,
+      `Variables by level of missingness` = variable,
       `Missing %` = missing_percentage_display,
       `Summary Stats` = summary_stats_html,  # Use HTML-formatted column
       `Handling Strategy` = handling_strategy
     ) %>%
-    kbl(caption = "Missing Data Handling Table", align = c("r", "c", "l", "l"), escape = FALSE) %>%
+    kbl(align = c("r", "c", "l", "l"), escape = FALSE) %>%
     kable_styling(full_width = FALSE, position = "center", font_size = 12) %>%
     column_spec(2, bold = TRUE, color = "blue") %>%
     column_spec(3, italic = TRUE) %>%
@@ -1148,7 +1172,15 @@ generate_data_handling_table <- function(dataset) {
 missing_data_handling_table <- generate_data_handling_table(data_preprocessed)
 ```
 
-<iframe src="figures/missing_data_handling_table.html" width="100%" height="600">
+#### Missing Data Handling Table with All Options
+
+<iframe src="figures/missing_data_handling_table.html">
+
+</iframe>
+
+#### Manually Generated Missing Data Handling Table
+
+<iframe src="figures/missing_data_handling_table_manual.html">
 
 </iframe>
 
