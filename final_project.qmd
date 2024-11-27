@@ -25,57 +25,25 @@ execute:
 
 ## Overview {#sec-overview}
 
-This project investigates psychiatry resource utilization at the Penn Behavioral Health (PBH) Outpatient Psychiatry Clinic (OPC). The primary goal is to develop a predictive model for resource utilization.
+This project leverages a decade of historical data from the Penn Behavioral Health Outpatient Psychiatry Clinic (PBH OPC) to develop predictive models aimed at optimizing resource utilization. The goal is to address operational inefficiencies in scheduling and care allocation, ultimately enhancing patient outcomes, clinic efficiency, and provider satisfaction. Integrating principles from psychiatry, healthcare operations, and data science, the project offers actionable insights into improving outpatient mental health care delivery.
 
-The analysis integrates two datasets from the Epic Analytics database spanning a 10-year period: one focused on patient based data, and the other on individual visits. The project aims to uncover patterns in appointment utilization and resource demands.
-
-The project benefited from consultations with key experts:
-
--   **Dr. Olga Barg** (Director of Clinical Informatics, Psychiatry) provided insights into clinical data interpretation and the factors influencing appointment patterns.
-
--   **Dr. Theodore D. Satterthwaite** (Director, Penn Lifespan Informatics and Neuroimaging Center) offered guidance on refining the project scope.
-
--   **Rucha Kelkar** (Epic Cogito Technical Services) advised on accessing and managing Epic data.
-
--   **Dr. Katharine B. Dalke** (Vice Chair for Clinical Operations, Psychiatry) shared perspectives on clinical operations and resource management challenges.
-
-The project’s GitHub repository can be found here: <https://github.com/lescanico/BMIN503_Final_Project>.
+The complete project repository, including scripts and datasets, is available [here](https://github.com/lescanico/BMIN503_Final_Project).
 
 ## Introduction {#sec-introduction}
 
-Outpatient psychiatry clinics often face challenges in resource allocation, leading to long wait times and mismatches between patient needs and provider assignments. These inefficiencies, driven by varying appointment durations, provider expertise, and complex patient needs, can disrupt care continuity and diminish treatment quality.
+Outpatient psychiatry clinics often face significant challenges in managing the balance between patient demand and resource availability. Inefficiencies, such as long wait times, underutilized provider hours, and mismatches in the level of care, negatively impact patient outcomes and clinic operations. For instance, delayed follow-ups and uncoordinated care transitions contribute to treatment disruptions and patient dissatisfaction.
 
-This project seeks to address these challenges by analyzing patterns in psychiatry resource utilization. Insights from the analysis will inform a predictive model designed to:
-
-1.  Enhance scheduling accuracy.
-
-2.  Improve provider-patient matching.
-
-3.  Reduce wait times.
-
-The ultimate goal is to develop a model that contributes to a more efficient, patient-centered approach in outpatient psychiatry.
-
-This interdisciplinary project draws from several fields:
-
--   **Clinical Psychiatry:** Provides expertise on psychiatric patient needs, clinic workflows, and factors affecting appointment length and provider requirements.
-
--   **Health Informatics:** Ensures secure access and management of electronic health records (EHRs) and Epic Analytics data, adhering to privacy standards.
-
--   **Data Science & Predictive Modeling:** Supplies tools for analyzing complex data and developing predictive models to uncover patterns in resource utilization.
-
--   **Operations Management:** Offers insights into clinic workflows, resource allocation, and real-world feasibility for balancing patient demand with resource availability.
-
--   **Healthcare Administration:** Guides alignment with organizational policies and priorities, ensuring sustainable improvements in budgeting, staffing, and patient satisfaction.
-
-By synthesizing insights from these fields, this project aims to create a predictive model offering actionable solutions to optimize resource utilization in outpatient psychiatry, improving both patient care and clinic efficiency.
+This project addresses these challenges by applying a data-driven approach to predict resource needs and inform scheduling decisions. Predictive models enable more accurate forecasting of appointment frequency, duration, and type of provider required, reducing operational inefficiencies and supporting proactive resource planning.
 
 ## Methods {#sec-methods}
 
-### Data Sourcing and Privacy Management
+### **Data Sourcing**
 
-Patient and visit data from the PBH OPC spanning 10/1/2014 to 9/30/2024 was extracted from Epic Analytics. The data was securely downloaded into a private, access-controlled location outside the project repository. The extracted files, originally in `.xlsx` format, were converted to `.csv` format and stored securely as `patient_data.csv` and `visit_data.csv` within the same environment.
+Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics. The raw files, originally in `.xlsx` format, were converted to `.csv` for analysis and securely stored as `patient_data.csv` and `visit_data.csv`.
 
-These steps ensured compliance with healthcare privacy regulations and maintained data integrity throughout the project.
+### Data Anonymization
+
+Sensitive identifiers such as medical record numbers (MRNs) were replaced with anonymized IDs. Key demographics like birth dates and postal codes were generalized to ensure compliance with HIPAA and other privacy regulations.
 
 ```{r anonymization, eval=FALSE}
 # Load required libraries
@@ -116,9 +84,9 @@ saveRDS(visit_data_anonymized, "datasets/visit_data_anonymized.rds")
 
 ### Data Preprocessing
 
-#### Data Standarization
+#### Standardization and Deduplication:
 
-The anonymized patient and visit datasets were prepared for analysis through a systematic cleaning process. Column names were standardized by converting them to lowercase, replacing spaces and special characters with underscores, and removing trailing or multiple underscores. Unnecessary columns, such as `start_date` and `end_date`, were removed, and key variables were renamed for clarity, including `bp_diastolic_mmhg` to `bp_diastolic` and `bmi_kg_m^2` to `bmi`. To address overlapping column names, suffixes were added to duplicates, excluding the shared identifier `patient_id`, ensuring consistency between the patient and visit datasets. These steps facilitated a clean and well-structured dataset for further analysis.
+Variable names were standardized (e.g., lowercase with underscores) for consistency. Duplicates arising from merged datasets were consolidated, with non-identical columns renamed using descriptive suffixes.
 
 ```{r renaming, eval=FALSE}
 # Load required library
@@ -167,19 +135,21 @@ cat("\nColumns in visit_data_renamed:\n")
 print(colnames(visit_data_renamed))
 ```
 
-##### Patient Dataset Column Handling
+###### Patient Dataset Column Handling Table
 
 <iframe src="figures/patient_column_handling.html">
 
 </iframe>
 
-##### Visit Dataset Column Handling
+###### Visit Dataset Column Handling Table
 
 <iframe src="figures/visit_column_handling.html">
 
 </iframe>
 
-The patient and visit datasets were standardized to ensure consistency in data types, enabling accurate analysis and modeling. Date and time columns, such as `visit_date` and `appointment_time`, were converted to `Date` or `POSIX` formats, while categorical fields like `gender_identity` and `visit_type` were transformed into factors. Numeric variables, including `bmi` and `bp_diastolic`, were safely converted to numeric types, addressing irregularities, and logical fields, such as `interpreter_needed`, were standardized to Boolean values. Additionally, list-based columns like `diagnoses` and `medications` were parsed into structured lists for enhanced interpretability. This process established a uniform data framework, supporting robust downstream analysis.
+##### Handling Variable Types
+
+Data types were converted to ensure compatibility with analytical processes. Dates, categorical variables, and numerical data were reformatted for accurate statistical analysis and modeling.
 
 ```{r conversions, eval=FALSE}
 # Load required libraries
@@ -352,13 +322,13 @@ cat("Variable type lookup dataframe saved as 'variable_type_lookup.rds'.\n")
 print(head(variable_type_lookup))
 ```
 
-##### Patient Dataset Type Conversion
+###### Patient Dataset Type Conversion Table
 
 <iframe src="figures/patient_type_conversions.html">
 
 </iframe>
 
-##### Visit Dataset Type Conversion
+###### Visit Dataset Type Conversion Table
 
 <iframe src="figures/visit_type_conversions.html">
 
@@ -366,7 +336,11 @@ print(head(variable_type_lookup))
 
 #### Data Integration
 
-Given the highly interdependent nature of the two datasets, with shared key variables and relationships essential for effective outlier detection and imputation, they were merged at this stage before continuing with subsequent preprocessing steps.
+The process involved merging patient and visit data based on unique identifiers, ensuring all related records were combined accurately.
+
+##### Merging Datasets
+
+Patient and visit data were merged using unique patient IDs. This process combined all related records into a unified dataset for comprehensive analysis. Any conflicts between overlapping columns were resolved by renaming non-identical columns with descriptive suffixes.
 
 ```{r merging, eval=FALSE}
 # Verify unique patient_id values are shared
@@ -392,7 +366,9 @@ dim(visit_data_converted)
 dim(merged_data)
 ```
 
-#### Data Deduplication
+##### Deduplication
+
+Duplicate columns were identified and processed. Identical values were consolidated, while non-identical columns were renamed appropriately to retain critical information.
 
 ```{r deduplication, eval=FALSE}
 # Function to compare duplicate columns, check if they are identical, and remove duplicates
@@ -519,7 +495,9 @@ deduplicated_data_renamed <- rename_non_identical_columns(deduplicated_data)
 print(names(deduplicated_data_renamed))
 ```
 
-#### Data Reordering & Sorting
+##### Reordering & Sorting
+
+The merged dataset was reordered and sorted to prioritize relevant information. Columns were organized by their importance and relevance to the analysis objectives, and data was sorted primarily by patient ID and secondary by visit date. This organization facilitated easier access and manipulation of data for subsequent analyses.
 
 ```{r reordering-sorting, eval=FALSE}
 # Reorder columns into logical groups
@@ -615,14 +593,18 @@ print("Updated variable_type_lookup saved to 'datasets/variable_type_lookup.rds'
 
 ### Missing Data Analysis
 
-Missing data patterns were visualized by calculating the percentage of missing values for each variable and grouping them by data type. These visualizations provided an intuitive understanding of the distribution of missing data, guiding decisions about imputation or other handling strategies based on the severity and data type of the missingness.
+The analysis of missing data was performed to understand its extent and impact on the study. The process included visualizing missing data patterns and deciding on strategies to handle them. This was crucial to maintain the robustness of the statistical analysis and the reliability of the study results.
+
+#### Missingness Visualization
+
+Missing data patterns were analyzed to identify variables with significant gaps. Visualization techniques, such as bar plots, were used to summarize the extent of missingness.
 
 ```{r missing-plotting, eval=FALSE}
 # Load required libraries
 library(ggplot2)
 
 # Define function to plot missing values
-plot_missing_values_by_type <- function(dataset, dataset_name, min_missing, max_missing) {
+plot_missing_values_by_type <- function(dataset, min_missing, max_missing) {
   
   # Ensure column types are matched with the lookup dataframe
   variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
@@ -631,12 +613,12 @@ plot_missing_values_by_type <- function(dataset, dataset_name, min_missing, max_
   missing_summary <- dataset %>%
     summarise(across(everything(), ~ sum(is.na(.)) / n() * 100)) %>%
     pivot_longer(everything(), names_to = "column", values_to = "missing_percentage") %>%
-    mutate(type = variable_types[column]) %>%  # Use the lookup for variable types
+    mutate(type = variable_types[column]) %>%
     filter(missing_percentage > min_missing & missing_percentage <= max_missing)
 
   # Plot if there is missing data
   if (nrow(missing_summary) > 0) {
-    threshold_inside <- max_missing * 0.8  # Threshold for placing text inside the bar
+    threshold_inside <- max_missing * 0.8
     ggplot(missing_summary, aes(x = reorder(column, -missing_percentage), y = missing_percentage, fill = type)) +
       geom_bar(stat = "identity", position = position_dodge2(width = 0.9)) +
       geom_text(data = missing_summary %>% filter(missing_percentage > 0), aes(
@@ -645,13 +627,12 @@ plot_missing_values_by_type <- function(dataset, dataset_name, min_missing, max_
       ), size = 3, color = ifelse(missing_summary$missing_percentage > threshold_inside, "white", "black")) +
       coord_flip(clip = "off") +
       labs(
-        title = paste0(dataset_name, " (", min_missing, "-", max_missing, "% missing)"),
         x = "Column", y = "Missing Percentage"
       ) +
       scale_fill_manual(values = c(
         "Date" = "#1f77b4", 
         "POSIXct" = "#ff7f0e", 
-        "hms" = "#17becf",  # Add color for hms variables
+        "hms" = "#17becf",
         "factor" = "#2ca02c",
         "numeric" = "#d62728", 
         "logical" = "#9467bd", 
@@ -662,7 +643,7 @@ plot_missing_values_by_type <- function(dataset, dataset_name, min_missing, max_
         legend.position = "top", legend.title = element_blank(), legend.direction = "horizontal",
         axis.text.y = element_text(size = 7, hjust = 1),
         plot.title = element_text(size = 14, face = "bold", hjust = 0),
-        plot.margin = margin(20, 20, 20, 20)  # Default margins
+        plot.margin = margin(20, 20, 20, 20)
       )
   } else {
     message("No columns with missing data in the specified range.")
@@ -670,24 +651,44 @@ plot_missing_values_by_type <- function(dataset, dataset_name, min_missing, max_
 }
 
 # Plot missing data levels
-plot_missing_values_by_type(data_preprocessed, "Preprocessed Data", min_missing = 0, max_missing = 1)
-plot_missing_values_by_type(data_preprocessed, "Preprocessed Data", min_missing = 1, max_missing = 5)
-plot_missing_values_by_type(data_preprocessed, "Preprocessed Data", min_missing = 5, max_missing = 30)
-plot_missing_values_by_type(data_preprocessed, "Preprocessed Data", min_missing = 30, max_missing = 50)
-plot_missing_values_by_type(data_preprocessed, "Preprocessed Data", min_missing = 50, max_missing = 100)
+plot_missing_values_by_type(data_preprocessed, min_missing = 0, max_missing = 1)
+plot_missing_values_by_type(data_preprocessed, min_missing = 1, max_missing = 5)
+plot_missing_values_by_type(data_preprocessed, min_missing = 5, max_missing = 30)
+plot_missing_values_by_type(data_preprocessed, min_missing = 30, max_missing = 50)
+plot_missing_values_by_type(data_preprocessed, min_missing = 50, max_missing = 100)
 ```
+
+##### Missing Data (0-1%) Plot
 
 ![](figures/0-1_missing_data_plot.png)
 
+##### Missing Data (1-5%) Plot
+
 ![](figures/1-5_missing_data_plot.png)
+
+##### Missing Data (5-30%) Plot
 
 ![](figures/5-30_missing_data_plot.png)
 
+##### Missing Data (30-50%) Plot
+
 ![](figures/30-50_missing_data_plot.png)
+
+##### Missing Data (50-100%) Plot
 
 ![](figures/50-100_missing_data_plot.png)
 
-A structured and comprehensive set of options for handling missing data across various variable types and levels of missingness was created. These strategies are tailored to address different percentages of missing data, ranging from minimal (0-5%) to very high (\>50%), and are organized in descending order of preference from the most ideal to the least ideal approach. Each strategy is listed individually for clarity and ease of implementation.
+#### Handling Strategies
+
+Variables were categorized into levels of missingness (e.g., Low: 0–5%, Moderate: 5–30%) to guide data handling strategies. Techniques included:
+
+-   **Imputation**: Using mean, median, or predictive modeling to fill missing values.
+
+-   **Exclusion**: Removing variables or records with excessive missing data.
+
+##### Default Strategies
+
+Approaches such as imputation (mean, median, or predictive), categorical substitution, or exclusion were applied based on the extent and type of missing data.
 
 ```{r default-strategies, eval=FALSE}
 # Define missing data handling options
@@ -899,15 +900,9 @@ missing_data_options <- list(
 )
 ```
 
-A comprehensive workflow was developed for generating a summary table that highlights missing data statistics and suggests handling strategies based on variable types and missingness levels. The workflow includes:
+##### Strategy Selection
 
--   **Summary Statistics Calculation**: Computes descriptive statistics for variables based on their types, such as mean, median, skewness, and kurtosis for numeric data or most common levels for categorical data.
-
--   **Missingness Analysis**: Identifies the percentage of missing data for each variable and categorizes them into levels (e.g., Low, Moderate, High, Very High).
-
--   **Customizable Handling Strategies**: Allows the user to manually select, list, or randomly assign handling strategies for each variable depending on its type and missingness level.
-
-The output is presented as a styled HTML table using `kableExtra` for clear visualization.
+The function `generate_data_handling_table` was designed to create a table for handling missing data and was utilized based on user input. Strategies for handling missing data were selected through three modes: manual selection for each variable, printing of all handling options, or random selection for testing purposes. This function assessed the type and extent of missingness, provided a summary of statistics, and facilitated the application of appropriate handling strategies. The results were presented in a styled table, categorized by the level of missingness and type of data, which aided in making informed decisions on how to address missing data in the dataset.
 
 ```{r handling-strategy-generator, eval=FALSE}
 # Load required libraries
@@ -1172,13 +1167,13 @@ generate_data_handling_table <- function(dataset) {
 missing_data_handling_table <- generate_data_handling_table(data_preprocessed)
 ```
 
-#### Missing Data Handling Table with All Options
+###### Missing Data Handling Table with All Options
 
 <iframe src="figures/missing_data_handling_table.html">
 
 </iframe>
 
-#### Manually Generated Missing Data Handling Table
+###### Manually Generated Missing Data Handling Table
 
 <iframe src="figures/missing_data_handling_table_manual.html">
 
@@ -1186,134 +1181,94 @@ missing_data_handling_table <- generate_data_handling_table(data_preprocessed)
 
 ### Data Reduction
 
-A simplified `reduced_data_preprocessed` dataset of 20 high-yield variables will be created for an initial exploratory iteration.
-
-### Missing Data Handling
-
-Will implement chosen strategies.
+A reduced dataset with fewer variables will be created to meet final project deadline. Later iterations will explore the complete dataset.
 
 ### Exploratory Data Analysis (EDA)
 
-Will analyze and summarize datasets to uncover patterns, detect anomalies, test hypotheses, and validate assumptions before building predictive models.
+Exploratory Data Analysis will be conducted to gain insights into the main characteristics of the data, focusing on the distribution of key variables and the relationships between them. This will involve visualizing data distributions, identifying outliers, and exploring potential groupings and patterns. The findings from EDA will help in understanding the underlying structure of the data and guide the subsequent phases of data preprocessing and model building.
 
 ### Data Transformation
 
-#### Normalization & Scaling
+Data will be transformed to fit the assumptions required for effective model training. This includes normalizing and scaling continuous variables to prevent attributes with larger ranges from dominating the model's feature importance. Categorical variables will be encoded into numerical values to facilitate their use in machine learning algorithms. Transformations such as logarithmic or square root transformations will be applied to skewed data to approximate normal distributions.
 
-Data will be normalized to ensure an even contribution to the model by each feature, scaling them for magnitude-sensitive algorithms.
+#### **Normalization and Scaling**
 
-#### Encoding
+Numerical variables will be normalized using techniques such as Min-Max scaling or Z-score normalization to ensure equal contribution to models.
 
-Categorical variables will be converted into numerical format for downstream machine learning processing.
+#### **Encoding**
+
+Categorical variables will be converted into numerical representations using one-hot encoding or label encoding, depending on their nature.
 
 ### Feature Engineering
 
-A composite Resource Utilization Score (RUS) will be developed from the following adjusted, normalized and weighted features per `patient_id`:
+New features will be engineered to capture resource utilization effectively:
 
--   `visit_count`
+-   **Visit Count:** Total number of visits per patient.
 
--   `visit_span`
+-   **Visit Span:** Time span between a patient’s first and last recorded visits.
 
--   `visit_density`
+-   **Visit Density:** Number of visits divided by the duration of engagement.
 
--   `visit_length`
+-   **Diagnostic Complexity:** Count of unique diagnoses over time.
 
--   `clinical_load`
+-   **Therapeutic Complexity:** Count of unique medications and procedures over time.
 
-    -   Diagnostic
+-   **Resource Utilization Score (RUS):** A composite metric combining visit density, diagnosis complexity, and medication burden to categorize patients into low, medium, or high utilization levels.
 
-    -   Therapeutic
+These features will be designed and normalized to improve model performance and enhance the interpretability of results.
 
-RUS classification:
+#### Resource Utilization Score (RUS)
 
--   Low Utilization of Resources (LUR)
+A Resource Utilization Score will be constructed using a composite index that integrates various dimensions of healthcare use, such as visit frequency, diversity of diagnoses, and medication load. This score will categorize patients into different levels of healthcare utilization, aiding in resource planning and management.
 
--   Medium Utilization of Resources (MUR)
+The RUS categorized patients into low, medium, or high utilization groups, providing insights into healthcare resource needs.
 
--   High Utilization of Resources (HUR)
+### Predictive Modeling
 
-### **Baseline Model**
+Predictive models will be developed to forecast healthcare resource utilization based on historical patient data. These models will help anticipate patient needs, optimizing resource allocation and scheduling. Both regression and classification models will be explored to predict continuous outcomes, such as the number of future visits, and categorical outcomes, such as high or low resource utilization.
 
--   Mean Predictor
+#### Baseline Models
 
--   Median Predictor
+Baseline predictors, such as mean and median-based imputation, will serve as benchmarks for evaluating the performance of advanced algorithms.
 
--   Majority Class Predictor
+#### Advanced Models
 
--   Linear Regression
+Both regression and classification models will be developed to predict resource utilization:
 
--   Logistic Regression
+1.  **Regression Models:**
 
-#### Model Selection
+    -   **Linear Regression:** To obtain baseline performance for predicting continuous variables, such as visit frequency and duration.
 
-One or more advanced models will be selected.
+    -   **Random Forest Regression:** To identify key predictors and achieve higher accuracy.
 
-#### Model Evaluation
+2.  **Classification Models:**
 
-Regression Models
+    -   **Logistic Regression:** Will categorize patients into low, medium, or high utilization groups.
 
--   RMSE
+    -   **Support Vector Machines (SVM):** To improve separation of utilization categories with complex patterns.
 
--   MAE
+#### Evaluation Metrics
 
--   R-squared
+Model performance will be assessed using task-specific metrics:
 
-Classification Models
+-   **Regression:** Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and R-squared.
 
--   Accuracy
+-   **Classification:** Accuracy, Precision, Recall, F1-score, and Area Under the Receiver Operating Characteristic Curve (AUC-ROC).
 
--   Precision
+#### Validation and Optimization
 
--   Recall
-
--   F1 Score
-
--   AUC-ROC
-
-#### Cross-Validation
-
--   K-Fold
-
--   Stratified K-Fold
-
--   Leave-One-Out (LOOCV)
-
--   Repeated K-Fold
-
--   Time Series
-
-#### Hyperparameter Optimization
-
--   Grid Search
-
--   Random Search
-
--   Bayesian Optimization
-
--   Automated Machine Learning (AutoML)
+To ensure generalizability, cross-validation techniques (e.g., k-fold cross-validation) will be employed. Grid search and random search methods will optimize hyperparameters for the best-performing models.
 
 ## Results
 
-### **Descriptive Statistics**
+The results section will include:
 
--   Will summarize key statistics of the datasets used for modeling.
+1.  **Summary Statistics**
 
--   Will provide insights into the target variable (RUS) distribution.
+2.  **Model Performance**: Summary metrics highlighting predictive accuracy and reliability.
 
-### Model Performance
+3.  **Feature Importance**: Insights into the most impactful predictors of resource utilization.
 
--   Confusion Matrix for classification models.
-
--   Residual plots for regression models.
-
-### Feature Importance
-
-Will determines which features contribute most to the predictive power of the model.
-
-### Validation and Testing
-
-Will evaluate the final model using unseen data to estimate its generalizability.
+4.  **Validation**: Evaluation of model performance on unseen data.
 
 ## Conclusion {#sec-conclusion}
-
-Will discuss key findings, limitations, generalizability and scalability.
