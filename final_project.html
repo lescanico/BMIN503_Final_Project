@@ -3122,10 +3122,7 @@ vertical-align: -.125em;
   </ul></li>
   </ul></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">4</span> Results</a></li>
-  <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">5</span> Conclusion</a>
-  <ul>
-  <li><a href="#future-directions" id="toc-future-directions" class="nav-link" data-scroll-target="#future-directions"><span class="header-section-number">5.1</span> <strong>Future Directions</strong></a></li>
-  </ul></li>
+  <li><a href="#sec-conclusion" id="toc-sec-conclusion" class="nav-link" data-scroll-target="#sec-conclusion"><span class="header-section-number">5</span> Conclusion</a></li>
   </ul>
 </nav>
 </div>
@@ -4307,7 +4304,7 @@ vertical-align: -.125em;
 </section>
 <section id="data-reduction" class="level3" data-number="3.5">
 <h3 data-number="3.5" class="anchored" data-anchor-id="data-reduction"><span class="header-section-number">3.5</span> Data Reduction</h3>
-<p>Data reduction focused on identifying and removing variables that were redundant or contributed minimal value to the analysis. Techniques such as correlation analysis and variance thresholding were used to prioritize impactful variables.</p>
+<p>A reduced dataset with fewer variables will be created to meet final project deadline. Later iterations will explore the complete dataset.</p>
 </section>
 <section id="exploratory-data-analysis-eda" class="level3" data-number="3.6">
 <h3 data-number="3.6" class="anchored" data-anchor-id="exploratory-data-analysis-eda"><span class="header-section-number">3.6</span> Exploratory Data Analysis (EDA)</h3>
@@ -4318,24 +4315,25 @@ vertical-align: -.125em;
 <p>Data will be transformed to fit the assumptions required for effective model training. This includes normalizing and scaling continuous variables to prevent attributes with larger ranges from dominating the model’s feature importance. Categorical variables will be encoded into numerical values to facilitate their use in machine learning algorithms. Transformations such as logarithmic or square root transformations will be applied to skewed data to approximate normal distributions.</p>
 <section id="normalization-and-scaling" class="level4" data-number="3.7.1">
 <h4 data-number="3.7.1" class="anchored" data-anchor-id="normalization-and-scaling"><span class="header-section-number">3.7.1</span> <strong>Normalization and Scaling</strong></h4>
-<p>Numerical variables were normalized using techniques such as Min-Max scaling or Z-score normalization to ensure equal contribution to models.</p>
+<p>Numerical variables will be normalized using techniques such as Min-Max scaling or Z-score normalization to ensure equal contribution to models.</p>
 </section>
 <section id="encoding" class="level4" data-number="3.7.2">
 <h4 data-number="3.7.2" class="anchored" data-anchor-id="encoding"><span class="header-section-number">3.7.2</span> <strong>Encoding</strong></h4>
-<p>Categorical variables were converted into numerical representations using one-hot encoding or label encoding, depending on their nature.</p>
+<p>Categorical variables will be converted into numerical representations using one-hot encoding or label encoding, depending on their nature.</p>
 </section>
 </section>
 <section id="feature-engineering" class="level3" data-number="3.8">
 <h3 data-number="3.8" class="anchored" data-anchor-id="feature-engineering"><span class="header-section-number">3.8</span> Feature Engineering</h3>
-<p>New features were engineered to capture resource utilization effectively:</p>
+<p>New features will be engineered to capture resource utilization effectively:</p>
 <ul>
 <li><p><strong>Visit Count:</strong> Total number of visits per patient.</p></li>
 <li><p><strong>Visit Span:</strong> Time span between a patient’s first and last recorded visits.</p></li>
 <li><p><strong>Visit Density:</strong> Number of visits divided by the duration of engagement.</p></li>
-<li><p><strong>Diagnosis Load:</strong> Count of unique diagnoses, reflecting patient complexity.</p></li>
-<li><p><strong>Resource Utilization Score (RUS):</strong> A composite metric combining visit frequency, diagnosis complexity, and medication burden to categorize patients into low, medium, or high utilization levels.</p></li>
+<li><p><strong>Diagnostic Complexity:</strong> Count of unique diagnoses over time.</p></li>
+<li><p><strong>Therapeutic Complexity:</strong> Count of unique medications and procedures over time.</p></li>
+<li><p><strong>Resource Utilization Score (RUS):</strong> A composite metric combining visit density, diagnosis complexity, and medication burden to categorize patients into low, medium, or high utilization levels.</p></li>
 </ul>
-<p>These features were designed to improve model performance and enhance the interpretability of results.</p>
+<p>These features will be designed and normalized to improve model performance and enhance the interpretability of results.</p>
 <section id="resource-utilization-score-rus" class="level4" data-number="3.8.1">
 <h4 data-number="3.8.1" class="anchored" data-anchor-id="resource-utilization-score-rus"><span class="header-section-number">3.8.1</span> Resource Utilization Score (RUS)</h4>
 <p>A Resource Utilization Score will be constructed using a composite index that integrates various dimensions of healthcare use, such as visit frequency, diversity of diagnoses, and medication load. This score will categorize patients into different levels of healthcare utilization, aiding in resource planning and management.</p>
@@ -4347,27 +4345,27 @@ vertical-align: -.125em;
 <p>Predictive models will be developed to forecast healthcare resource utilization based on historical patient data. These models will help anticipate patient needs, optimizing resource allocation and scheduling. Both regression and classification models will be explored to predict continuous outcomes, such as the number of future visits, and categorical outcomes, such as high or low resource utilization.</p>
 <section id="baseline-models" class="level4" data-number="3.9.1">
 <h4 data-number="3.9.1" class="anchored" data-anchor-id="baseline-models"><span class="header-section-number">3.9.1</span> Baseline Models</h4>
-<p>Baseline predictors, such as mean and median-based imputation, served as benchmarks for evaluating the performance of advanced algorithms.</p>
+<p>Baseline predictors, such as mean and median-based imputation, will serve as benchmarks for evaluating the performance of advanced algorithms.</p>
 </section>
 <section id="advanced-models" class="level4" data-number="3.9.2">
 <h4 data-number="3.9.2" class="anchored" data-anchor-id="advanced-models"><span class="header-section-number">3.9.2</span> Advanced Models</h4>
-<p>Both regression and classification models were developed to predict resource utilization:</p>
+<p>Both regression and classification models will be developed to predict resource utilization:</p>
 <ol type="1">
 <li><p><strong>Regression Models:</strong></p>
 <ul>
-<li><p><strong>Linear Regression:</strong> Provided baseline performance for predicting visit frequency.</p></li>
-<li><p><strong>Random Forest Regression:</strong> Identified key predictors and achieved higher accuracy.</p></li>
+<li><p><strong>Linear Regression:</strong> To obtain baseline performance for predicting continuous variables, such as visit frequency and duration.</p></li>
+<li><p><strong>Random Forest Regression:</strong> To identify key predictors and achieve higher accuracy.</p></li>
 </ul></li>
 <li><p><strong>Classification Models:</strong></p>
 <ul>
-<li><p><strong>Logistic Regression:</strong> Categorized patients into low, medium, or high utilization groups.</p></li>
-<li><p><strong>Support Vector Machines (SVM):</strong> Improved separation of utilization categories with complex patterns.</p></li>
+<li><p><strong>Logistic Regression:</strong> Will categorize patients into low, medium, or high utilization groups.</p></li>
+<li><p><strong>Support Vector Machines (SVM):</strong> To improve separation of utilization categories with complex patterns.</p></li>
 </ul></li>
 </ol>
 </section>
 <section id="evaluation-metrics" class="level4" data-number="3.9.3">
 <h4 data-number="3.9.3" class="anchored" data-anchor-id="evaluation-metrics"><span class="header-section-number">3.9.3</span> Evaluation Metrics</h4>
-<p>Model performance was assessed using task-specific metrics:</p>
+<p>Model performance will be assessed using task-specific metrics:</p>
 <ul>
 <li><p><strong>Regression:</strong> Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and R-squared.</p></li>
 <li><p><strong>Classification:</strong> Accuracy, Precision, Recall, F1-score, and Area Under the Receiver Operating Characteristic Curve (AUC-ROC).</p></li>
@@ -4375,7 +4373,7 @@ vertical-align: -.125em;
 </section>
 <section id="validation-and-optimization" class="level4" data-number="3.9.4">
 <h4 data-number="3.9.4" class="anchored" data-anchor-id="validation-and-optimization"><span class="header-section-number">3.9.4</span> Validation and Optimization</h4>
-<p>To ensure generalizability, cross-validation techniques (e.g., k-fold cross-validation) were employed. Grid search and random search methods optimized hyperparameters for the best-performing models.</p>
+<p>To ensure generalizability, cross-validation techniques (e.g., k-fold cross-validation) will be employed. Grid search and random search methods will optimize hyperparameters for the best-performing models.</p>
 </section>
 </section>
 </section>
@@ -4383,6 +4381,7 @@ vertical-align: -.125em;
 <h2 data-number="4" class="anchored" data-anchor-id="results"><span class="header-section-number">4</span> Results</h2>
 <p>The results section will include:</p>
 <ol type="1">
+<li><p><strong>Summary Statistics</strong></p></li>
 <li><p><strong>Model Performance</strong>: Summary metrics highlighting predictive accuracy and reliability.</p></li>
 <li><p><strong>Feature Importance</strong>: Insights into the most impactful predictors of resource utilization.</p></li>
 <li><p><strong>Validation</strong>: Evaluation of model performance on unseen data.</p></li>
@@ -4390,15 +4389,6 @@ vertical-align: -.125em;
 </section>
 <section id="sec-conclusion" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="sec-conclusion"><span class="header-section-number">5</span> Conclusion</h2>
-<p>This project demonstrates the potential of data-driven approaches to optimize outpatient psychiatry resource utilization. By combining predictive analytics, feature engineering, and advanced modeling, it is possible to improve scheduling, reduce inefficiencies, and enhance the quality of care.</p>
-<section id="future-directions" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="future-directions"><span class="header-section-number">5.1</span> <strong>Future Directions</strong></h3>
-<ul>
-<li><p>Incorporate external factors (e.g., seasonal trends, staffing levels) to improve predictions.</p></li>
-<li><p>Extend the methodology to other healthcare settings or specialties.</p></li>
-<li><p>Develop real-time integration of models into scheduling systems for actionable insights.</p></li>
-</ul>
-</section>
 </section>
 
 </main>
