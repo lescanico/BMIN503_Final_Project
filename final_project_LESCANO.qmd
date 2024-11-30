@@ -6,7 +6,7 @@ editor: visual
 format:
   html:
     css: "style.css"
-    embed-resources: true
+    embed-resources: false
     self-contained: true
     toc: true
     toc-depth: 5
@@ -656,11 +656,11 @@ plot_missing_values_by_type(data_preprocessed, 50, 100)
 capture_output_to_html(
   "missing_data_preprocessed_plots.html",
   "Missing Data Plots for data_preprocessed",
-  "0-1% Missingness" = "../figures/plots/0-1_missing_data_preprocessed_plot.png",
-  "1-5% Missingness" = "../figures/plots/1-5_missing_data_preprocessed_plot.png",
-  "5-30% Missingness" = "../figures/plots/5-30_missing_data_preprocessed_plot.png",
-  "30-50% Missingness" = "../figures/plots/30-50_missing_data_preprocessed_plot.png",
-  "50-100% Missingness" = "../figures/plots/50-100_missing_data_preprocessed_plot.png"
+  "0-1% Missingness" = "figures/plots/0-1_missing_data_preprocessed_plot.png",
+  "1-5% Missingness" = "figures/plots/1-5_missing_data_preprocessed_plot.png",
+  "5-30% Missingness" = "figures/plots/5-30_missing_data_preprocessed_plot.png",
+  "30-50% Missingness" = "figures/plots/30-50_missing_data_preprocessed_plot.png",
+  "50-100% Missingness" = "figures/plots/50-100_missing_data_preprocessed_plot.png"
 )
 ```
 
@@ -1070,6 +1070,7 @@ The results section will include:
 ```{r capture-to-html, eval=FALSE}
 # Load required libraries
 library(dplyr)
+library(base64enc)
 
 # Define function to capture output to HTML file
 capture_output_to_html <- function(file, title, ...) {
@@ -1088,6 +1089,7 @@ capture_output_to_html <- function(file, title, ...) {
     cat("<html>\n<head>\n", file = con)
     cat(sprintf("<title>%s</title>\n", title), file = con)
     cat("<link rel=\"stylesheet\" href=\"../style.css\">\n", file = con)
+    cat("<style>\n.scrollable-container {overflow-x: auto; max-width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;}\n</style>\n", file = con)
     cat("</head>\n<body>\n", file = con)
     cat(sprintf("<h3>%s</h3>\n", title), file = con)
     
@@ -1097,7 +1099,8 @@ capture_output_to_html <- function(file, title, ...) {
         cat(sprintf("<h4>%s</h4>\n", section_name), file = con)
         
         if (is.data.frame(args[[section_name]])) {
-            # Handle data frames
+            # Handle data frames within scrollable div
+            cat('<div class="scrollable-container">\n', file = con)
             cat("<table border='1' style='border-collapse:collapse; width:100%;'>\n", file = con)
             cat("<tr>", file = con)
             for (col_name in names(args[[section_name]])) {
@@ -1115,10 +1118,23 @@ capture_output_to_html <- function(file, title, ...) {
                 cat("</tr>\n", file = con)
             }
             cat("</table>\n", file = con)
+            cat('</div>\n', file = con)
         } else if (is.character(args[[section_name]]) && all(grepl("\\.(png|jpg|jpeg|svg)$", args[[section_name]], ignore.case = TRUE))) {
-            # Handle image paths
+            # Handle image paths by embedding Base64 images
             for (img_path in args[[section_name]]) {
-                cat(sprintf('<img src="%s" style="max-width:100%% height:auto">\n', img_path), file = con)
+                # Check if the image file exists
+                if (file.exists(img_path)) {
+                    # Encode the image as Base64
+                    encoded_image <- base64encode(file(img_path, "rb"))
+                    # Determine the MIME type of the image
+                    mime_type <- ifelse(grepl("\\.png$", img_path, ignore.case = TRUE), "image/png",
+                                 ifelse(grepl("\\.jpg$|\\.jpeg$", img_path, ignore.case = TRUE), "image/jpeg",
+                                 ifelse(grepl("\\.svg$", img_path, ignore.case = TRUE), "image/svg+xml", "application/octet-stream")))
+                    # Embed the image in the HTML
+                    cat(sprintf('<img src="data:%s;base64,%s" style="max-width:100%%; height:auto;">\n', mime_type, encoded_image), file = con)
+                } else {
+                    cat(sprintf("<p>Image not found: %s</p>\n", img_path), file = con)
+                }
             }
         } else {
             # Handle other objects
