@@ -2,12 +2,20 @@
 title: "A Data-Driven Approach to Predicting and Optimizing Outpatient Psychiatry Resource Utilization"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Nicolas Lescano"
+<<<<<<< HEAD
 editor: visual
 format:
   html:
     css: "style.css"
     embed-resources: true
     self-contained: true
+=======
+format:
+  html:
+    css: "style.css"
+    embed-resources: false
+    self-contained: false
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
     toc: true
     toc-depth: 5
     toc-location: left
@@ -17,6 +25,7 @@ format:
 execute:
   message: false
   warning: false
+editor: visual
 ---
 
 ![](images/banner.jpg){fig-align="left"}
@@ -143,12 +152,17 @@ capture_output_to_html(
 
 > Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
+<<<<<<< HEAD
 ```{r results='asis', echo=FALSE}
 library(htmltools)
+=======
+<iframe src="outputs/data_renaming.html" width="100%" height="500px">
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 
 # Read the HTML file
 html_content <- HTML(readLines("outputs/data_renaming.html"))
 
+<<<<<<< HEAD
 # Wrap the HTML content in a div with the 'scrollable-container' class
 div_container <- div(class = "scrollable-container", html_content)
 
@@ -156,6 +170,8 @@ div_container <- div(class = "scrollable-container", html_content)
 cat(as.character(div_container))
 ```
 
+=======
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 #### Type Standarization
 
 Data types were converted to ensure compatibility with analytical processes. Dates, categorical variables, and numerical data were reformatted for accurate statistical analysis and modeling.
@@ -344,6 +360,7 @@ capture_output_to_html(
 
 > Refer to [Function to Capture Output as HTML](#capture-output-to-html) for function definition ([Appendix] - [Helper Functions]).
 
+<<<<<<< HEAD
 ```{r results='asis', echo=FALSE}
 library(htmltools)
 
@@ -356,6 +373,11 @@ div_container <- div(class = "scrollable-container", html_content)
 # Output the content
 cat(as.character(div_container))
 ```
+=======
+<iframe src="outputs/data_type_conversions.html" width="100%" height="500">
+
+</iframe>
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 
 #### Data Integration
 
@@ -612,6 +634,7 @@ capture_output_to_html(
     ) %>%
     ungroup()
 )
+<<<<<<< HEAD
 ```
 
 > Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
@@ -629,7 +652,17 @@ div_container <- div(class = "scrollable-container", html_content)
 
 # Output the content
 cat(as.character(div_container))
+=======
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 ```
+
+> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
+>
+> Refer to [Appendix] - [Helper Functions] - [Function to Calculate Summary Statistics](#calculate-summary-stats) for function definition.
+
+<iframe src="outputs/data_preprocessed_summary.html" width="100%" height="500">
+
+</iframe>
 
 ### Missing Data Analysis
 
@@ -660,7 +693,11 @@ capture_output_to_html(
   "1-5% Missingness" = "../figures/plots/1-5_missing_data_preprocessed_plot.png",
   "5-30% Missingness" = "../figures/plots/5-30_missing_data_preprocessed_plot.png",
   "30-50% Missingness" = "../figures/plots/30-50_missing_data_preprocessed_plot.png",
+<<<<<<< HEAD
   "50-100% Missingness" = "../figures/plots/50-100_missing_data_preprocessed_plot.png"
+=======
+  ">50% Missingness" = "../figures/plots/50-100_missing_data_preprocessed_plot.png"
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 )
 ```
 
@@ -668,6 +705,7 @@ capture_output_to_html(
 >
 > Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
+<<<<<<< HEAD
 ```{r results='asis', echo=FALSE}
 library(htmltools)
 
@@ -680,6 +718,11 @@ div_container <- div(class = "scrollable-container", html_content)
 # Output the content
 cat(as.character(div_container))
 ```
+=======
+<iframe src="outputs/missing_data_preprocessed_plots.html" width="100%" height="500">
+
+</iframe>
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 
 #### Handling Strategies
 
@@ -920,6 +963,7 @@ capture_output_to_html(
 >
 > Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
+<<<<<<< HEAD
 ```{r results='asis', echo=FALSE}
 library(htmltools)
 
@@ -932,6 +976,11 @@ div_container <- div(class = "scrollable-container", html_content)
 # Output the content
 cat(as.character(div_container))
 ```
+=======
+<iframe src="outputs/data_preprocessed_handling_table.html" width="100%" height="500">
+
+</iframe>
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 
 ### Data Reduction
 
@@ -1085,9 +1134,15 @@ capture_output_to_html <- function(file, title, ...) {
     con <- file(file, "w")
     
     # Write HTML header
+<<<<<<< HEAD
     cat("<html>\n<head>\n", file = con)
     cat(sprintf("<title>%s</title>\n", title), file = con)
     cat("<link rel=\"stylesheet\" href=\"../style.css\">\n", file = con)
+=======
+    cat("<!DOCTYPE html>\n<html>\n<head>\n", file = con)
+    cat(sprintf("<title>%s</title>\n", title), file = con)
+    cat("<link rel='stylesheet' type='text/css' href='../style.css'>\n", file = con)
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
     cat("</head>\n<body>\n", file = con)
     cat(sprintf("<h3>%s</h3>\n", title), file = con)
     
