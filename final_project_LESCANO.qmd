@@ -2,11 +2,20 @@
 title: "A Data-Driven Approach to Predicting and Optimizing Outpatient Psychiatry Resource Utilization"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Nicolas Lescano"
+<<<<<<< HEAD
+editor: visual
+format:
+  html:
+    css: "style.css"
+    embed-resources: true
+    self-contained: true
+=======
 format:
   html:
     css: "style.css"
     embed-resources: false
     self-contained: false
+>>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
     toc: true
     toc-depth: 5
     toc-location: left
