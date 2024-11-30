@@ -6,7 +6,7 @@ editor: visual
 format:
   html:
     css: "style.css"
-    embed-resources: true
+    embed-resources: false
     self-contained: true
     toc: true
     toc-depth: 5
