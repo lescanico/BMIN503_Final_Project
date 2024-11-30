@@ -49,15 +49,12 @@ hr {
   margin: 1.5em 0;
 }
 
-<<<<<<< HEAD
 .table-container {
   max-height: 400px;
   overflow-y: auto;
   border: 1px solid #ddd;
 }
 
-=======
->>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 table {
   width: 100%;
   border-collapse: collapse;
@@ -264,7 +261,6 @@ img {
   gap: 5px;
   justify-content: flex-end;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-<<<<<<< HEAD
 }
 
 .scrollable-container {
@@ -290,6 +286,4 @@ img {
 .scrollable-container th,
 .scrollable-container td {
   word-wrap: break-word;
-=======
->>>>>>> b6380242822408634e1012fccc3b1c374bba46fe
 }
