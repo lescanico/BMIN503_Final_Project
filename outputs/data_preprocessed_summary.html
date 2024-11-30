@@ -1,0 +1,354 @@
+<html>
+<head>
+<title>Preprocessed Data</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<h3>Preprocessed Data</h3>
+<h4>Summary Table</h4>
+<table border='1' style='border-collapse:collapse; width:100%;'>
+<tr><th>Variable</th><th>Type</th><th>Summary</th></tr>
+<tr><td>patient_id</td><td>character</td><td>Unique Values: 24338
+ Most Common: 13420
+ Missing: 0</td></tr>
+<tr><td>age_at_visit_years</td><td>numeric</td><td>Range: 15.0 to 143.0
+ Median: 40.0
+ Mean: 43.0
+ SD: 16.15
+ Skewness: 0.51
+ Kurtosis: 2.35</td></tr>
+<tr><td>year_of_birth</td><td>numeric</td><td>Range: 1879.0 to 2006.0
+ Median: 1979.0
+ Mean: 1975.8
+ SD: 16.39
+ Skewness: -0.47
+ Kurtosis: 2.31</td></tr>
+<tr><td>patient_gender_identity</td><td>factor</td><td>Levels: 8
+ Most Common: Female (194744 occurrences)
+ Missing Levels: 123051</td></tr>
+<tr><td>visit_gender_identity</td><td>factor</td><td>Levels: 8
+ Most Common: Female (194726 occurrences)
+ Missing Levels: 123069</td></tr>
+<tr><td>patient_sex_assigned</td><td>factor</td><td>Levels: 5
+ Most Common: Female (199717 occurrences)
+ Missing Levels: 128777</td></tr>
+<tr><td>visit_sex_assigned</td><td>factor</td><td>Levels: 5
+ Most Common: Female (199699 occurrences)
+ Missing Levels: 128795</td></tr>
+<tr><td>language</td><td>factor</td><td>Levels: 51
+ Most Common: English (426546 occurrences)
+ Missing Levels: 64</td></tr>
+<tr><td>interpreter_needed</td><td>logical</td><td>TRUE: 0.4%
+ FALSE: 99.6%</td></tr>
+<tr><td>legal_sex</td><td>factor</td><td>Levels: 3
+ Most Common: Female (274469 occurrences)
+ Missing Levels: 0</td></tr>
+<tr><td>marital_status</td><td>factor</td><td>Levels: 8
+ Most Common: Single (249268 occurrences)
+ Missing Levels: 4</td></tr>
+<tr><td>country</td><td>factor</td><td>Levels: 10
+ Most Common: United States (429928 occurrences)
+ Missing Levels: 1</td></tr>
+<tr><td>patient_county</td><td>factor</td><td>Levels: 467
+ Most Common: PHILADELPHIA, PA (254840 occurrences)
+ Missing Levels: 12347</td></tr>
+<tr><td>visit_county</td><td>factor</td><td>Levels: 467
+ Most Common: PHILADELPHIA, PA (254842 occurrences)
+ Missing Levels: 12347</td></tr>
+<tr><td>state</td><td>factor</td><td>Levels: 50
+ Most Common: Pennsylvania (363633 occurrences)
+ Missing Levels: 83</td></tr>
+<tr><td>patient_postal_code</td><td>factor</td><td>Levels: 341
+ Most Common: 191 (257881 occurrences)
+ Missing Levels: 296</td></tr>
+<tr><td>visit_postal_code</td><td>factor</td><td>Levels: 341
+ Most Common: 191 (257895 occurrences)
+ Missing Levels: 296</td></tr>
+<tr><td>university_of_pennsylvania_student</td><td>logical</td><td>TRUE: 100.0%
+ FALSE: 0.0%</td></tr>
+<tr><td>visit_date</td><td>numeric</td><td>Range: 16344.0 to 19996.0
+ Median: 18177.0
+ Mean: 18186.9
+ SD: 1034.26
+ Skewness: 0.01
+ Kurtosis: 1.86</td></tr>
+<tr><td>visit_type</td><td>factor</td><td>Levels: 15
+ Most Common: RETURN PATIENT VISIT (249473 occurrences)
+ Missing Levels: 2444</td></tr>
+<tr><td>appointment_creation_date</td><td>numeric</td><td>Range: 15986.0 to 20005.0
+ Median: 18143.0
+ Mean: 18154.6
+ SD: 1035.25
+ Skewness: 0.01
+ Kurtosis: 1.86</td></tr>
+<tr><td>appointment_time</td><td>hms, difftime</td><td>Range: 0 secs to 84600 secs
+ Missing: 2444</td></tr>
+<tr><td>appointment_length_minutes</td><td>numeric</td><td>Range: 10.0 to 660.0
+ Median: 60.0
+ Mean: 48.5
+ SD: 19.89
+ Skewness: 1.09
+ Kurtosis: 8.89</td></tr>
+<tr><td>lead_time_days</td><td>numeric</td><td>Range: -1073.0 to 459.0
+ Median: 21.0
+ Mean: 29.7
+ SD: 30.93
+ Skewness: 1.68
+ Kurtosis: 17.47</td></tr>
+<tr><td>continuity_of_care</td><td>numeric</td><td>Range: 0.0 to 1.0
+ Median: 0.0
+ Mean: 0.1
+ SD: 0.25
+ Skewness: 3.44
+ Kurtosis: 12.87</td></tr>
+<tr><td>portal_active_at_scheduling</td><td>logical</td><td>TRUE: 69.5%
+ FALSE: 30.5%</td></tr>
+<tr><td>new_to_department_specialty</td><td>logical</td><td>TRUE: 5.5%
+ FALSE: 94.5%</td></tr>
+<tr><td>new_to_facility</td><td>logical</td><td>TRUE: 1.8%
+ FALSE: 98.2%</td></tr>
+<tr><td>new_to_provider</td><td>logical</td><td>TRUE: 15.2%
+ FALSE: 84.8%</td></tr>
+<tr><td>encounter_type</td><td>factor</td><td>Levels: 21
+ Most Common: Psych Office Visit (173932 occurrences)
+ Missing Levels: 0</td></tr>
+<tr><td>scheduling_source</td><td>factor</td><td>Levels: 4
+ Most Common: Cadence (427400 occurrences)
+ Missing Levels: 2444</td></tr>
+<tr><td>patient_bmi</td><td>numeric</td><td>Range: 2.4 to 3994.8
+ Median: 27.8
+ Mean: 29.3
+ SD: 19.93
+ Skewness: 144.01
+ Kurtosis: 26247.93</td></tr>
+<tr><td>visit_bmi</td><td>numeric</td><td>Range: 1.7 to 237.2
+ Median: 27.6
+ Mean: 28.8
+ SD: 6.96
+ Skewness: 1.50
+ Kurtosis: 18.78</td></tr>
+<tr><td>patient_bp_diastolic</td><td>numeric</td><td>Range: 0.0 to 137.0
+ Median: 78.0
+ Mean: 77.4
+ SD: 10.89
+ Skewness: 0.10
+ Kurtosis: 5.61</td></tr>
+<tr><td>visit_bp_diastolic</td><td>numeric</td><td>Range: 0.0 to 146.0
+ Median: 80.0
+ Mean: 78.5
+ SD: 9.93
+ Skewness: 0.19
+ Kurtosis: 3.55</td></tr>
+<tr><td>patient_bp_systolic</td><td>numeric</td><td>Range: 0.0 to 210.0
+ Median: 123.0
+ Mean: 124.7
+ SD: 16.90
+ Skewness: 0.40
+ Kurtosis: 4.58</td></tr>
+<tr><td>visit_bp_systolic</td><td>numeric</td><td>Range: 69.0 to 233.0
+ Median: 130.0
+ Mean: 130.1
+ SD: 14.93
+ Skewness: 0.38
+ Kurtosis: 4.08</td></tr>
+<tr><td>chief_complaint</td><td>list</td><td>Range Lengths: 1 to 2211
+ Median Length: 101.0
+ Mean Length: 155.1</td></tr>
+<tr><td>primary_diagnosis</td><td>factor</td><td>Levels: 2468
+ Most Common: GAD (generalized anxiety disorder) (15792 occurrences)
+ Missing Levels: 147841</td></tr>
+<tr><td>patient_diagnosis</td><td>list</td><td>Range Lengths: 1 to 1961
+ Median Length: 677.0
+ Mean Length: 712.3</td></tr>
+<tr><td>visit_diagnosis</td><td>list</td><td>Range Lengths: 1 to 64
+ Median Length: 3.0
+ Mean Length: 4.5</td></tr>
+<tr><td>procedures</td><td>list</td><td>Range Lengths: 1 to 3471
+ Median Length: 108.0
+ Mean Length: 239.0</td></tr>
+<tr><td>patient_procedures_ordered</td><td>list</td><td>Range Lengths: 1 to 2840
+ Median Length: 126.0
+ Mean Length: 257.0</td></tr>
+<tr><td>visit_procedures_ordered</td><td>list</td><td>Range Lengths: 1 to 33
+ Median Length: 1.0
+ Mean Length: 1.1</td></tr>
+<tr><td>medications</td><td>list</td><td>Range Lengths: 1 to 1293
+ Median Length: 130.0
+ Mean Length: 230.2</td></tr>
+<tr><td>outpatient_medications</td><td>list</td><td>Range Lengths: 1 to 1054
+ Median Length: 96.0
+ Mean Length: 136.4</td></tr>
+<tr><td>patient_medications_ordered</td><td>list</td><td>Range Lengths: 1 to 1071
+ Median Length: 114.0
+ Mean Length: 188.4</td></tr>
+<tr><td>visit_medications_ordered</td><td>list</td><td>Range Lengths: 1 to 24
+ Median Length: 1.0
+ Mean Length: 1.4</td></tr>
+<tr><td>hospital_or_clinic_administered_medications</td><td>list</td><td>Range Lengths: 1 to 1282
+ Median Length: 14.0
+ Mean Length: 112.2</td></tr>
+<tr><td>visit_service_level</td><td>factor</td><td>Levels: 47
+ Most Common: 90837 (102321 occurrences)
+ Missing Levels: 146192</td></tr>
+<tr><td>patient_service_level</td><td>factor</td><td>Levels: 20392
+ Most Common: 90792 (1274 occurrences)
+ Missing Levels: 1334</td></tr>
+<tr><td>allergies_and_contraindications</td><td>list</td><td>Range Lengths: 1 to 48
+ Median Length: 1.0
+ Mean Length: 2.3</td></tr>
+<tr><td>medical_history</td><td>list</td><td>Range Lengths: 1 to 170
+ Median Length: 6.0
+ Mean Length: 8.3</td></tr>
+<tr><td>general_risk_score</td><td>numeric</td><td>Range: 0.0 to 12.0
+ Median: 2.0
+ Mean: 2.6
+ SD: 2.22
+ Skewness: 1.08
+ Kurtosis: 3.85</td></tr>
+<tr><td>phq_2_total_score</td><td>list</td><td>Range Lengths: 1 to 80
+ Median Length: 2.0
+ Mean Length: 5.5</td></tr>
+<tr><td>phq_9</td><td>list</td><td>Range Lengths: 1 to 35
+ Median Length: 1.0
+ Mean Length: 1.4</td></tr>
+<tr><td>sdoh_domains</td><td>list</td><td>Range Lengths: 1 to 390
+ Median Length: 26.0
+ Mean Length: 37.2</td></tr>
+<tr><td>sdoh_risk_level</td><td>factor</td><td>Levels: 10300
+ Most Common: Unknown
+Unknown (7969 occurrences)
+ Missing Levels: 12268</td></tr>
+<tr><td>adi_national_percentile</td><td>numeric</td><td>Range: 1.0 to 100.0
+ Median: 39.0
+ Mean: 44.7
+ SD: 28.68
+ Skewness: 0.41
+ Kurtosis: 1.92</td></tr>
+<tr><td>adi_state_decile</td><td>numeric</td><td>Range: 1.0 to 10.0
+ Median: 4.0
+ Mean: 4.5
+ SD: 3.20
+ Skewness: 0.45
+ Kurtosis: 1.72</td></tr>
+<tr><td>rural_urban_commuting_area_primary</td><td>factor</td><td>Levels: 10
+ Most Common: 1 Metropolitan area core (422080 occurrences)
+ Missing Levels: 321</td></tr>
+<tr><td>rural_urban_commuting_area_secondary</td><td>factor</td><td>Levels: 15
+ Most Common: 1 Metropolitan area core (421675 occurrences)
+ Missing Levels: 321</td></tr>
+<tr><td>svi_2020_socioeconomic_percentile_census_tract</td><td>numeric</td><td>Range: 0.1 to 99.9
+ Median: 51.8
+ Mean: 48.9
+ SD: 30.94
+ Skewness: -0.02
+ Kurtosis: 1.59</td></tr>
+<tr><td>patient_race</td><td>factor</td><td>Levels: 49
+ Most Common: White (252858 occurrences)
+ Missing Levels: 8671</td></tr>
+<tr><td>visit_race</td><td>factor</td><td>Levels: 49
+ Most Common: White (252858 occurrences)
+ Missing Levels: 8671</td></tr>
+<tr><td>patient_religion</td><td>factor</td><td>Levels: 34
+ Most Common: No Affiliation Given (123924 occurrences)
+ Missing Levels: 82</td></tr>
+<tr><td>visit_religion</td><td>factor</td><td>Levels: 34
+ Most Common: No Affiliation Given (123908 occurrences)
+ Missing Levels: 82</td></tr>
+<tr><td>patient_ethnic_group</td><td>factor</td><td>Levels: 6
+ Most Common: Not Hispanic or Latino (399238 occurrences)
+ Missing Levels: 4062</td></tr>
+<tr><td>patient_sexual_orientation</td><td>factor</td><td>Levels: 7
+ Most Common: Straight (208937 occurrences)
+ Missing Levels: 159968</td></tr>
+<tr><td>visit_sexual_orientation</td><td>factor</td><td>Levels: 7
+ Most Common: Straight (208879 occurrences)
+ Missing Levels: 160030</td></tr>
+<tr><td>copay_collected</td><td>numeric</td><td>Range: -275.0 to 1500.0
+ Median: 0.0
+ Mean: 5.9
+ SD: 27.49
+ Skewness: 19.95
+ Kurtosis: 827.07</td></tr>
+<tr><td>copay_due</td><td>numeric</td><td>Range: 0.0 to 1500.0
+ Median: 0.0
+ Mean: 9.7
+ SD: 29.88
+ Skewness: 16.51
+ Kurtosis: 627.51</td></tr>
+<tr><td>prepayment_collected</td><td>numeric</td><td>Range: -460.0 to 3000.0
+ Median: 35.0
+ Mean: 88.4
+ SD: 100.89
+ Skewness: 4.35
+ Kurtosis: 60.15</td></tr>
+<tr><td>prepayment_due</td><td>numeric</td><td>Range: 0.0 to 1400.0
+ Median: 27.5
+ Mean: 73.1
+ SD: 93.82
+ Skewness: 2.04
+ Kurtosis: 8.43</td></tr>
+<tr><td>self_pay</td><td>logical</td><td>TRUE: 6.3%
+ FALSE: 93.7%</td></tr>
+<tr><td>primary_payer</td><td>factor</td><td>Levels: 94
+ Most Common: MEDICARE (88899 occurrences)
+ Missing Levels: 0</td></tr>
+<tr><td>primary_payer_financial_class</td><td>factor</td><td>Levels: 9
+ Most Common: Managed Care (123831 occurrences)
+ Missing Levels: 0</td></tr>
+<tr><td>primary_subscriber_group_number</td><td>factor</td><td>Levels: 6710
+ Most Common: 000000 (39691 occurrences)
+ Missing Levels: 207476</td></tr>
+<tr><td>primary_benefit_plan</td><td>factor</td><td>Levels: 239
+ Most Common: MEDICARE PART A & B (88137 occurrences)
+ Missing Levels: 0</td></tr>
+<tr><td>primary_provider_type</td><td>factor</td><td>Levels: 17
+ Most Common: Physician (182792 occurrences)
+ Missing Levels: 147</td></tr>
+<tr><td>primary_provider_title</td><td>factor</td><td>Levels: 16
+ Most Common: MD (241506 occurrences)
+ Missing Levels: 30236</td></tr>
+<tr><td>encounter_to_close_day</td><td>numeric</td><td>Range: -42.0 to 3069.0
+ Median: 1.0
+ Mean: 5.0
+ SD: 13.94
+ Skewness: 70.16
+ Kurtosis: 11714.35</td></tr>
+<tr><td>time_physician_spent_pre_charting_minutes</td><td>numeric</td><td>Range: 0.0 to 9452.6
+ Median: 0.0
+ Mean: 2.5
+ SD: 22.59
+ Skewness: 249.95
+ Kurtosis: 92561.36</td></tr>
+<tr><td>time_physician_spent_post_charting_minutes</td><td>numeric</td><td>Range: 0.0 to 100707.7
+ Median: 0.0
+ Mean: 1.9
+ SD: 251.80
+ Skewness: 255.13
+ Kurtosis: 81251.61</td></tr>
+<tr><td>time_waiting_for_physician_minutes</td><td>numeric</td><td>Range: 0.0 to 44086.0
+ Median: 0.0
+ Mean: 5.9
+ SD: 351.90
+ Skewness: 89.46
+ Kurtosis: 9193.43</td></tr>
+<tr><td>time_with_physician_minutes</td><td>numeric</td><td>Range: 0.0 to 203620.2
+ Median: 0.0
+ Mean: 1389.8
+ SD: 5489.39
+ Skewness: 7.63
+ Kurtosis: 129.72</td></tr>
+<tr><td>mychart_status</td><td>factor</td><td>Levels: 6
+ Most Common: Activated (372988 occurrences)
+ Missing Levels: 422</td></tr>
+<tr><td>no_show_probability</td><td>numeric</td><td>Range: 0.0 to 98.0
+ Median: 13.6
+ Mean: 19.9
+ SD: 17.17
+ Skewness: 1.72
+ Kurtosis: 6.00</td></tr>
+<tr><td>appointment_status</td><td>factor</td><td>Levels: 6
+ Most Common: Completed (287669 occurrences)
+ Missing Levels: 2444</td></tr>
+</table>
+</body>
+</html>

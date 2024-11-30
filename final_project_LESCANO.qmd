@@ -2,18 +2,18 @@
 title: "A Data-Driven Approach to Predicting and Optimizing Outpatient Psychiatry Resource Utilization"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Nicolas Lescano"
-output: html_document
+editor: visual
 format:
   html:
     css: "style.css"
+    embed-resources: true
+    self-contained: true
     toc: true
-    toc-depth: 4
+    toc-depth: 5
     toc-location: left
-    toc_float:
-      smooth_scroll: true
-editor: visual
-number-sections: true
-embed-resources: true
+    code-fold: true
+    code-fold-default: true
+    code-tools: true
 execute:
   message: false
   warning: false
@@ -39,7 +39,7 @@ This project addresses these challenges by applying a data-driven approach to pr
 
 ### **Data Sourcing**
 
-Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics. The raw files, originally in `.xlsx` format, were converted to `.csv` for analysis and securely stored as `patient_data.csv` and `visit_data.csv`.
+Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics platform. The raw files, originally in `.xlsx` format, were converted to `.csv` and securely stored as `patient_data.csv` and `visit_data.csv`.
 
 ### Data Anonymization
 
@@ -84,17 +84,20 @@ saveRDS(visit_data_anonymized, "datasets/visit_data_anonymized.rds")
 
 ### Data Preprocessing
 
-#### Standardization and Deduplication:
+#### Name Standarization
 
 Variable names were standardized (e.g., lowercase with underscores) for consistency. Duplicates arising from merged datasets were consolidated, with non-identical columns renamed using descriptive suffixes.
 
 ```{r renaming, eval=FALSE}
-# Load required library
+# Load required libraries
+library(readr)
+library(dplyr)
+library(lubridate)
 library(stringr)
 
-# Inspect column names
-colnames(patient_data_anonymized)
-colnames(visit_data_anonymized)
+# Load anonymized data
+patient_data_anonymized <- readRDS("datasets/patient_data_anonymized.rds")
+visit_data_anonymized <- readRDS("datasets/visit_data_anonymized.rds")
 
 # Define function to standardize column names
 standardize_column_names <- function(dataset) {
@@ -127,27 +130,33 @@ common_cols <- setdiff(common_cols, "patient_id")
 colnames(patient_data_renamed)[colnames(patient_data_renamed) %in% common_cols] <- paste0(common_cols, "_from_patient_dataset")
 colnames(visit_data_renamed)[colnames(visit_data_renamed) %in% common_cols] <- paste0(common_cols, "_from_visit_dataset")
 
-# Visualize final column names
-cat("Columns in patient_data_renamed:\n")
-print(colnames(patient_data_renamed))
-
-cat("\nColumns in visit_data_renamed:\n")
-print(colnames(visit_data_renamed))
+# Capture original and standarized names
+capture_output_to_html(
+  "data_renaming.html",
+  "Data Renaming",
+  "Patient Data Original Names" = colnames(patient_data_anonymized),
+  "Patient Data Standarized Names" = colnames(patient_data_renamed),
+  "Visit Data Original Names" = colnames(patient_data_renamed),
+  "Visit Data Standarized Names" = colnames(patient_data_renamed)
+  )
 ```
 
-###### Patient Dataset Column Handling Table
+> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
-<iframe src="figures/patient_column_handling.html">
+```{r results='asis', echo=FALSE}
+library(htmltools)
 
-</iframe>
+# Read the HTML file
+html_content <- HTML(readLines("outputs/data_renaming.html"))
 
-###### Visit Dataset Column Handling Table
+# Wrap the HTML content in a div with the 'scrollable-container' class
+div_container <- div(class = "scrollable-container", html_content)
 
-<iframe src="figures/visit_column_handling.html">
+# Output the content
+cat(as.character(div_container))
+```
 
-</iframe>
-
-##### Handling Variable Types
+#### Type Standarization
 
 Data types were converted to ensure compatibility with analytical processes. Dates, categorical variables, and numerical data were reformatted for accurate statistical analysis and modeling.
 
@@ -155,10 +164,12 @@ Data types were converted to ensure compatibility with analytical processes. Dat
 # Load required libraries
 library(tidyr)
 library(purrr)
-
+library(lubridate)
+  
 # Helper functions for data type conversion
 convert_to_date <- function(col) {
-  as.Date(parse_date_time(col, orders = c("dmy", "mdy", "ymd"), quiet = TRUE))
+  parsed_dates <- parse_date_time(col, orders = c("ymd", "dmy", "mdy"), quiet = TRUE)
+  ifelse(is.na(parsed_dates), NA, as.Date(parsed_dates))
 }
 
 convert_to_posix <- function(col) {
@@ -183,51 +194,25 @@ safe_numeric <- function(col) {
 
 # Function to convert data types and summarize changes
 convert_data_types <- function(dataset, conversions, dataset_name) {
-  initial_types <- map_chr(dataset, ~ paste(class(.x), collapse = ", "))  # Track initial data types
+  initial_types <- map_chr(dataset, ~ paste(class(.x), collapse = ", "))
   
-  # Apply type conversions
   dataset <- dataset %>%
     mutate(
       across(any_of(conversions$Date), convert_to_date),
       across(any_of(conversions$POSIX), convert_to_posix),
       across(any_of(conversions$Factor), as.factor),
-      across(any_of(conversions$Numeric), safe_numeric),  # Handle conversion warnings
+      across(any_of(conversions$Numeric), safe_numeric),
       across(any_of(conversions$Logical), as.logical),
       across(any_of(conversions$List), convert_to_list)
     )
   
-  # Capture and display changes from initial to final types
   final_types <- map_chr(dataset, ~ paste(class(.x), collapse = ", "))
-  changes <- tibble(Column = names(dataset), Initial_Type = initial_types, Final_Type = final_types)
+  changes <- tibble(Column = names(dataset), 'Initial Type' = initial_types, 'Final Type' = final_types)
   
-  # Identify columns with no changes
-  converted <- changes %>% filter(Initial_Type != Final_Type)
-  unchanged <- changes %>% filter(Initial_Type == Final_Type)
-  unprocessed <- tibble(Column = setdiff(names(dataset), names(initial_types)), Initial_Type = "Unknown", Final_Type = "Unprocessed")
-  
-  cat("\nData Type Conversion Summary for ", dataset_name, ":\n", sep = "")
-  
-  # Converted columns
-  if (nrow(converted) > 0) {
-    cat("\nConverted Columns:\n")
-    print(converted, n = Inf)
-  } else {
-    cat("\nNo columns were converted.\n")
-  }
-  
-  # Unchanged columns
-  if (nrow(unchanged) > 0) {
-    cat("\nUnchanged Columns:\n")
-    print(unchanged, n = Inf)
-  }
-  
-  # Unprocessed columns
-  if (nrow(unprocessed) > 0) {
-    cat("\nUnprocessed Columns:\n")
-    print(unprocessed, n = Inf)
-  }
-  
-  return(dataset)
+  list(
+    dataset = dataset,
+    conversion_summary = changes
+  )
 }
 
 # Define type conversions for the patient dataset
@@ -297,7 +282,7 @@ visit_conversions <- list(
   )
 )
 
-# Apply conversions to both datasets
+# Apply conversions to patient and visit datasets
 patient_data_converted <- convert_data_types(patient_data_renamed, patient_conversions, "Patient Data")
 visit_data_converted <- convert_data_types(visit_data_renamed, visit_conversions, "Visit Data")
 
@@ -311,38 +296,79 @@ variable_type_lookup <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Remove duplicates by keeping the first occurrence of each variable
+# Apply conversions
+patient_conversion_results <- convert_data_types(patient_data_renamed, patient_conversions, "Patient Data")
+patient_data_converted <- patient_conversion_results$dataset
+visit_conversion_results <- convert_data_types(visit_data_renamed, visit_conversions, "Visit Data")
+patient_data_converted <- patient_conversion_results$dataset
+visit_data_converted <- visit_conversion_results$dataset
+
+# Create a lookup dataframe for variable types
+variable_type_lookup <- data.frame(
+  Variable = c(names(patient_data_converted), names(visit_data_converted)),
+  Type = c(
+    map_chr(patient_data_converted, ~ paste(class(.), collapse = ", ")),
+    map_chr(visit_data_converted, ~ paste(class(.), collapse = ", "))
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Remove duplicates
 variable_type_lookup <- variable_type_lookup[!duplicated(variable_type_lookup$Variable), ]
 
-# Save the combined lookup dataframe as an .rds file
+# Save lookup dataframe
 saveRDS(variable_type_lookup, file = "datasets/variable_type_lookup.rds")
 
-# Print confirmation and preview the dataframe
-cat("Variable type lookup dataframe saved as 'variable_type_lookup.rds'.\n")
-print(head(variable_type_lookup))
+# Generate summaries
+patient_conversion_summary <- patient_conversion_results$conversion_summary
+visit_conversion_summary <- visit_conversion_results$conversion_summary
+
+variable_type_lookup <- data.frame(
+  Variable = c(names(patient_data_converted), names(visit_data_converted)),
+  Type = c(
+    map_chr(patient_data_converted, ~ paste(class(.), collapse = ", ")),
+    map_chr(visit_data_converted, ~ paste(class(.), collapse = ", "))
+  ),
+  stringsAsFactors = FALSE
+)
+variable_type_lookup <- variable_type_lookup[!duplicated(variable_type_lookup$Variable), ]
+
+# Capture conversion summaries to HTML
+capture_output_to_html(
+  "data_type_conversions.html",
+  "Data Type Conversion Summary",
+  "Patient Data" = patient_conversion_summary,
+  "Visit Data" = visit_conversion_summary
+)
 ```
 
-###### Patient Dataset Type Conversion Table
+> Refer to [Function to Capture Output as HTML](#capture-output-to-html) for function definition ([Appendix] - [Helper Functions]).
 
-<iframe src="figures/patient_type_conversions.html">
+```{r results='asis', echo=FALSE}
+library(htmltools)
 
-</iframe>
+# Read the HTML file
+html_content <- HTML(readLines("outputs/data_type_conversions.html"))
 
-###### Visit Dataset Type Conversion Table
+# Wrap the HTML content in a div with the 'scrollable-container' class
+div_container <- div(class = "scrollable-container", html_content)
 
-<iframe src="figures/visit_type_conversions.html">
-
-</iframe>
+# Output the content
+cat(as.character(div_container))
+```
 
 #### Data Integration
 
 The process involved merging patient and visit data based on unique identifiers, ensuring all related records were combined accurately.
 
-##### Merging Datasets
+##### Merging
 
 Patient and visit data were merged using unique patient IDs. This process combined all related records into a unified dataset for comprehensive analysis. Any conflicts between overlapping columns were resolved by renaming non-identical columns with descriptive suffixes.
 
 ```{r merging, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
 # Verify unique patient_id values are shared
 unique_patient_ids_patient_data <- unique(patient_data_converted$patient_id)
 unique_patient_ids_visit_data <- unique(visit_data_converted$patient_id)
@@ -351,19 +377,13 @@ all_shared <- all(unique_patient_ids_patient_data %in% unique_patient_ids_visit_
               all(unique_patient_ids_visit_data %in% unique_patient_ids_patient_data)
 
 if (all_shared) {
-  print("All unique patient_id values are shared between the two datasets.")
+  # Perform the merge
+  merged_data <- visit_data_converted %>%
+  left_join(patient_data_converted, by = "patient_id")
+  print("Merging complete.")
 } else {
   print("There are patient_id values that are not shared between the two datasets.")
 }
-
-# Perform the merge
-merged_data <- visit_data_converted %>%
-  left_join(patient_data_converted, by = "patient_id")
-
-# Check consistency in dimensions
-dim(patient_data_converted)
-dim(visit_data_converted)
-dim(merged_data)
 ```
 
 ##### Deduplication
@@ -371,6 +391,9 @@ dim(merged_data)
 Duplicate columns were identified and processed. Identical values were consolidated, while non-identical columns were renamed appropriately to retain critical information.
 
 ```{r deduplication, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
 # Function to compare duplicate columns, check if they are identical, and remove duplicates
 process_duplicate_columns <- function(data, suffix_1 = "_from_patient_dataset", suffix_2 = "_from_visit_dataset") {
   # Extract column names ending with the specified suffixes
@@ -440,13 +463,6 @@ deduplicated_data <- processed_results$deduplicated_data
 duplicate_column_check <- processed_results$duplicate_check_results
 non_identical_columns <- processed_results$non_identical_columns
 
-# Display results
-print(duplicate_column_check)
-print("Identical Columns:")
-nrow(duplicate_column_check[duplicate_column_check$Identical == TRUE, ])
-print("Non-Identical Columns:")
-nrow(duplicate_column_check[duplicate_column_check$Identical == FALSE, ])
-
 # Function to rename non-identical duplicate columns
 rename_non_identical_columns <- function(data) {
   # Define mappings for non-identical columns
@@ -490,59 +506,59 @@ rename_non_identical_columns <- function(data) {
 
 # Apply the function to the deduplicated dataset
 deduplicated_data_renamed <- rename_non_identical_columns(deduplicated_data)
-
-# Verify renamed columns
-print(names(deduplicated_data_renamed))
 ```
 
 ##### Reordering & Sorting
 
 The merged dataset was reordered and sorted to prioritize relevant information. Columns were organized by their importance and relevance to the analysis objectives, and data was sorted primarily by patient ID and secondary by visit date. This organization facilitated easier access and manipulation of data for subsequent analyses.
 
-```{r reordering-sorting, eval=FALSE}
+```{r sorting, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
 # Reorder columns into logical groups
 deduplicated_data_reordered <- deduplicated_data_renamed %>%
   select(
-    # Identifiers
-    patient_id,
-    
-    # Demographics
-    age_at_visit_years, year_of_birth, patient_gender_identity, visit_gender_identity, patient_sex_assigned, visit_sex_assigned, language, interpreter_needed, legal_sex, marital_status, country, patient_county, visit_county, state, patient_postal_code, visit_postal_code,university_of_pennsylvania_student,
-    
-    # Visit Information
-    visit_date, visit_type, appointment_creation_date, appointment_time, appointment_length_minutes, lead_time_days, continuity_of_care, portal_active_at_scheduling, new_to_department_specialty, new_to_facility, new_to_provider, encounter_type, scheduling_source,
-    
-    # Health Metrics
-    patient_bmi, visit_bmi, patient_bp_diastolic, visit_bp_diastolic, patient_bp_systolic, visit_bp_systolic,
-    
-    # Symptoms, Diagnoses, and Procedures
-    chief_complaint, primary_diagnosis, patient_diagnosis, visit_diagnosis, procedures, patient_procedures_ordered, visit_procedures_ordered,
-    
-    # Medications
-    medications, outpatient_medications, patient_medications_ordered, visit_medications_ordered, hospital_or_clinic_administered_medications,
-    
-    # Service Level Information
-    visit_service_level, patient_service_level,
-    
-    # Medical and Clinical History
-    allergies_and_contraindications, medical_history,
-    
-    # Risk and Assessments
-    general_risk_score, phq_2_total_score, phq_9, sdoh_domains, sdoh_risk_level,
-    
-    # Sociodemographic Context
-    adi_national_percentile, adi_state_decile, rural_urban_commuting_area_primary, rural_urban_commuting_area_secondary, svi_2020_socioeconomic_percentile_census_tract,
-    
-    # Race, Ethnicity, Religion, and Sexual Orientation
-    patient_race, visit_race, patient_religion, visit_religion, patient_ethnic_group, patient_sexual_orientation, visit_sexual_orientation,
-    
-    # Financial Information
-    copay_collected, copay_due, prepayment_collected, prepayment_due, self_pay, primary_payer, primary_payer_financial_class, primary_subscriber_group_number, primary_benefit_plan,
-    
-    # Provider Information
-    primary_provider_type, primary_provider_title,
-    
-    # Operational Metrics
+      # Identifiers
+      patient_id,
+      
+      # Demographics
+      age_at_visit_years, year_of_birth, patient_gender_identity, visit_gender_identity, patient_sex_assigned, visit_sex_assigned, language, interpreter_needed, legal_sex, marital_status, country, patient_county, visit_county, state, patient_postal_code, visit_postal_code,university_of_pennsylvania_student,
+      
+      # Visit Information
+      visit_date, visit_type, appointment_creation_date, appointment_time, appointment_length_minutes, lead_time_days, continuity_of_care, portal_active_at_scheduling, new_to_department_specialty, new_to_facility, new_to_provider, encounter_type, scheduling_source,
+      
+      # Health Metrics
+      patient_bmi, visit_bmi, patient_bp_diastolic, visit_bp_diastolic, patient_bp_systolic, visit_bp_systolic,
+      
+      # Symptoms, Diagnoses, and Procedures
+      chief_complaint, primary_diagnosis, patient_diagnosis, visit_diagnosis, procedures, patient_procedures_ordered, visit_procedures_ordered,
+      
+      # Medications
+      medications, outpatient_medications, patient_medications_ordered, visit_medications_ordered, hospital_or_clinic_administered_medications,
+      
+      # Service Level Information
+      visit_service_level, patient_service_level,
+      
+      # Medical and Clinical History
+      allergies_and_contraindications, medical_history,
+      
+      # Risk and Assessments
+      general_risk_score, phq_2_total_score, phq_9, sdoh_domains, sdoh_risk_level,
+      
+      # Sociodemographic Context
+      adi_national_percentile, adi_state_decile, rural_urban_commuting_area_primary, rural_urban_commuting_area_secondary, svi_2020_socioeconomic_percentile_census_tract,
+      
+      # Race, Ethnicity, Religion, and Sexual Orientation
+      patient_race, visit_race, patient_religion, visit_religion, patient_ethnic_group, patient_sexual_orientation, visit_sexual_orientation,
+      
+      # Financial Information
+      copay_collected, copay_due, prepayment_collected, prepayment_due, self_pay, primary_payer, primary_payer_financial_class, primary_subscriber_group_number, primary_benefit_plan,
+      
+      # Provider Information
+      primary_provider_type, primary_provider_title,
+      
+      # Operational Metrics
     encounter_to_close_day, time_physician_spent_pre_charting_minutes, time_physician_spent_post_charting_minutes, time_waiting_for_physician_minutes, time_with_physician_minutes,
     
     # MyChart and Scheduling Metrics
@@ -558,9 +574,6 @@ print(names(deduplicated_data_reordered))
 # Sort rows by patient_id and then by visit_date
 data_preprocessed <- deduplicated_data_reordered %>%
   arrange(patient_id, visit_date)
-
-# Verify resulting dataset
-head(data_preprocessed)
 
 # Identify variables in data_preprocessed that are not in the lookup table
 new_variables <- setdiff(colnames(data_preprocessed), variable_type_lookup$Variable)
@@ -578,17 +591,44 @@ if (length(new_variables) > 0) {
   
   # Append the new variables with their types to the lookup table
   variable_type_lookup <- rbind(variable_type_lookup, new_rows)
-  
-  message(length(new_variables), " new variables with types added to variable_type_lookup.")
-} else {
-  message("No new variables to add.")
-}
 
 # Save the updated lookup table
 saveRDS(variable_type_lookup, "datasets/variable_type_lookup.rds")
+}
 
-# Verify the update
-print("Updated variable_type_lookup saved to 'datasets/variable_type_lookup.rds'")
+# Capture Summary of Preprocessed Data
+capture_output_to_html(
+  "data_preprocessed_summary.html",
+  "Preprocessed Data",
+  "Summary Table" = variable_type_lookup %>%
+    filter(Variable %in% colnames(data_preprocessed)) %>%
+    arrange(match(Variable, colnames(data_preprocessed))) %>%
+    rowwise() %>%
+    mutate(
+      Summary = calculate_summary_stats(
+        variable_data = data_preprocessed[[Variable]],
+        type = Type
+      )$description
+    ) %>%
+    ungroup()
+)
+```
+
+> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
+>
+> Refer to [Appendix] - [Helper Functions] - [Function to Calculate Summary Statistics](#calculate-summary-stats) for function definition.
+
+```{r results='asis', echo=FALSE}
+library(htmltools)
+
+# Read the HTML file
+html_content <- HTML(readLines("outputs/data_preprocessed_summary.html"))
+
+# Wrap the HTML content in a div with the 'scrollable-container' class
+div_container <- div(class = "scrollable-container", html_content)
+
+# Output the content
+cat(as.character(div_container))
 ```
 
 ### Missing Data Analysis
@@ -602,81 +642,44 @@ Missing data patterns were analyzed to identify variables with significant gaps.
 ```{r missing-plotting, eval=FALSE}
 # Load required libraries
 library(ggplot2)
+library(dplyr)
+library(tidyr)
 
-# Define function to plot missing values
-plot_missing_values_by_type <- function(dataset, min_missing, max_missing) {
-  
-  # Ensure column types are matched with the lookup dataframe
-  variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
-  
-  # Create missing data summary
-  missing_summary <- dataset %>%
-    summarise(across(everything(), ~ sum(is.na(.)) / n() * 100)) %>%
-    pivot_longer(everything(), names_to = "column", values_to = "missing_percentage") %>%
-    mutate(type = variable_types[column]) %>%
-    filter(missing_percentage > min_missing & missing_percentage <= max_missing)
+# Visualize Missing Data
+plot_missing_values_by_type(data_preprocessed, 0, 1)
+plot_missing_values_by_type(data_preprocessed, 1, 5)
+plot_missing_values_by_type(data_preprocessed, 5, 30)
+plot_missing_values_by_type(data_preprocessed, 30, 50)
+plot_missing_values_by_type(data_preprocessed, 50, 100)
 
-  # Plot if there is missing data
-  if (nrow(missing_summary) > 0) {
-    threshold_inside <- max_missing * 0.8
-    ggplot(missing_summary, aes(x = reorder(column, -missing_percentage), y = missing_percentage, fill = type)) +
-      geom_bar(stat = "identity", position = position_dodge2(width = 0.9)) +
-      geom_text(data = missing_summary %>% filter(missing_percentage > 0), aes(
-        label = ifelse(missing_percentage < 0.01, "<0.01", sprintf("%.2f", missing_percentage)),
-        hjust = ifelse(missing_percentage > threshold_inside, 1.2, -0.2)
-      ), size = 3, color = ifelse(missing_summary$missing_percentage > threshold_inside, "white", "black")) +
-      coord_flip(clip = "off") +
-      labs(
-        x = "Column", y = "Missing Percentage"
-      ) +
-      scale_fill_manual(values = c(
-        "Date" = "#1f77b4", 
-        "POSIXct" = "#ff7f0e", 
-        "hms" = "#17becf",
-        "factor" = "#2ca02c",
-        "numeric" = "#d62728", 
-        "logical" = "#9467bd", 
-        "list" = "#8c564b"
-      )) +
-      theme_minimal() +
-      theme(
-        legend.position = "top", legend.title = element_blank(), legend.direction = "horizontal",
-        axis.text.y = element_text(size = 7, hjust = 1),
-        plot.title = element_text(size = 14, face = "bold", hjust = 0),
-        plot.margin = margin(20, 20, 20, 20)
-      )
-  } else {
-    message("No columns with missing data in the specified range.")
-  }
-}
-
-# Plot missing data levels
-plot_missing_values_by_type(data_preprocessed, min_missing = 0, max_missing = 1)
-plot_missing_values_by_type(data_preprocessed, min_missing = 1, max_missing = 5)
-plot_missing_values_by_type(data_preprocessed, min_missing = 5, max_missing = 30)
-plot_missing_values_by_type(data_preprocessed, min_missing = 30, max_missing = 50)
-plot_missing_values_by_type(data_preprocessed, min_missing = 50, max_missing = 100)
+# Capture Plots to HTML
+capture_output_to_html(
+  "missing_data_preprocessed_plots.html",
+  "Missing Data Plots for data_preprocessed",
+  "0-1% Missingness" = "../figures/plots/0-1_missing_data_preprocessed_plot.png",
+  "1-5% Missingness" = "../figures/plots/1-5_missing_data_preprocessed_plot.png",
+  "5-30% Missingness" = "../figures/plots/5-30_missing_data_preprocessed_plot.png",
+  "30-50% Missingness" = "../figures/plots/30-50_missing_data_preprocessed_plot.png",
+  "50-100% Missingness" = "../figures/plots/50-100_missing_data_preprocessed_plot.png"
+)
 ```
 
-##### Missing Data (0-1%) Plot
+> Refer to [Appendix] - [Helper Functions] - [Function to Plot Missing Values by Type](#plot-missing-values-by-type) for function definition.
+>
+> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
-![](figures/0-1_missing_data_plot.png)
+```{r results='asis', echo=FALSE}
+library(htmltools)
 
-##### Missing Data (1-5%) Plot
+# Read the HTML file
+html_content <- HTML(readLines("outputs/missing_data_preprocessed_plots.html"))
 
-![](figures/1-5_missing_data_plot.png)
+# Wrap the HTML content in a div with the 'scrollable-container' class
+div_container <- div(class = "scrollable-container", html_content)
 
-##### Missing Data (5-30%) Plot
-
-![](figures/5-30_missing_data_plot.png)
-
-##### Missing Data (30-50%) Plot
-
-![](figures/30-50_missing_data_plot.png)
-
-##### Missing Data (50-100%) Plot
-
-![](figures/50-100_missing_data_plot.png)
+# Output the content
+cat(as.character(div_container))
+```
 
 #### Handling Strategies
 
@@ -902,300 +905,85 @@ missing_data_options <- list(
 
 ##### Strategy Selection
 
-The function `generate_data_handling_table` was designed to create a table for handling missing data and was utilized based on user input. Strategies for handling missing data were selected through three modes: manual selection for each variable, printing of all handling options, or random selection for testing purposes. This function assessed the type and extent of missingness, provided a summary of statistics, and facilitated the application of appropriate handling strategies. The results were presented in a styled table, categorized by the level of missingness and type of data, which aided in making informed decisions on how to address missing data in the dataset.
+```{r missing-data-handling-table, eval=FALSE}
+# Generate the data handling table
+data_handling_table <- generate_data_handling_table(data_preprocessed)
 
-```{r handling-strategy-generator, eval=FALSE}
-# Load required libraries
-library(knitr)
-library(kableExtra)
-library(moments)
-
-# Helper function to calculate summary statistics
-calculate_summary_stats <- function(variable_data, type) {
-  if (all(is.na(variable_data))) {
-    return(list(description = "All values are missing"))
-  }
-  
-  if (type == "Numeric") {
-    stats <- summary(variable_data)
-    sd_value <- sd(variable_data, na.rm = TRUE)
-    skewness_value <- moments::skewness(variable_data, na.rm = TRUE)
-    kurtosis_value <- moments::kurtosis(variable_data, na.rm = TRUE)
-    range_values <- range(variable_data, na.rm = TRUE)
-    
-    description <- sprintf(
-      "Range: %.1f to %.1f\n Median: %.1f\n Mean: %.1f\n SD: %.2f\n Skewness: %.2f\n Kurtosis: %.2f",
-      range_values[1], range_values[2], stats["Median"], stats["Mean"], 
-      sd_value, skewness_value, kurtosis_value
-    )
-    
-  } else if (type == "Factor") {
-    levels_count <- nlevels(variable_data)
-    freq_table <- sort(table(variable_data), decreasing = TRUE)
-    most_common <- names(freq_table[1])
-    most_common_count <- freq_table[1]
-    missing_levels <- sum(is.na(variable_data))
-    
-    description <- sprintf(
-      "Levels: %d\n Most Common: %s (%d occurrences)\n Missing Levels: %d",
-      levels_count, most_common, most_common_count, missing_levels
-    )
-    
-  } else if (type == "Logical") {
-    true_percent <- mean(variable_data, na.rm = TRUE) * 100
-    false_percent <- 100 - true_percent
-    
-    description <- sprintf(
-      "TRUE: %.1f%%\n FALSE: %.1f%%",
-      true_percent, false_percent
-    )
-    
-  } else if (type == "Date" || type == "POSIX") {
-    range_values <- range(variable_data, na.rm = TRUE)
-    missing_count <- sum(is.na(variable_data))
-    
-    description <- sprintf(
-      "Range: %s to %s\n Missing: %d",
-      format(range_values[1]), format(range_values[2]), missing_count
-    )
-    
-  } else if (type == "List" && is.list(variable_data)) {
-    lengths <- sapply(variable_data, length)
-    range_lengths <- range(lengths, na.rm = TRUE)
-    median_length <- median(lengths, na.rm = TRUE)
-    mean_length <- mean(lengths, na.rm = TRUE)
-    
-    description <- sprintf(
-      "Range Lengths: %d to %d\n Median Length: %.1f\n Mean Length: %.1f",
-      range_lengths[1], range_lengths[2], median_length, mean_length
-    )
-    
-  } else if (type == "Character") {
-    unique_values <- length(unique(variable_data[!is.na(variable_data)]))
-    most_common <- names(sort(table(variable_data), decreasing = TRUE))[1]
-    missing_count <- sum(is.na(variable_data))
-    
-    description <- sprintf(
-      "Unique Values: %d\n Most Common: %s\n Missing: %d",
-      unique_values, most_common, missing_count
-    )
-    
-  } else {
-    description <- "Unsupported type"
-  }
-  
-  # Add two trailing spaces to each line for Markdown rendering in outputs
-  description <- gsub("\n", "  \n", description)
-  
-  return(list(description = description))
-}
-
-# Main function to generate missing data handling table
-generate_data_handling_table <- function(dataset) {
-  # Use variable type lookup dataframe
-  variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
-  
-  cat("Select function mode:\n")
-  cat("1: Manually select handling strategy for each variable\n")
-  cat("2: Print all handling strategy options for each variable\n")
-  cat("3: Randomly select handling strategy for each variable (function testing)\n")
-  
-  repeat {
-    selected_mode <- as.integer(readline("Enter your choice (1, 2, or 3): "))
-    if (selected_mode %in% c(1, 2, 3)) break
-    cat("Invalid choice. Try again.\n")
-  }
-  
-  # Create the missing data summary
-  missing_data_summary <- dataset %>%
-    summarise(across(everything(), ~ sum(is.na(.)) / n() * 100)) %>%
-    pivot_longer(everything(), names_to = "variable", values_to = "missing_percentage") %>%
-    filter(missing_percentage > 0) %>%
-    rowwise() %>%
-    mutate(
-      type = case_when(
-        grepl("numeric|int|double|float", variable_types[variable], ignore.case = TRUE) ~ "Numeric",
-        grepl("list|array|vector", variable_types[variable], ignore.case = TRUE) ~ "List",
-        grepl("factor|categorical", variable_types[variable], ignore.case = TRUE) ~ "Factor",
-        grepl("logical|bool|binary", variable_types[variable], ignore.case = TRUE) ~ "Logical",
-        grepl("character|string|text", variable_types[variable], ignore.case = TRUE) ~ "Character",
-        grepl("date|time|year|day", variable_types[variable], ignore.case = TRUE) ~ "Date",
-        grepl("hms|difftime|posix|timestamp|datetime", variable_types[variable], ignore.case = TRUE) ~ "POSIX",
-        TRUE ~ "Unsupported"  # Catch-all for unrecognized types
-      ),
-      summary_stats = calculate_summary_stats(dataset[[variable]], type)$description,
-      missingness_level = case_when(
-        missing_percentage <= 5 ~ "Low (0-5%)",
-        missing_percentage > 5 & missing_percentage <= 30 ~ "Moderate (5-30%)",
-        missing_percentage > 30 & missing_percentage <= 50 ~ "High (30-50%)",
-        missing_percentage > 50 ~ "Very High (>50%)"
-      )
-    ) %>%
-    ungroup()
-  
-  # Create a separate column for HTML rendering
-  missing_data_summary <- missing_data_summary %>%
-    mutate(summary_stats_html = gsub("\n", "<br>", summary_stats))
-  
-  # Initialize handling_strategy column
-  missing_data_summary$handling_strategy <- NA
-  
-  # Assign handling strategies based on function mode
-  
-  # Manual Mode
-  if (selected_mode == 1) {
-    handling_strategies <- vector("character", nrow(missing_data_summary))
-    for (i in seq_len(nrow(missing_data_summary))) {
-      cat("\nVariable:", missing_data_summary$variable[i], "\n")
-      cat("Missingness:", 
-          ifelse(missing_data_summary$missing_percentage[i] < 0.01, "<0.01%", 
-                 sprintf("%.2f%%", missing_data_summary$missing_percentage[i])), "\n")
-      cat("Type:", missing_data_summary$type[i], "\n")
-      cat("Summary Stats\n", missing_data_summary$summary_stats[i], "\n\n")
-      
-      options_key <- missing_data_summary$missingness_level[i]
-      type_key <- missing_data_summary$type[i]
-      
-      # Retrieve options
-      options <- tryCatch(
-        missing_data_options[[options_key]][[type_key]],
-        error = function(e) { NULL }
-      )
-      
-      if (is.null(options)) {
-        cat("No valid options found for", options_key, "-", type_key, "\n")
-        handling_strategies[i] <- "No valid options available"
-      } else {
-        cat("Options:\n")
-        for (j in seq_along(options)) {
-          cat(j, ": ", options[j], "\n", sep = "")
-        }
-        choice <- readline("Choose an option (enter the number) or type custom strategy: ")
-        if (choice %in% as.character(seq_along(options))) {
-          handling_strategies[i] <- options[as.integer(choice)]
-        } else {
-          handling_strategies[i] <- choice
-        }
-      }
-    }
-    missing_data_summary$handling_strategy <- handling_strategies
-  }
-
-  # All Options Mode
-  else if (selected_mode == 2) {
-    missing_data_summary <- missing_data_summary %>%
-      rowwise() %>%
-      mutate(
-        handling_strategy = if (!is.null(missing_data_options[[missingness_level]][[type]])) {
-          paste(
-            sprintf("%d: %s", seq_along(missing_data_options[[missingness_level]][[type]]), 
-                    missing_data_options[[missingness_level]][[type]]), 
-            collapse = "<br>"
-          )
-        } else {
-          "No valid options available"
-        }
-      ) %>%
-      ungroup()
-  }
-
-  # Random Mode
-  else if (selected_mode == 3) {
-    missing_data_summary <- missing_data_summary %>%
-      rowwise() %>%
-      mutate(
-        handling_strategy = if (!is.null(missing_data_options[[missingness_level]][[type]])) {
-          sample(missing_data_options[[missingness_level]][[type]], 1)
-        } else {
-          "No valid options available"
-        }
-      ) %>%
-      ungroup()
-  }
-  
-  # Format and sort missing percentages
-  missing_data_summary <- missing_data_summary %>%
-    mutate(
-      missing_percentage_display = ifelse(
-        missing_percentage < 0.1, "<0.1%", sprintf("%.1f%%", missing_percentage)
-      ),
-      missing_sort_order = ifelse(missing_percentage < 0.1, -1, missing_percentage)
-    ) %>%
-    arrange(missing_sort_order, missingness_level, type, missing_percentage) %>%
-    select(-missing_sort_order)  # Remove the helper column after sorting
-  
-  # Define colors for missingness levels
-  colors <- c(
-    "Low (0-5%)" = "#E8F8F5",
-    "Moderate (5-30%)" = "#D6EAF8",
-    "High (30-50%)" = "#FADBD8",
-    "Very High (>50%)" = "#F5B7B1"
-  )
-  
-  # Create a styled table with summary stats and handling strategies
-  table <- missing_data_summary %>%
-    select(
-      `Variables by level of missingness` = variable,
-      `Missing %` = missing_percentage_display,
-      `Summary Stats` = summary_stats_html,  # Use HTML-formatted column
-      `Handling Strategy` = handling_strategy
-    ) %>%
-    kbl(align = c("r", "c", "l", "l"), escape = FALSE) %>%
-    kable_styling(full_width = FALSE, position = "center", font_size = 12) %>%
-    column_spec(2, bold = TRUE, color = "blue") %>%
-    column_spec(3, italic = TRUE) %>%
-    column_spec(4, italic = TRUE) %>%
-    row_spec(0, bold = TRUE, background = "#2E86C1", color = "white", font_size = 14)
-  
-  # Add row grouping by missingness level and apply colors
-  unique_levels <- unique(missing_data_summary$missingness_level)
-  for (level in unique_levels) {
-    level_rows <- which(missing_data_summary$missingness_level == level)
-    table <- table %>%
-      group_rows(
-        level,                           # Group label
-        min(level_rows),                 # Start row
-        max(level_rows),                 # End row
-        label_row_css = paste0("background-color:", colors[[level]], ";")
-      )
-  }
-  
-  return(table)
-}
-
-# Generate table
-missing_data_handling_table <- generate_data_handling_table(data_preprocessed)
+capture_output_to_html(
+  "data_preprocessed_handling_table.html",
+  "Preprocessed Data Handling Table",
+  "All Strategies" = data_handling_table
+)
 ```
 
-###### Missing Data Handling Table with All Options
+> Refer to [Appendix] - [Helper Functions] - [Function to Generate Missing Data Handling Strategies](#generate-data-handling-table) for function definition.
+>
+> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
-<iframe src="figures/missing_data_handling_table.html">
+```{r results='asis', echo=FALSE}
+library(htmltools)
 
-</iframe>
+# Read the HTML file
+html_content <- HTML(readLines("outputs/data_preprocessed_handling_table.html"))
 
-###### Manually Generated Missing Data Handling Table
+# Wrap the HTML content in a div with the 'scrollable-container' class
+div_container <- div(class = "scrollable-container", html_content)
 
-<iframe src="figures/missing_data_handling_table_manual.html">
-
-</iframe>
+# Output the content
+cat(as.character(div_container))
+```
 
 ### Data Reduction
 
-A reduced dataset with fewer variables will be created to meet final project deadline. Later iterations will explore the complete dataset.
+A reduced dataset with fewer variables will be created to meet final project deadline. Later iterations will expand the analysis to the complete dataset.
+
+```{r reduction, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
+# Reduce dataset
+reduced_data_preprocessed <- data_preprocessed %>%
+  filter(
+    primary_provider_type %in% c("Physician", "Psychiatrist", "Resident", "Nurse Practitioner")
+  ) %>%
+  select(
+    # Identifiers
+    patient_id,
+    
+    # Demographics
+    year_of_birth, legal_sex, marital_status, patient_ethnic_group, patient_race, adi_national_percentile,
+    
+    # Visit Information
+    visit_date, appointment_length_minutes, appointment_status, primary_provider_type, visit_service_level,
+    
+    # Clinical Information
+    allergies_and_contraindications, medical_history, primary_diagnosis, visit_diagnosis,
+
+    # Medications
+    medications, visit_medications_ordered,
+    
+    # Risk and Assessments
+    general_risk_score, phq_2_total_score, phq_9, sdoh_risk_level,
+  )
+```
 
 ### Exploratory Data Analysis (EDA)
 
 Exploratory Data Analysis will be conducted to gain insights into the main characteristics of the data, focusing on the distribution of key variables and the relationships between them. This will involve visualizing data distributions, identifying outliers, and exploring potential groupings and patterns. The findings from EDA will help in understanding the underlying structure of the data and guide the subsequent phases of data preprocessing and model building.
 
+```{r eda, eval=FALSE}
+
+```
+
 ### Data Transformation
 
 Data will be transformed to fit the assumptions required for effective model training. This includes normalizing and scaling continuous variables to prevent attributes with larger ranges from dominating the model's feature importance. Categorical variables will be encoded into numerical values to facilitate their use in machine learning algorithms. Transformations such as logarithmic or square root transformations will be applied to skewed data to approximate normal distributions.
 
-#### **Normalization and Scaling**
+#### Normalization and Scaling
 
 Numerical variables will be normalized using techniques such as Min-Max scaling or Z-score normalization to ensure equal contribution to models.
 
-#### **Encoding**
+#### Encoding
 
 Categorical variables will be converted into numerical representations using one-hot encoding or label encoding, depending on their nature.
 
@@ -1272,3 +1060,344 @@ The results section will include:
 4.  **Validation**: Evaluation of model performance on unseen data.
 
 ## Conclusion {#sec-conclusion}
+
+## Appendix
+
+#### Helper Functions
+
+##### Function to Capture Output as HTML {#capture-output-to-html}
+
+```{r capture-to-html, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
+# Define function to capture output to HTML file
+capture_output_to_html <- function(file, title, ...) {
+    # Ensure file and title are provided
+    if (missing(file)) stop("A file name must be provided.")
+    if (missing(title)) stop("A title must be provided.")
+    
+    # Define the output path
+    file <- file.path("outputs", file)
+    dir.create(dirname(file), showWarnings = FALSE, recursive = TRUE)
+    
+    # Open the file for writing
+    con <- file(file, "w")
+    
+    # Write HTML header
+    cat("<html>\n<head>\n", file = con)
+    cat(sprintf("<title>%s</title>\n", title), file = con)
+    cat("<link rel=\"stylesheet\" href=\"../style.css\">\n", file = con)
+    cat("</head>\n<body>\n", file = con)
+    cat(sprintf("<h3>%s</h3>\n", title), file = con)
+    
+    # Iterate through sections
+    args <- list(...)
+    for (section_name in names(args)) {
+        cat(sprintf("<h4>%s</h4>\n", section_name), file = con)
+        
+        if (is.data.frame(args[[section_name]])) {
+            # Handle data frames
+            cat("<table border='1' style='border-collapse:collapse; width:100%;'>\n", file = con)
+            cat("<tr>", file = con)
+            for (col_name in names(args[[section_name]])) {
+                cat(sprintf("<th>%s</th>", col_name), file = con)
+            }
+            cat("</tr>\n", file = con)
+            
+            for (row in 1:nrow(args[[section_name]])) {
+                cat("<tr>", file = con)
+                for (col in names(args[[section_name]])) {
+                    value <- as.character(args[[section_name]][row, col])
+                    if (col == "summary_stats") value <- gsub("\n", "<br>", value)
+                    cat(sprintf("<td>%s</td>", value), file = con)
+                }
+                cat("</tr>\n", file = con)
+            }
+            cat("</table>\n", file = con)
+        } else if (is.character(args[[section_name]]) && all(grepl("\\.(png|jpg|jpeg|svg)$", args[[section_name]], ignore.case = TRUE))) {
+            # Handle image paths
+            for (img_path in args[[section_name]]) {
+                cat(sprintf('<img src="%s" style="max-width:100%% height:auto">\n', img_path), file = con)
+            }
+        } else {
+            # Handle other objects
+            cat("<pre>\n", file = con)
+            tryCatch(
+                {
+                    output <- capture.output(print(args[[section_name]]))
+                    cat(paste(output, collapse = "\n"), "\n", file = con)
+                },
+                error = function(e) {
+                    cat(sprintf("Error in section '%s': %s\n", section_name, e$message), file = con)
+                }
+            )
+            cat("</pre>\n", file = con)
+        }
+    }
+    
+    # Close HTML tags and file connection
+    cat("</body>\n</html>\n", file = con)
+    close(con)
+    message("HTML saved to: ", file)
+}
+```
+
+##### Function to Calculate Summary Statistics {#calculate-summary-stats}
+
+```{r calculate-summary-stats, eval=FALSE}
+# Load required libraries
+library(moments)
+
+# Define function to calculate summary statistics 
+calculate_summary_stats <- function(variable_data, type) {
+  # Normalize type for cases like "hms, difftime"
+  type <- strsplit(type, ",\\s*")[[1]][1]  # Take the first type if combined
+  
+  # Convert type to lowercase for consistent handling
+  type <- tolower(type)
+  
+  if (all(is.na(variable_data))) {
+    return(list(description = "All values are missing"))
+  }
+  
+  if (type %in% c("numeric", "integer", "double")) {
+    # Numeric summary
+    stats <- summary(variable_data)
+    sd_value <- sd(variable_data, na.rm = TRUE)
+    skewness_value <- moments::skewness(variable_data, na.rm = TRUE)
+    kurtosis_value <- moments::kurtosis(variable_data, na.rm = TRUE)
+    range_values <- range(variable_data, na.rm = TRUE)
+    
+    description <- sprintf(
+      "Range: %.1f to %.1f\n Median: %.1f\n Mean: %.1f\n SD: %.2f\n Skewness: %.2f\n Kurtosis: %.2f",
+      range_values[1], range_values[2], stats["Median"], stats["Mean"], 
+      sd_value, skewness_value, kurtosis_value
+    )
+    
+  } else if (type == "factor") {
+    # Factor summary
+    levels_count <- if (!is.null(levels(variable_data))) nlevels(variable_data) else 0
+    freq_table <- sort(table(variable_data), decreasing = TRUE)
+    most_common <- if (length(freq_table) > 0) names(freq_table[1]) else "None"
+    most_common_count <- if (length(freq_table) > 0) freq_table[1] else 0
+    missing_levels <- sum(is.na(variable_data))
+    
+    description <- sprintf(
+      "Levels: %d\n Most Common: %s (%d occurrences)\n Missing Levels: %d",
+      levels_count, most_common, most_common_count, missing_levels
+    )
+    
+  } else if (type == "logical") {
+    # Logical summary
+    true_percent <- if (length(variable_data[!is.na(variable_data)]) > 0) {
+      mean(variable_data, na.rm = TRUE) * 100
+    } else {
+      0
+    }
+    false_percent <- 100 - true_percent
+    
+    description <- sprintf(
+      "TRUE: %.1f%%\n FALSE: %.1f%%",
+      true_percent, false_percent
+    )
+    
+  } else if (type %in% c("date", "posixct", "hms", "difftime")) {
+    # Date/Time summary
+    range_values <- range(variable_data, na.rm = TRUE)
+    missing_count <- sum(is.na(variable_data))
+    
+    description <- sprintf(
+      "Range: %s to %s\n Missing: %d",
+      format(range_values[1]), format(range_values[2]), missing_count
+    )
+    
+  } else if (type == "list") {
+    # List summary
+    lengths <- sapply(variable_data, length)
+    range_lengths <- range(lengths, na.rm = TRUE)
+    median_length <- median(lengths, na.rm = TRUE)
+    mean_length <- mean(lengths, na.rm = TRUE)
+    
+    description <- sprintf(
+      "Range Lengths: %d to %d\n Median Length: %.1f\n Mean Length: %.1f",
+      range_lengths[1], range_lengths[2], median_length, mean_length
+    )
+    
+  } else if (type == "character") {
+    # Character summary
+    unique_values <- length(unique(variable_data[!is.na(variable_data)]))
+    most_common <- if (length(variable_data[!is.na(variable_data)]) > 0) {
+      names(sort(table(variable_data), decreasing = TRUE))[1]
+    } else {
+      "None"
+    }
+    missing_count <- sum(is.na(variable_data))
+    
+    description <- sprintf(
+      "Unique Values: %d\n Most Common: %s\n Missing: %d",
+      unique_values, most_common, missing_count
+    )
+    
+  } else {
+    # Unsupported type
+    description <- sprintf("Unsupported type: %s", type)
+  }
+  
+  return(list(description = description))
+}
+```
+
+##### Function to Plot Missing Values by Type {#plot-missing-values-by-type}
+
+```{r plot-missing-values, eval=FALSE}
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Define function to plot missing values
+plot_missing_values_by_type <- function(dataset, min_missing, max_missing, file_name = NULL) {
+  # Get dataset name dynamically
+  dataset_name <- deparse(substitute(dataset))
+  
+  # Automatically generate a default file name if none is provided
+  if (is.null(file_name)) {
+    file_name <- sprintf("figures/plots/%d-%d_missing_%s_plot.png", min_missing, max_missing, dataset_name)
+  }
+  
+  # Create a dynamic title
+  plot_title <- sprintf("Missing Values (%d-%d%%) for %s", min_missing, max_missing, dataset_name)
+  
+  # Ensure column types are matched with the lookup dataframe
+  variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
+  
+  # Create missing data summary
+  missing_summary <- dataset %>%
+    summarise(across(everything(), ~ sum(is.na(.)) / n() * 100)) %>%
+    pivot_longer(everything(), names_to = "column", values_to = "missing_percentage") %>%
+    mutate(type = variable_types[column]) %>%
+    filter(missing_percentage > min_missing & missing_percentage <= max_missing)
+  
+  if (nrow(missing_summary) > 0) {
+    threshold_inside <- max_missing * 0.8
+    p <- ggplot(missing_summary, aes(x = reorder(column, -missing_percentage), y = missing_percentage, fill = type)) +
+      geom_bar(stat = "identity", position = position_dodge2(width = 0.9)) +
+      geom_text(data = missing_summary %>% filter(missing_percentage > 0), aes(
+        label = ifelse(missing_percentage < 0.01, "<0.01", sprintf("%.2f", missing_percentage)),
+        hjust = ifelse(missing_percentage > threshold_inside, 1.2, -0.2)
+      ), size = 3, color = ifelse(missing_summary$missing_percentage > threshold_inside, "white", "black")) +
+      coord_flip(clip = "off") +
+      labs(
+        title = plot_title, # Dynamic title
+        x = "Column", 
+        y = "Missing Percentage"
+      ) +
+      scale_fill_manual(values = c(
+        "Date" = "#1f77b4", 
+        "POSIXct" = "#ff7f0e", 
+        "hms" = "#17becf",
+        "factor" = "#2ca02c",
+        "numeric" = "#d62728", 
+        "logical" = "#9467bd", 
+        "list" = "#8c564b"
+      )) +
+      theme_minimal() +
+      theme(
+        legend.position = "top", 
+        legend.title = element_blank(), 
+        legend.direction = "horizontal",
+        axis.text.y = element_text(size = 7, hjust = 1),
+        plot.title = element_text(size = 14, face = "bold", hjust = 0),
+        plot.margin = margin(20, 20, 20, 20),
+        panel.background = element_rect(fill = "white", color = NA), # White background
+        plot.background = element_rect(fill = "white", color = NA)  # White background
+      )
+    
+    # Save the plot to the file
+    dir.create(dirname(file_name), showWarnings = FALSE, recursive = TRUE)
+    ggsave(file_name, plot = p, width = 8, height = 6, bg = "white")
+    message("Plot saved to: ", file_name)
+  } else {
+    message("No columns with missing data in the specified range.")
+  }
+}
+```
+
+##### Function to Generate Missing Data Handling Strategies {#generate-data-handling-table}
+
+> Requires running [Function to Calculate Summary Statistics](#calculate-summary-stats) first.
+
+```{r genetate-missing-data-handling-table, eval=FALSE}
+# Define function to generate data handling table by variable types and missingness
+generate_data_handling_table <- function(dataset, dataset_name = deparse(substitute(dataset))) {
+  variable_type_lookup <- readRDS("datasets/variable_type_lookup.rds")
+  variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
+  
+  cat("Select function mode:\n")
+  cat("1: Manually select handling strategy for each variable\n")
+  cat("2: Print all handling strategy options for each variable\n")
+  cat("3: Randomly select handling strategy for each variable (function testing)\n")
+  
+  repeat {
+    selected_mode <- as.integer(readline("Enter your choice (1, 2, or 3): "))
+    if (selected_mode %in% c(1, 2, 3)) break
+    cat("Invalid choice. Try again.\n")
+  }
+  
+  missing_data_summary <- dataset %>%
+    summarise(across(everything(), ~ sum(is.na(.)) / n() * 100)) %>%
+    pivot_longer(everything(), names_to = "variable", values_to = "missing_percentage") %>%
+    filter(missing_percentage > 0) %>%
+    rowwise() %>%
+    mutate(
+      type = case_when(
+        grepl("numeric|integer|double", variable_types[variable], ignore.case = TRUE) ~ "Numeric",
+        grepl("list", variable_types[variable], ignore.case = TRUE) ~ "List",
+        grepl("factor", variable_types[variable], ignore.case = TRUE) ~ "Factor",
+        grepl("logical", variable_types[variable], ignore.case = TRUE) ~ "Logical",
+        grepl("character", variable_types[variable], ignore.case = TRUE) ~ "Character",
+        grepl("date|posix|hms|difftime", variable_types[variable], ignore.case = TRUE) ~ "Date",
+        TRUE ~ "Unsupported Type"
+      ),
+      summary_stats = gsub("\n", "<br>", calculate_summary_stats(dataset[[variable]], type)$description),
+      missingness_level = case_when(
+        missing_percentage <= 5 ~ "Low (0-5%)",
+        missing_percentage > 5 & missing_percentage <= 30 ~ "Moderate (5-30%)",
+        missing_percentage > 30 & missing_percentage <= 50 ~ "High (30-50%)",
+        missing_percentage > 50 ~ "Very High (>50%)"
+      )
+    ) %>%
+    ungroup()
+  
+  missing_data_summary <- missing_data_summary %>%
+    rowwise() %>%
+    mutate(
+      handling_strategy = if (!is.null(missing_data_options[[missingness_level]][[type]])) {
+        paste(
+          sprintf("%d: %s", seq_along(missing_data_options[[missingness_level]][[type]]), 
+                  missing_data_options[[missingness_level]][[type]]), 
+          collapse = "<br>"
+        )
+      } else {
+        "No valid options available"
+      }
+    ) %>%
+    ungroup()
+  
+  # Sort and format data handling table
+  data_handling_table <- missing_data_summary %>%
+    mutate(
+      missing_percentage_numeric = ifelse(missing_percentage < 0.1, 0, missing_percentage),
+      miss = ifelse(
+        missing_percentage < 0.1, "<0.1%", sprintf("%.1f%%", missing_percentage)
+      )
+    ) %>%
+    arrange(missing_percentage_numeric) %>%
+    select(variable, miss, summary_stats, handling_strategy)
+  
+  return(data_handling_table)
+}
+```
+
+## Additional Visualizations
