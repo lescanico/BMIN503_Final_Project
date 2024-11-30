@@ -144,15 +144,19 @@ capture_output_to_html(
 > Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
 ```{r results='asis', echo=FALSE}
+# Load required libraries
 library(htmltools)
 
-# Read the HTML file
-html_content <- HTML(readLines("outputs/data_renaming.html"))
+# Read the HTML file and preserve line breaks
+html_lines <- readLines("outputs/data_renaming.html", warn = FALSE)
+
+# Combine the lines into a single HTML string
+html_content <- HTML(paste(html_lines, collapse = "\n"))
 
 # Wrap the HTML content in a div with the 'scrollable-container' class
 div_container <- div(class = "scrollable-container", html_content)
 
-# Output the content
+# Output the wrapped HTML content as raw HTML
 cat(as.character(div_container))
 ```
 
@@ -1089,7 +1093,6 @@ capture_output_to_html <- function(file, title, ...) {
     cat("<html>\n<head>\n", file = con)
     cat(sprintf("<title>%s</title>\n", title), file = con)
     cat("<link rel=\"stylesheet\" href=\"../style.css\">\n", file = con)
-    cat("<style>\n.scrollable-container {overflow-x: auto; max-width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;}\n</style>\n", file = con)
     cat("</head>\n<body>\n", file = con)
     cat(sprintf("<h3>%s</h3>\n", title), file = con)
     
@@ -1345,6 +1348,9 @@ plot_missing_values_by_type <- function(dataset, min_missing, max_missing, file_
 > Requires running [Function to Calculate Summary Statistics](#calculate-summary-stats) first.
 
 ```{r genetate-missing-data-handling-table, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
 # Define function to generate data handling table by variable types and missingness
 generate_data_handling_table <- function(dataset, dataset_name = deparse(substitute(dataset))) {
   variable_type_lookup <- readRDS("datasets/variable_type_lookup.rds")
@@ -1405,12 +1411,18 @@ generate_data_handling_table <- function(dataset, dataset_name = deparse(substit
   data_handling_table <- missing_data_summary %>%
     mutate(
       missing_percentage_numeric = ifelse(missing_percentage < 0.1, 0, missing_percentage),
-      miss = ifelse(
+      missing_percentage = ifelse(
         missing_percentage < 0.1, "<0.1%", sprintf("%.1f%%", missing_percentage)
       )
     ) %>%
     arrange(missing_percentage_numeric) %>%
-    select(variable, miss, summary_stats, handling_strategy)
+    select(variable, missing_percentage, summary_stats, handling_strategy) %>%
+    rename(
+      Variable = variable,
+      `Missing %` = missing_percentage,
+      `Summary Stats` = summary_stats,
+      `Handling Strategy` = handling_strategy
+    )
   
   return(data_handling_table)
 }

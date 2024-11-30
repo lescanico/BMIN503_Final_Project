@@ -6,8 +6,9 @@
 <body>
 <h3>Preprocessed Data Handling Table</h3>
 <h4>All Strategies</h4>
+<div class="scrollable-container">
 <table border='1' style='border-collapse:collapse; width:100%;'>
-<tr><th>variable</th><th>miss</th><th>summary_stats</th><th>handling_strategy</th></tr>
+<tr><th>Variable</th><th>Missing %</th><th>Summary Stats</th><th>Handling Strategy</th></tr>
 <tr><td>age_at_visit_years</td><td><0.1%</td><td>Range: 15.0 to 143.0<br> Median: 40.0<br> Mean: 43.0<br> SD: 16.15<br> Skewness: 0.51<br> Kurtosis: 2.35</td><td>1: Predictive Modeling (Regression)<br>2: Predictive Modeling (KNN)<br>3: Multiple Imputation (MICE)<br>4: Mean Imputation<br>5: Median Imputation<br>6: Linear Interpolation<br>7: Spline Interpolation<br>8: Indicator Variable + Mean<br>9: Indicator Variable + Median</td></tr>
 <tr><td>language</td><td><0.1%</td><td>Levels: 51<br> Most Common: English (426546 occurrences)<br> Missing Levels: 64</td><td>1: Predictive Modeling (Decision Tree)<br>2: Predictive Modeling (Random Forest)<br>3: Frequency-Based Imputation (Weighted by Subgroup Frequency)<br>4: Mode Imputation<br>5: Add 'Unknown' Category<br>6: Add 'Other' Category</td></tr>
 <tr><td>marital_status</td><td><0.1%</td><td>Levels: 8<br> Most Common: Single (249268 occurrences)<br> Missing Levels: 4</td><td>1: Predictive Modeling (Decision Tree)<br>2: Predictive Modeling (Random Forest)<br>3: Frequency-Based Imputation (Weighted by Subgroup Frequency)<br>4: Mode Imputation<br>5: Add 'Unknown' Category<br>6: Add 'Other' Category</td></tr>
@@ -82,5 +83,6 @@
 <tr><td>visit_procedures_ordered</td><td>90.6%</td><td>Range Lengths: 1 to 33<br> Median Length: 1.0<br> Mean Length: 1.1</td><td>1: Add Indicator for Missingness<br>2: Replace with Empty List<br>3: Replace with Proxy List<br>4: Create Synthetic List<br>5: Drop Variable (if non-critical)</td></tr>
 <tr><td>university_of_pennsylvania_student</td><td>98.0%</td><td>TRUE: 100.0%<br> FALSE: 0.0%</td><td>1: Indicator Variable + Assume FALSE<br>2: Replace with Most Frequent Value<br>3: Assume TRUE<br>4: Drop Variable (if non-critical)</td></tr>
 </table>
+</div>
 </body>
 </html>
