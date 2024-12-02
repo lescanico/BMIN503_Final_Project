@@ -1,0 +1,87 @@
+<html>
+<head>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<h5>Preprocessed Data Handling Table</h5>
+<h6>Random</h6>
+<div class="scrollable-inner-container">
+<table>
+<tr><th>Variable</th><th>Missing %</th><th>Type</th><th>Handling Strategy</th></tr>
+<tr><td>age_at_visit_years</td><td>0.0%</td><td>Numeric</td><td>Spline Interpolation</td></tr>
+<tr><td>language</td><td>0.0%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>marital_status</td><td>0.0%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>country</td><td>0.0%</td><td>Factor</td><td>Frequency-Based Imputation (Weighted by Subgroup Frequency)</td></tr>
+<tr><td>state</td><td>0.0%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>patient_religion</td><td>0.0%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>visit_religion</td><td>0.0%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>primary_provider_type</td><td>0.0%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>patient_postal_code</td><td>0.1%</td><td>Factor</td><td>Add 'Unknown' Category</td></tr>
+<tr><td>visit_postal_code</td><td>0.1%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>rural_urban_commuting_area_primary</td><td>0.1%</td><td>Factor</td><td>Frequency-Based Imputation (Weighted by Subgroup Frequency)</td></tr>
+<tr><td>rural_urban_commuting_area_secondary</td><td>0.1%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>mychart_status</td><td>0.1%</td><td>Factor</td><td>Add 'Unknown' Category</td></tr>
+<tr><td>chief_complaint</td><td>0.2%</td><td>List</td><td>Replace with Proxy List</td></tr>
+<tr><td>patient_diagnosis</td><td>0.2%</td><td>List</td><td>Add Indicator for Missingness</td></tr>
+<tr><td>patient_service_level</td><td>0.3%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>visit_type</td><td>0.6%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>appointment_creation_date</td><td>0.6%</td><td>Numeric</td><td>Indicator Variable + Mean</td></tr>
+<tr><td>appointment_time</td><td>0.6%</td><td>Date</td><td>Median Date Imputation</td></tr>
+<tr><td>appointment_length_minutes</td><td>0.6%</td><td>Numeric</td><td>Linear Interpolation</td></tr>
+<tr><td>lead_time_days</td><td>0.6%</td><td>Numeric</td><td>Spline Interpolation</td></tr>
+<tr><td>scheduling_source</td><td>0.6%</td><td>Factor</td><td>Frequency-Based Imputation (Weighted by Subgroup Frequency)</td></tr>
+<tr><td>appointment_status</td><td>0.6%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>copay_collected</td><td>0.8%</td><td>Numeric</td><td>Indicator Variable + Mean</td></tr>
+<tr><td>copay_due</td><td>0.8%</td><td>Numeric</td><td>Predictive Modeling (Regression)</td></tr>
+<tr><td>medications</td><td>0.9%</td><td>List</td><td>Replace with Empty List</td></tr>
+<tr><td>outpatient_medications</td><td>0.9%</td><td>List</td><td>Weighted Average List Imputation</td></tr>
+<tr><td>patient_ethnic_group</td><td>0.9%</td><td>Factor</td><td>Add 'Unknown' Category</td></tr>
+<tr><td>patient_medications_ordered</td><td>1.7%</td><td>List</td><td>Add Indicator for Missingness</td></tr>
+<tr><td>patient_race</td><td>2.0%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>visit_race</td><td>2.0%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>patient_procedures_ordered</td><td>2.8%</td><td>List</td><td>Weighted Average List Imputation</td></tr>
+<tr><td>patient_county</td><td>2.9%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>visit_county</td><td>2.9%</td><td>Factor</td><td>Frequency-Based Imputation (Weighted by Subgroup Frequency)</td></tr>
+<tr><td>sdoh_domains</td><td>2.9%</td><td>List</td><td>Predictive Modeling (List Similarity-Based)</td></tr>
+<tr><td>sdoh_risk_level</td><td>2.9%</td><td>Factor</td><td>Predictive Modeling (Random Forest)</td></tr>
+<tr><td>patient_bmi</td><td>3.1%</td><td>Numeric</td><td>Linear Interpolation</td></tr>
+<tr><td>patient_bp_diastolic</td><td>3.2%</td><td>Numeric</td><td>Mean Imputation</td></tr>
+<tr><td>patient_bp_systolic</td><td>3.2%</td><td>Numeric</td><td>Predictive Modeling (Regression)</td></tr>
+<tr><td>procedures</td><td>4.2%</td><td>List</td><td>Replace with Most Frequent List</td></tr>
+<tr><td>allergies_and_contraindications</td><td>4.3%</td><td>List</td><td>Weighted Average List Imputation</td></tr>
+<tr><td>adi_national_percentile</td><td>5.9%</td><td>Numeric</td><td>Spline Interpolation</td></tr>
+<tr><td>adi_state_decile</td><td>5.9%</td><td>Numeric</td><td>Linear Interpolation</td></tr>
+<tr><td>primary_provider_title</td><td>7.0%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>medical_history</td><td>12.1%</td><td>List</td><td>Weighted Average List Imputation</td></tr>
+<tr><td>general_risk_score</td><td>20.2%</td><td>Numeric</td><td>Predictive Imputation (KNN)</td></tr>
+<tr><td>new_to_department_specialty</td><td>22.0%</td><td>Logical</td><td>Assume TRUE</td></tr>
+<tr><td>new_to_facility</td><td>22.0%</td><td>Logical</td><td>Assume FALSE</td></tr>
+<tr><td>new_to_provider</td><td>22.0%</td><td>Logical</td><td>Assume TRUE</td></tr>
+<tr><td>patient_gender_identity</td><td>28.6%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>visit_gender_identity</td><td>28.6%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>patient_sex_assigned</td><td>29.9%</td><td>Factor</td><td>Frequency-Based Imputation (Weighted by Subgroup Frequency)</td></tr>
+<tr><td>visit_sex_assigned</td><td>29.9%</td><td>Factor</td><td>Mode Imputation</td></tr>
+<tr><td>hospital_or_clinic_administered_medications</td><td>30.7%</td><td>List</td><td>Replace with Most Frequent List</td></tr>
+<tr><td>encounter_to_close_day</td><td>31.1%</td><td>Numeric</td><td>Indicator Variable + Predictive Modeling (KNN)</td></tr>
+<tr><td>visit_diagnosis</td><td>32.6%</td><td>List</td><td>Replace with Empty List</td></tr>
+<tr><td>visit_service_level</td><td>34.0%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>primary_diagnosis</td><td>34.4%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>patient_sexual_orientation</td><td>37.2%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>visit_sexual_orientation</td><td>37.2%</td><td>Factor</td><td>Add 'Other' Category</td></tr>
+<tr><td>phq_2_total_score</td><td>38.1%</td><td>List</td><td>Replace with Empty List</td></tr>
+<tr><td>primary_subscriber_group_number</td><td>48.2%</td><td>Factor</td><td>Predictive Modeling (Decision Tree)</td></tr>
+<tr><td>no_show_probability</td><td>50.3%</td><td>Numeric</td><td>Drop Variable (if non-critical)</td></tr>
+<tr><td>svi_2020_socioeconomic_percentile_census_tract</td><td>62.7%</td><td>Numeric</td><td>Indicator Variable + Rough Imputation (e.g., Overall Mean)</td></tr>
+<tr><td>visit_medications_ordered</td><td>72.5%</td><td>List</td><td>Replace with Empty List</td></tr>
+<tr><td>phq_9</td><td>80.0%</td><td>List</td><td>Replace with Proxy List</td></tr>
+<tr><td>visit_bmi</td><td>86.9%</td><td>Numeric</td><td>Drop Variable (if non-critical)</td></tr>
+<tr><td>visit_bp_diastolic</td><td>86.9%</td><td>Numeric</td><td>Add 'Unknown' Category</td></tr>
+<tr><td>visit_bp_systolic</td><td>86.9%</td><td>Numeric</td><td>Indicator Variable + Rough Imputation (e.g., Overall Mean)</td></tr>
+<tr><td>prepayment_due</td><td>87.3%</td><td>Numeric</td><td>Indicator Variable + Multiple Imputation (MICE)</td></tr>
+<tr><td>prepayment_collected</td><td>90.3%</td><td>Numeric</td><td>Indicator Variable + Multiple Imputation (MICE)</td></tr>
+<tr><td>visit_procedures_ordered</td><td>90.6%</td><td>List</td><td>Create Synthetic List</td></tr>
+<tr><td>university_of_pennsylvania_student</td><td>98.0%</td><td>Logical</td><td>Drop Variable (if non-critical)</td></tr>
+</table>
+</div>
+</body>
+</html>

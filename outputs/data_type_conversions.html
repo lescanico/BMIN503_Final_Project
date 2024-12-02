@@ -1,14 +1,12 @@
 <html>
 <head>
-<title>Data Type Conversion Summary</title>
 <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<h3>Data Type Conversion Summary</h3>
-<h4>Patient Data</h4>
-<div class="scrollable-container">
-<table border='1' style='border-collapse:collapse; width:100%;'>
-<tr><th>Column</th><th>Initial Type</th><th>Final Type</th></tr>
+<h6>Data Type Conversions</h6>
+<div class="scrollable-inner-container">
+<table>
+<tr><th>Variable</th><th>Original_Type</th><th>Converted_Type</th></tr>
 <tr><td>adi_national_percentile</td><td>numeric</td><td>numeric</td></tr>
 <tr><td>adi_state_decile</td><td>numeric</td><td>numeric</td></tr>
 <tr><td>allergies_and_contraindications</td><td>character</td><td>list</td></tr>
@@ -34,8 +32,8 @@
 <tr><td>outpatient_medications</td><td>character</td><td>list</td></tr>
 <tr><td>patient_ethnic_group_from_patient_dataset</td><td>character</td><td>factor</td></tr>
 <tr><td>patient_race_from_patient_dataset</td><td>character</td><td>factor</td></tr>
-<tr><td>phq_2_total_score</td><td>character</td><td>list</td></tr>
-<tr><td>phq_9</td><td>character</td><td>list</td></tr>
+<tr><td>phq_2_total_score</td><td>character</td><td>numeric</td></tr>
+<tr><td>phq_9</td><td>character</td><td>numeric</td></tr>
 <tr><td>procedures</td><td>character</td><td>list</td></tr>
 <tr><td>procedures_ordered_from_patient_dataset</td><td>character</td><td>list</td></tr>
 <tr><td>religion_from_patient_dataset</td><td>character</td><td>factor</td></tr>
@@ -51,14 +49,8 @@
 <tr><td>patient_id</td><td>character</td><td>character</td></tr>
 <tr><td>year_of_birth_from_patient_dataset</td><td>numeric</td><td>numeric</td></tr>
 <tr><td>postal_code_from_patient_dataset</td><td>character</td><td>factor</td></tr>
-</table>
-</div>
-<h4>Visit Data</h4>
-<div class="scrollable-container">
-<table border='1' style='border-collapse:collapse; width:100%;'>
-<tr><th>Column</th><th>Initial Type</th><th>Final Type</th></tr>
 <tr><td>age_at_visit_years</td><td>numeric</td><td>numeric</td></tr>
-<tr><td>appointment_creation_date</td><td>character</td><td>numeric</td></tr>
+<tr><td>appointment_creation_date</td><td>character</td><td>POSIXct, POSIXt</td></tr>
 <tr><td>appointment_length_minutes</td><td>numeric</td><td>numeric</td></tr>
 <tr><td>appointment_status</td><td>character</td><td>factor</td></tr>
 <tr><td>appointment_time</td><td>hms, difftime</td><td>hms, difftime</td></tr>
@@ -111,7 +103,7 @@
 <tr><td>time_waiting_for_physician_minutes</td><td>numeric</td><td>numeric</td></tr>
 <tr><td>time_with_physician_minutes</td><td>numeric</td><td>numeric</td></tr>
 <tr><td>university_of_pennsylvania_student_from_visit_dataset</td><td>numeric</td><td>logical</td></tr>
-<tr><td>visit_date</td><td>character</td><td>numeric</td></tr>
+<tr><td>visit_date</td><td>character</td><td>POSIXct, POSIXt</td></tr>
 <tr><td>visit_type</td><td>character</td><td>factor</td></tr>
 <tr><td>patient_id</td><td>character</td><td>character</td></tr>
 <tr><td>year_of_birth_from_visit_dataset</td><td>numeric</td><td>numeric</td></tr>

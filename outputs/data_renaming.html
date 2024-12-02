@@ -1,191 +1,115 @@
 <html>
 <head>
-<title>Data Renaming</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../style.css">
 </head>
 <body>
-<h3>Data Renaming</h3>
-<h4>Patient Data Original Names</h4>
-<pre>
- [1] "ADI National Percentile (%)"                         
- [2] "ADI State Decile"                                    
- [3] "Allergies and Contraindications"                     
- [4] "BMI"                                                 
- [5] "BP (Diastolic) (mmHg)"                               
- [6] "BP (Systolic) (mmHg)"                                
- [7] "Chief Complaint"                                     
- [8] "Country"                                             
- [9] "Country/County"                                      
-[10] "Diagnosis"                                           
-[11] "End Date"                                            
-[12] "Gender Identity"                                     
-[13] "General Risk Score"                                  
-[14] "Hospital or Clinic-Administered Medications"         
-[15] "Interpreter Needed?"                                 
-[16] "Language"                                            
-[17] "Legal Sex"                                           
-[18] "Level of Service"                                    
-[19] "Marital Status"                                      
-[20] "Medical History"                                     
-[21] "Medications"                                         
-[22] "Medications Ordered"                                 
-[23] "MyChart Status"                                      
-[24] "Outpatient Medications"                              
-[25] "Patient Ethnic Group"                                
-[26] "Patient Race"                                        
-[27] "PHQ-2 Total Score"                                   
-[28] "PHQ-9"                                               
-[29] "Procedures"                                          
-[30] "Procedures Ordered"                                  
-[31] "Religion"                                            
-[32] "Rural-Urban Commuting Area (Primary)"                
-[33] "Rural-Urban Commuting Area (Secondary)"              
-[34] "SDOH Domains"                                        
-[35] "SDOH Risk Level"                                     
-[36] "Sex Assigned at Birth"                               
-[37] "Sexual Orientation"                                  
-[38] "Start Date"                                          
-[39] "State"                                               
-[40] "SVI 2020 Socioeconomic Percentile (Census Tract) (%)"
-[41] "University of Pennsylvania Student"                  
-[42] "patient_id"                                          
-[43] "year_of_birth"                                       
-[44] "postal_code"                                          
-</pre>
-<h4>Patient Data Standarized Names</h4>
-<pre>
- [1] "adi_national_percentile"                                  
- [2] "adi_state_decile"                                         
- [3] "allergies_and_contraindications"                          
- [4] "bmi_from_patient_dataset"                                 
- [5] "bp_diastolic_from_patient_dataset"                        
- [6] "bp_systolic_from_patient_dataset"                         
- [7] "chief_complaint"                                          
- [8] "country_from_patient_dataset"                             
- [9] "country_county_from_patient_dataset"                      
-[10] "diagnosis_from_patient_dataset"                           
-[11] "gender_identity_from_patient_dataset"                     
-[12] "general_risk_score"                                       
-[13] "hospital_or_clinic_administered_medications"              
-[14] "interpreter_needed_from_patient_dataset"                  
-[15] "language_from_patient_dataset"                            
-[16] "legal_sex_from_patient_dataset"                           
-[17] "level_of_service_from_patient_dataset"                    
-[18] "marital_status"                                           
-[19] "medical_history"                                          
-[20] "medications"                                              
-[21] "medications_ordered_from_patient_dataset"                 
-[22] "mychart_status_from_patient_dataset"                      
-[23] "outpatient_medications"                                   
-[24] "patient_ethnic_group_from_patient_dataset"                
-[25] "patient_race_from_patient_dataset"                        
-[26] "phq_2_total_score"                                        
-[27] "phq_9"                                                    
-[28] "procedures"                                               
-[29] "procedures_ordered_from_patient_dataset"                  
-[30] "religion_from_patient_dataset"                            
-[31] "rural_urban_commuting_area_primary_from_patient_dataset"  
-[32] "rural_urban_commuting_area_secondary_from_patient_dataset"
-[33] "sdoh_domains"                                             
-[34] "sdoh_risk_level"                                          
-[35] "sex_assigned_at_birth_from_patient_dataset"               
-[36] "sexual_orientation_from_patient_dataset"                  
-[37] "state_from_patient_dataset"                               
-[38] "svi_2020_socioeconomic_percentile_census_tract"           
-[39] "university_of_pennsylvania_student_from_patient_dataset"  
-[40] "patient_id"                                               
-[41] "year_of_birth_from_patient_dataset"                       
-[42] "postal_code_from_patient_dataset"                          
-</pre>
-<h4>Visit Data Original Names</h4>
-<pre>
- [1] "adi_national_percentile"                                  
- [2] "adi_state_decile"                                         
- [3] "allergies_and_contraindications"                          
- [4] "bmi_from_patient_dataset"                                 
- [5] "bp_diastolic_from_patient_dataset"                        
- [6] "bp_systolic_from_patient_dataset"                         
- [7] "chief_complaint"                                          
- [8] "country_from_patient_dataset"                             
- [9] "country_county_from_patient_dataset"                      
-[10] "diagnosis_from_patient_dataset"                           
-[11] "gender_identity_from_patient_dataset"                     
-[12] "general_risk_score"                                       
-[13] "hospital_or_clinic_administered_medications"              
-[14] "interpreter_needed_from_patient_dataset"                  
-[15] "language_from_patient_dataset"                            
-[16] "legal_sex_from_patient_dataset"                           
-[17] "level_of_service_from_patient_dataset"                    
-[18] "marital_status"                                           
-[19] "medical_history"                                          
-[20] "medications"                                              
-[21] "medications_ordered_from_patient_dataset"                 
-[22] "mychart_status_from_patient_dataset"                      
-[23] "outpatient_medications"                                   
-[24] "patient_ethnic_group_from_patient_dataset"                
-[25] "patient_race_from_patient_dataset"                        
-[26] "phq_2_total_score"                                        
-[27] "phq_9"                                                    
-[28] "procedures"                                               
-[29] "procedures_ordered_from_patient_dataset"                  
-[30] "religion_from_patient_dataset"                            
-[31] "rural_urban_commuting_area_primary_from_patient_dataset"  
-[32] "rural_urban_commuting_area_secondary_from_patient_dataset"
-[33] "sdoh_domains"                                             
-[34] "sdoh_risk_level"                                          
-[35] "sex_assigned_at_birth_from_patient_dataset"               
-[36] "sexual_orientation_from_patient_dataset"                  
-[37] "state_from_patient_dataset"                               
-[38] "svi_2020_socioeconomic_percentile_census_tract"           
-[39] "university_of_pennsylvania_student_from_patient_dataset"  
-[40] "patient_id"                                               
-[41] "year_of_birth_from_patient_dataset"                       
-[42] "postal_code_from_patient_dataset"                          
-</pre>
-<h4>Visit Data Standarized Names</h4>
-<pre>
- [1] "adi_national_percentile"                                  
- [2] "adi_state_decile"                                         
- [3] "allergies_and_contraindications"                          
- [4] "bmi_from_patient_dataset"                                 
- [5] "bp_diastolic_from_patient_dataset"                        
- [6] "bp_systolic_from_patient_dataset"                         
- [7] "chief_complaint"                                          
- [8] "country_from_patient_dataset"                             
- [9] "country_county_from_patient_dataset"                      
-[10] "diagnosis_from_patient_dataset"                           
-[11] "gender_identity_from_patient_dataset"                     
-[12] "general_risk_score"                                       
-[13] "hospital_or_clinic_administered_medications"              
-[14] "interpreter_needed_from_patient_dataset"                  
-[15] "language_from_patient_dataset"                            
-[16] "legal_sex_from_patient_dataset"                           
-[17] "level_of_service_from_patient_dataset"                    
-[18] "marital_status"                                           
-[19] "medical_history"                                          
-[20] "medications"                                              
-[21] "medications_ordered_from_patient_dataset"                 
-[22] "mychart_status_from_patient_dataset"                      
-[23] "outpatient_medications"                                   
-[24] "patient_ethnic_group_from_patient_dataset"                
-[25] "patient_race_from_patient_dataset"                        
-[26] "phq_2_total_score"                                        
-[27] "phq_9"                                                    
-[28] "procedures"                                               
-[29] "procedures_ordered_from_patient_dataset"                  
-[30] "religion_from_patient_dataset"                            
-[31] "rural_urban_commuting_area_primary_from_patient_dataset"  
-[32] "rural_urban_commuting_area_secondary_from_patient_dataset"
-[33] "sdoh_domains"                                             
-[34] "sdoh_risk_level"                                          
-[35] "sex_assigned_at_birth_from_patient_dataset"               
-[36] "sexual_orientation_from_patient_dataset"                  
-[37] "state_from_patient_dataset"                               
-[38] "svi_2020_socioeconomic_percentile_census_tract"           
-[39] "university_of_pennsylvania_student_from_patient_dataset"  
-[40] "patient_id"                                               
-[41] "year_of_birth_from_patient_dataset"                       
-[42] "postal_code_from_patient_dataset"                          
-</pre>
+<h5>Data Renaming Table</h5>
+<h6>Column Names</h6>
+<div class="scrollable-inner-container">
+<table>
+<tr><th>Original</th><th>Standardized</th><th>Source</th></tr>
+<tr><td>ADI National Percentile (%)</td><td>adi_national_percentile</td><td>Patient Dataset</td></tr>
+<tr><td>ADI State Decile</td><td>adi_state_decile</td><td>Patient Dataset</td></tr>
+<tr><td>Allergies and Contraindications</td><td>allergies_and_contraindications</td><td>Patient Dataset</td></tr>
+<tr><td>BMI</td><td>bmi_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>BP (Diastolic) (mmHg)</td><td>bp_diastolic_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>BP (Systolic) (mmHg)</td><td>bp_systolic_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Chief Complaint</td><td>chief_complaint</td><td>Patient Dataset</td></tr>
+<tr><td>Country</td><td>country_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Country/County</td><td>country_county_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Diagnosis</td><td>diagnosis_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Gender Identity</td><td>gender_identity_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>General Risk Score</td><td>general_risk_score</td><td>Patient Dataset</td></tr>
+<tr><td>Hospital or Clinic-Administered Medications</td><td>hospital_or_clinic_administered_medications</td><td>Patient Dataset</td></tr>
+<tr><td>Interpreter Needed?</td><td>interpreter_needed_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Language</td><td>language_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Legal Sex</td><td>legal_sex_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Level of Service</td><td>level_of_service_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Marital Status</td><td>marital_status</td><td>Patient Dataset</td></tr>
+<tr><td>Medical History</td><td>medical_history</td><td>Patient Dataset</td></tr>
+<tr><td>Medications</td><td>medications</td><td>Patient Dataset</td></tr>
+<tr><td>Medications Ordered</td><td>medications_ordered_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>MyChart Status</td><td>mychart_status_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Outpatient Medications</td><td>outpatient_medications</td><td>Patient Dataset</td></tr>
+<tr><td>Patient Ethnic Group</td><td>patient_ethnic_group_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Patient Race</td><td>patient_race_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>PHQ-2 Total Score</td><td>phq_2_total_score</td><td>Patient Dataset</td></tr>
+<tr><td>PHQ-9</td><td>phq_9</td><td>Patient Dataset</td></tr>
+<tr><td>Procedures</td><td>procedures</td><td>Patient Dataset</td></tr>
+<tr><td>Procedures Ordered</td><td>procedures_ordered_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Religion</td><td>religion_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Rural-Urban Commuting Area (Primary)</td><td>rural_urban_commuting_area_primary_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Rural-Urban Commuting Area (Secondary)</td><td>rural_urban_commuting_area_secondary_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>SDOH Domains</td><td>sdoh_domains</td><td>Patient Dataset</td></tr>
+<tr><td>SDOH Risk Level</td><td>sdoh_risk_level</td><td>Patient Dataset</td></tr>
+<tr><td>Sex Assigned at Birth</td><td>sex_assigned_at_birth_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Sexual Orientation</td><td>sexual_orientation_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>State</td><td>state_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>SVI 2020 Socioeconomic Percentile (Census Tract) (%)</td><td>svi_2020_socioeconomic_percentile_census_tract</td><td>Patient Dataset</td></tr>
+<tr><td>University of Pennsylvania Student</td><td>university_of_pennsylvania_student_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>patient_id</td><td>patient_id</td><td>Patient Dataset</td></tr>
+<tr><td>year_of_birth</td><td>year_of_birth_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>postal_code</td><td>postal_code_from_patient_dataset</td><td>Patient Dataset</td></tr>
+<tr><td>Age (At Visit) (years)</td><td>age_at_visit_years</td><td>Visit Dataset</td></tr>
+<tr><td>Appointment Creation Date</td><td>appointment_creation_date</td><td>Visit Dataset</td></tr>
+<tr><td>Appointment Length (minutes)</td><td>appointment_length_minutes</td><td>Visit Dataset</td></tr>
+<tr><td>Appointment Status</td><td>appointment_status</td><td>Visit Dataset</td></tr>
+<tr><td>Appointment Time</td><td>appointment_time</td><td>Visit Dataset</td></tr>
+<tr><td>BMI (kg/m^2)</td><td>bmi_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>BP (Diastolic)</td><td>bp_diastolic_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>BP (Systolic)</td><td>bp_systolic_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Continuity of Care?</td><td>continuity_of_care</td><td>Visit Dataset</td></tr>
+<tr><td>Copay Collected ($)</td><td>copay_collected</td><td>Visit Dataset</td></tr>
+<tr><td>Copay Due ($)</td><td>copay_due</td><td>Visit Dataset</td></tr>
+<tr><td>Country</td><td>country_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Country/County</td><td>country_county_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Diagnosis</td><td>diagnosis_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Encounter to Close (day)</td><td>encounter_to_close_day</td><td>Visit Dataset</td></tr>
+<tr><td>Encounter Type</td><td>encounter_type</td><td>Visit Dataset</td></tr>
+<tr><td>Gender Identity</td><td>gender_identity_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Interpreter Needed?</td><td>interpreter_needed_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Language</td><td>language_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Lead Time (days)</td><td>lead_time_days</td><td>Visit Dataset</td></tr>
+<tr><td>Legal Sex</td><td>legal_sex_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Level of Service</td><td>level_of_service_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Medications Ordered</td><td>medications_ordered_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>MyChart Status</td><td>mychart_status_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>New to Department Specialty?</td><td>new_to_department_specialty</td><td>Visit Dataset</td></tr>
+<tr><td>New to Facility?</td><td>new_to_facility</td><td>Visit Dataset</td></tr>
+<tr><td>New to Provider?</td><td>new_to_provider</td><td>Visit Dataset</td></tr>
+<tr><td>No Show Probability (%)</td><td>no_show_probability</td><td>Visit Dataset</td></tr>
+<tr><td>Patient Ethnic Group</td><td>patient_ethnic_group_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Patient Race</td><td>patient_race_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Portal Active at Scheduling?</td><td>portal_active_at_scheduling</td><td>Visit Dataset</td></tr>
+<tr><td>Prepayment Collected ($)</td><td>prepayment_collected</td><td>Visit Dataset</td></tr>
+<tr><td>Prepayment Due ($)</td><td>prepayment_due</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Benefit Plan</td><td>primary_benefit_plan</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Diagnosis</td><td>primary_diagnosis</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Payer</td><td>primary_payer</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Payer Financial Class</td><td>primary_payer_financial_class</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Provider Title</td><td>primary_provider_title</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Provider Type</td><td>primary_provider_type</td><td>Visit Dataset</td></tr>
+<tr><td>Primary Subscriber Group Number</td><td>primary_subscriber_group_number</td><td>Visit Dataset</td></tr>
+<tr><td>Procedures Ordered</td><td>procedures_ordered_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Religion</td><td>religion_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Rural-Urban Commuting Area (Primary)</td><td>rural_urban_commuting_area_primary_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Rural-Urban Commuting Area (Secondary)</td><td>rural_urban_commuting_area_secondary_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Scheduling Source</td><td>scheduling_source</td><td>Visit Dataset</td></tr>
+<tr><td>Self Pay?</td><td>self_pay</td><td>Visit Dataset</td></tr>
+<tr><td>Sex Assigned at Birth</td><td>sex_assigned_at_birth_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Sexual Orientation</td><td>sexual_orientation_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>State</td><td>state_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Time Physician Spent Post-Charting (minutes)</td><td>time_physician_spent_post_charting_minutes</td><td>Visit Dataset</td></tr>
+<tr><td>Time Physician Spent Pre-Charting (minutes)</td><td>time_physician_spent_pre_charting_minutes</td><td>Visit Dataset</td></tr>
+<tr><td>Time Waiting for Physician (minutes)</td><td>time_waiting_for_physician_minutes</td><td>Visit Dataset</td></tr>
+<tr><td>Time with Physician (minutes)</td><td>time_with_physician_minutes</td><td>Visit Dataset</td></tr>
+<tr><td>University of Pennsylvania Student</td><td>university_of_pennsylvania_student_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>Visit Date</td><td>visit_date</td><td>Visit Dataset</td></tr>
+<tr><td>Visit Type</td><td>visit_type</td><td>Visit Dataset</td></tr>
+<tr><td>patient_id</td><td>patient_id</td><td>Visit Dataset</td></tr>
+<tr><td>year_of_birth</td><td>year_of_birth_from_visit_dataset</td><td>Visit Dataset</td></tr>
+<tr><td>postal_code</td><td>postal_code_from_visit_dataset</td><td>Visit Dataset</td></tr>
+</table>
+</div>
 </body>
 </html>
