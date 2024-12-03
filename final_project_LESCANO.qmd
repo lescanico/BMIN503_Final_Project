@@ -19,7 +19,7 @@ execute:
   warning: false
 ---
 
-![](images/banner.jpg){style="background-color: transparent" fig-align="left"}
+![](images/banner-removebg-preview.png){fig-align="left"}
 
 ------------------------------------------------------------------------
 
@@ -37,11 +37,9 @@ This project addresses these challenges by applying a data-driven approach to pr
 
 ## Methods {#sec-methods}
 
-### Data Sourcing
+### Data Sourcing & Anonymization
 
 Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics platform. The raw files, originally in `.xlsx` format, were converted to `.csv` and securely stored as `patient_data.csv` and `visit_data.csv`.
-
-### Data Anonymization
 
 Sensitive identifiers such as medical record numbers (MRNs) were replaced with anonymized IDs. Key demographics like birth dates and postal codes were generalized to ensure compliance with HIPAA and other privacy regulations.
 
@@ -147,7 +145,7 @@ visit_name_mapping$Source <- "Visit Dataset"
 # Combine into a single dataframe
 name_mapping <- bind_rows(patient_name_mapping, visit_name_mapping)
 
-# Capture as HTML table
+# Capture as HTML table [See Appendix - Helper Functions](#capture-output-as-html)
 source("scripts/helper-functions/capture-to-html.R")
 
 capture_output_to_html(
@@ -158,8 +156,7 @@ capture_output_to_html(
 ```
 
 ```{r, results='asis', echo=FALSE}
-source("scripts/helper-functions/embed-html-file.R")
-embed_html("outputs/data_renaming.html")
+cat(readLines("outputs/data_renaming.html"), sep = "\n")
 ```
 
 #### Type Standarization
@@ -278,7 +275,7 @@ group_summary <- type_classification %>%
   mutate(Count = lengths(Variables)) %>%
   select(Type, Count, Variables)
 
-# Capture as HTML table
+# Capture as HTML table [See Appendix - Helper Functions](#capture-output-as-html)
 source("scripts/helper-functions/capture-to-html.R")
 
 capture_output_to_html(
@@ -349,6 +346,7 @@ visit_data_converted <- convert_types(visit_data_renamed)
 # Load required libraries
 library(tibble)
 library(dplyr)
+library(readr)
 
 # Function to create variable type conversions table
 create_type_conversions_lookup<- function(original_data, converted_data) {
@@ -375,7 +373,7 @@ type_conversions_lookup <- bind_rows(patient_type_conversions_lookup, visit_type
 # Save the lookup table to a file
 saveRDS(type_conversions_lookup, "type_conversions_lookup.rds")
 
-# Capture as HTML table
+# Capture as HTML table [See Appendix - Helper Functions](#capture-output-as-html)
 capture_output_to_html(
   "data_type_conversions.html",
   "Data Type Conversions" = type_conversions_lookup
@@ -383,7 +381,7 @@ capture_output_to_html(
 ```
 
 ```{r, results='asis', echo=FALSE}
-embed_html("outputs/data_type_conversions.html")
+cat(readLines("outputs/data_type_conversions.html"), sep = "\n")
 ```
 
 #### Data Integration
@@ -491,8 +489,6 @@ processed_results <- process_duplicate_columns(merged_data)
 deduplicated_data <- processed_results$deduplicated_data
 duplicate_column_check <- processed_results$duplicate_check_results
 non_identical_columns <- processed_results$non_identical_columns
-
-
 
 # Function to rename non-identical duplicate columns
 rename_non_identical_columns <- function(data) {
@@ -633,7 +629,7 @@ head_data_preprocessed <- head(deduplicated_data_reordered)
 set.seed(123)
 sample_head <- data_preprocessed[sample(nrow(data_preprocessed), 10), ]
 
-# Capture Summary of Preprocessed Data
+# Capture Summary of Preprocessed Data [See Appendix - Helper Functions](#capture-output-as-html)
 source("scripts/helper-functions/capture-to-html.R")
 capture_output_to_html(
   "data_preprocessed_head.html",
@@ -643,12 +639,8 @@ capture_output_to_html(
 ```
 
 ```{r, results='asis', echo=FALSE}
-embed_html("outputs/data_preprocessed_head.html")
+cat(readLines("outputs/data_preprocessed_head.html"), sep = "\n")
 ```
-
-> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
->
-> Refer to [Appendix] - [Helper Functions] - [Function to Calculate Summary Statistics](#calculate-summary-stats) for function definition.
 
 ### Missing Data Analysis
 
@@ -659,7 +651,7 @@ The analysis of missing data was performed to understand its extent and impact o
 Missing data patterns were analyzed to identify variables with significant gaps. Visualization techniques, such as bar plots, were used to summarize the extent of missingness.
 
 ```{r missing-plotting, eval=FALSE}
-# Visualize Missing Data
+# Visualize Missing Data [See Appendix - Helper Functions](#capture-output-as-html)
 source("scripts/helper-functions/plot-missing-values.R")
 
 plot_missing_values_by_type(data_preprocessed, 0, 1)
@@ -669,23 +661,17 @@ plot_missing_values_by_type(data_preprocessed, 30, 50)
 plot_missing_values_by_type(data_preprocessed, 50, 100)
 ```
 
-![](figures/plots/0-1_missing_data_preprocessed_plot.png)
-
-![](figures/plots/1-5_missing_data_preprocessed_plot.png)
-
-![](figures/plots/5-30_missing_data_preprocessed_plot.png)
-
-![](figures/plots/30-50_missing_data_preprocessed_plot.png)
-
-![](figures/plots/50-100_missing_data_preprocessed_plot.png)
-
-```{r, results='asis', echo=FALSE, eval=FALSE}
-embed_html("outputs/missing_data_preprocessed_plots.html")
-```
-
-> Refer to [Appendix] - [Helper Functions] - [Function to Plot Missing Values by Type](#plot-missing-values-by-type) for function definition.
->
-> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
+::: scrollable-container
+![](figures/plots/0-1_missing_data_preprocessed_plot.png)\
+\
+![](figures/plots/1-5_missing_data_preprocessed_plot.png)\
+\
+![](figures/plots/5-30_missing_data_preprocessed_plot.png)\
+\
+![](figures/plots/30-50_missing_data_preprocessed_plot.png)\
+\
+![](figures/plots/50-100_missing_data_preprocessed_plot.png)\
+:::
 
 #### Handling Strategies
 
@@ -912,44 +898,81 @@ missing_data_options <- list(
 ##### Strategy Selection
 
 ```{r missing-data-handling-table, eval=FALSE}
-# Generate the data handling table
+# Generate the data handling table [See Appendix - Helper Functions](#generate-data-handling-table)
 source("scripts/helper-functions/generate-missing-handling-table.R")
+
 data_handling_table <- generate_data_handling_table(data_preprocessed)
+
+# Capture as tables in HTML [See Appendix - Helper Functions](#capture-output-as-html)
+source("scripts/helper-functions/capture-to-html.R")
 
 capture_output_to_html(
   "data_preprocessed_handling_table_all_options.html",
   "Preprocessed Data Handling Table",
   "All Options" = data_handling_table
 )
-
-capture_output_to_html(
-  "data_preprocessed_handling_table_manual.html",
-  "Preprocessed Data Handling Table",
-  "Manual" = data_handling_table
-)
-
-capture_output_to_html(
-  "data_preprocessed_handling_table_random.html",
-  "Preprocessed Data Handling Table",
-  "Random" = data_handling_table
-)
 ```
 
-```{r, results='asis', echo=FALSE, eval=FALSE}
-embed_html("outputs/data_preprocessed_handling_table_all_options.html")
+```{r, results='asis', echo=FALSE}
+cat(readLines("outputs/data_preprocessed_handling_table_all_options.html"), sep = "\n")
 ```
-
-> Refer to [Appendix] - [Helper Functions] - [Function to Generate Missing Data Handling Strategies](#generate-data-handling-table) for function definition
->
-> Refer to [Appendix] - [Helper Functions] - [Function to Capture Output as HTML](#capture-output-to-html) for function definition.
 
 ### Data Reduction
 
-A reduced dataset with fewer variables will be created to meet final project deadline. Later iterations will expand the analysis to the complete dataset.
+A reduced dataset with fewer variables was created to meet final project deadline. Later iterations will expand the analysis to the complete dataset.
+
+```{r, eval=FALSE}
+# Facilitate variable choosing
+
+# Step 1: Create a data frame from the colnames(data_preprocessed)
+colnames_data <- colnames(data_preprocessed)
+
+# Step 2: Filter variable_type_lookup to include only variables present in colnames(data_preprocessed)
+filtered_lookup <- variable_type_lookup[variable_type_lookup$Variable %in% colnames_data, ]
+
+# Step 3: Calculate missing percentages for each variable in data_preprocessed
+missingness <- colSums(is.na(data_preprocessed)) / nrow(data_preprocessed) * 100
+missingness_df <- data.frame(Variable = colnames(data_preprocessed), Missingness = round(missingness, 2))
+
+# Step 4: Merge the filtered lookup table with the missingness data
+result_df <- merge(filtered_lookup, missingness_df, by = "Variable", all.x = TRUE)
+
+# Step 5: Sort the resulting data frame by Missingness ascendingly
+result_df <- result_df[order(result_df$Missingness), ]
+
+# Step 6: Define detailed logical groups
+logical_groups <- list(
+  Identifiers = c("patient_id"),
+  Demographic_Info = c("age_at_visit_years", "year_of_birth", "legal_sex", "marital_status", "language", "patient_gender_identity", "visit_gender_identity", "patient_sex_assigned", "visit_sex_assigned", "patient_sexual_orientation", "visit_sexual_orientation", "patient_race", "visit_race", "patient_ethnic_group", "patient_religion", "visit_religion"),
+  Encounter_Info = c("continuity_of_care", "encounter_type", "interpreter_needed", "visit_date", "visit_type", "appointment_creation_date", "appointment_time", "appointment_length_minutes", "lead_time_days", "scheduling_source", "appointment_status", "encounter_to_close_day", "chief_complaint", "no_show_probability"),
+  Geographic_Info = c("country", "state", "patient_county", "visit_county", "patient_postal_code", "visit_postal_code", "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", "svi_2020_socioeconomic_percentile_census_tract"),
+  Provider_Info = c("primary_provider_type", "primary_provider_title", "time_physician_spent_post_charting_minutes", "time_physician_spent_pre_charting_minutes", "time_waiting_for_physician_minutes", "time_with_physician_minutes"),
+  Financial = c("primary_benefit_plan", "primary_payer", "primary_payer_financial_class", "self_pay", "copay_collected", "copay_due", "prepayment_due", "prepayment_collected", "primary_subscriber_group_number", "patient_service_level", "visit_service_level"),
+  Health_Metrics = c("patient_bmi", "visit_bmi", "patient_bp_diastolic", "visit_bp_diastolic", "patient_bp_systolic", "visit_bp_systolic", "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains", "adi_national_percentile", "adi_state_decile"),
+  Clinical_History = c("patient_diagnosis", "visit_diagnosis", "primary_diagnosis", "medical_history", "allergies_and_contraindications"),
+  Treatments = c("medications", "outpatient_medications", "patient_medications_ordered", "visit_medications_ordered", "hospital_or_clinic_administered_medications", "procedures", "visit_procedures_ordered", "patient_procedures_ordered"),
+  Patient_Portal = c("portal_active_at_scheduling", "mychart_status"),
+  Patient_Status = c("new_to_department_specialty", "new_to_facility", "new_to_provider", "university_of_pennsylvania_student")
+)
+
+# Step 7: Map each variable to its logical group
+group_mapping <- stack(logical_groups)
+colnames(group_mapping) <- c("Variable", "Group")
+
+# Step 8: Merge the `result_df` with the `group_mapping`
+result_df <- merge(result_df, group_mapping, by = "Variable", all.x = TRUE)
+
+# Step 9: Ensure the original order is preserved
+result_df <- result_df[order(match(result_df$Variable, colnames(data_preprocessed))), ]
+
+# Step 10: Reorder columns to make 'Group' the first column
+result_df <- result_df[, c("Group", setdiff(colnames(result_df), "Group"))]
+```
 
 ```{r reduction, eval=FALSE}
 # Load required libraries
 library(dplyr)
+library(readr)
 
 # Reduce dataset
 reduced_data_preprocessed <- data_preprocessed %>%
@@ -957,32 +980,128 @@ reduced_data_preprocessed <- data_preprocessed %>%
     primary_provider_type %in% c("Physician", "Psychiatrist", "Resident", "Nurse Practitioner")
   ) %>%
   select(
-    # Identifiers
+    # Identifier
     patient_id,
     
     # Demographics
-    year_of_birth, legal_sex, marital_status, patient_ethnic_group, patient_race, adi_national_percentile,
-    
-    # Visit Information
-    visit_date, appointment_length_minutes, appointment_status, primary_provider_type, visit_service_level,
+    year_of_birth, legal_sex, marital_status, patient_ethnic_group, patient_race, patient_religion, adi_national_percentile,
     
     # Clinical Information
-    allergies_and_contraindications, medical_history, primary_diagnosis, visit_diagnosis,
+    allergies_and_contraindications, medical_history, 
+    
+    # Visit Information
+    visit_date, appointment_length_minutes, appointment_status, primary_provider_type, priimary_provider_title, visit_service_level, primary_diagnosis, visit_diagnosis,
 
     # Medications
     medications, visit_medications_ordered,
-    
-    # Risk and Assessments
-    general_risk_score, phq_2_total_score, phq_9, sdoh_risk_level,
   )
+
+# Save reduced dataset
+saveRDS(reduced_data_preprocessed, "datasets/reduced_data.rds")
+```
+
+## Reduced Iteration
+
+```{r reduced-data-load, eval=FALSE}
+# Load required Libraries
+library(readr)
+
+# Load reduced dataset
+reduced_data <- readRDS("datasets/reduced_data.rds")
+variable_type_lookup <- readRDS("datasets/variable_type_lookup.rds")
+```
+
+### Missing Data Handling
+
+```{r reduced-missingness, eval=FALSE}
+# Load required libraries
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+
+# Function to create a heatmap for missing values
+plot_missing_heatmap <- function(data, file_name) {
+  # Convert data to a logical matrix of NAs
+  na_matrix <- is.na(data)
+  
+  # Convert the matrix to a long-format data frame for ggplot
+  na_long <- melt(na_matrix, varnames = c("Row", "Column"), value.name = "IsNA")
+  
+  # Create the heatmap
+  p <- ggplot(na_long, aes(x = Column, y = Row, fill = IsNA)) +
+    geom_tile() +
+    scale_fill_manual(values = c("blue", "red"), labels = c("Present", "Missing"), name = "Missing") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 90, hjust = 1),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    ) +
+    labs(
+      title = "Heatmap of Missing Values",
+      x = "Variables",
+      y = "Observations"
+    )
+  # Save plot
+  dir.create(dirname(file_name), showWarnings = FALSE, recursive = TRUE)
+  ggsave(file_name, plot = p, width = 8, height = 6, bg = "white")
+  message("Plot saved to: ", file_name)
+}
+
+# Visualize Missing Data [See Appendix - Helper Functions](#capture-output-as-html)
+source("scripts/helper-functions/plot-missing-values.R")
+
+plot_missing_heatmap(reduced_data, "figures/plots/missing_heatmap_reduced_data.png")
+plot_missing_values_by_type(reduced_data, 0, 1)
+plot_missing_values_by_type(reduced_data, 1, 5)
+plot_missing_values_by_type(reduced_data, 5, 30)
+plot_missing_values_by_type(reduced_data, 30, 50)
+plot_missing_values_by_type(reduced_data, 50, 100)
 ```
 
 ### Exploratory Data Analysis (EDA)
 
 Exploratory Data Analysis will be conducted to gain insights into the main characteristics of the data, focusing on the distribution of key variables and the relationships between them. This will involve visualizing data distributions, identifying outliers, and exploring potential groupings and patterns. The findings from EDA will help in understanding the underlying structure of the data and guide the subsequent phases of data preprocessing and model building.
 
-```{r eda, eval=FALSE}
+```{r reduced-missing-data-handling-table, eval=FALSE}
+# Generate the data handling table [See Appendix - Helper Functions](#generate-data-handling-table)
+source("scripts/helper-functions/generate-missing-handling-table.R")
 
+data_handling_table <- generate_data_handling_table(data_preprocessed)
+
+# Capture as tables in HTML [See Appendix - Helper Functions](#capture-output-as-html)
+source("scripts/helper-functions/capture-to-html.R")
+
+capture_output_to_html(
+  "data_preprocessed_handling_table_all_options.html",
+  "Preprocessed Data Handling Table",
+  "All Options" = data_handling_table
+)
+  # Convert the matrix to a long-format data frame for ggplot
+  na_long <- melt(na_matrix, varnames = c("Row", "Column"), value.name = "IsNA")
+  
+  # Create the heatmap
+  ggplot(na_long, aes(x = Column, y = Row, fill = IsNA)) +
+    geom_tile() +
+    scale_fill_manual(values = c("white", "red"), labels = c("Present", "Missing"), name = "Missing") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 90, hjust = 1),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    ) +
+    labs(
+      title = "Heatmap of Missing Values",
+      x = "Variables",
+      y = "Observations"
+    )
+}
+
+heatmap_plot <- plot_missing_heatmap(data_preprocessed)
 ```
 
 ### Data Transformation

@@ -1,7 +1,3 @@
-# Load required libraries
-library(dplyr)
-library(base64enc)
-
 # Define function to capture output to HTML file
 capture_output_to_html <- function(file, ...) {
   # Ensure file is provided
@@ -16,6 +12,7 @@ capture_output_to_html <- function(file, ...) {
   
   # Write HTML header
   cat("<html>\n<head>\n", file = con)
+  cat("<meta charset=\"UTF-8\">\n", file = con)
   cat("<link rel=\"stylesheet\" href=\"../style.css\">\n", file = con)
   cat("</head>\n<body>\n", file = con)
   
@@ -24,16 +21,17 @@ capture_output_to_html <- function(file, ...) {
   for (i in seq_along(args)) {
     if (is.null(names(args)[i]) || names(args)[i] == "") {
       # Unnamed argument: Render as <h5>
-      cat(sprintf("<h5>%s</h5>\n", args[[i]]), file = con)
+      content <- gsub("\n", "<br>", as.character(args[[i]]))
+      cat(sprintf("<h5>%s</h5>\n", content), file = con)
     } else {
       # Named argument: Render as <h6> + Content
       cat(sprintf("<h6>%s</h6>\n", names(args)[i]), file = con)
       
-      # Check content type
       if (is.character(args[[i]])) {
         # Render character vectors as preformatted text
+        content <- gsub("\n", "<br>", paste(args[[i]], collapse = "\n"))
         cat('<div class="scrollable-inner-container">\n', file = con)
-        cat(sprintf("<pre>%s</pre>\n", paste(args[[i]], collapse = "\n")), file = con)
+        cat(sprintf("<pre>%s</pre>\n", content), file = con)
         cat("</div>\n", file = con)
       } else if (is.data.frame(args[[i]])) {
         # Render data frames as tables
@@ -47,8 +45,10 @@ capture_output_to_html <- function(file, ...) {
           cat("<tr>", file = con)
           for (col in names(args[[i]])) {
             value <- as.character(args[[i]][row, col])
-            value <- gsub("<", "&lt;", value)
-            value <- gsub(">", "&gt;", value)
+            value <- gsub("\n", "<br>", value)
+            value <- gsub("(\\d+)\\)", "\\1&#41;", value)
+            value <- gsub("^0\\.0%$", "<0.1%", value)
+            value <- gsub("^0\\.00%$", "<0.01%", value)
             cat(sprintf("<td>%s</td>", value), file = con)
           }
           cat("</tr>\n", file = con)
@@ -56,18 +56,10 @@ capture_output_to_html <- function(file, ...) {
         cat("</table>\n</div>\n", file = con)
       } else {
         # Render other objects as preformatted text
+        content <- gsub("\n", "<br>", paste(capture.output(print(args[[i]])), collapse = "\n"))
         cat('<div class="scrollable-inner-container">\n', file = con)
-        cat("<pre>\n", file = con)
-        tryCatch(
-          {
-            output <- capture.output(print(args[[i]]))
-            cat(paste(output, collapse = "\n"), "\n", file = con)
-          },
-          error = function(e) {
-            cat(sprintf("Error rendering section '%s': %s", names(args)[i], e$message), file = con)
-          }
-        )
-        cat("</pre>\n</div>\n", file = con)
+        cat(sprintf("<pre>%s</pre>\n", content), file = con)
+        cat("</div>\n", file = con)
       }
     }
   }

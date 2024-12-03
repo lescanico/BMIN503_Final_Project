@@ -100,7 +100,7 @@ generate_data_handling_table <- function(dataset, dataset_name = deparse(substit
       handling_decisions[[variable]] <- random_choice
     } else if (selected_mode == 2) {
       # Print options only
-      handling_decisions[[variable]] <- paste(sprintf("%d) %s", seq_along(options), options), collapse = " | ")
+      handling_decisions[[variable]] <- paste(sprintf("%d) %s", seq_along(options), options), collapse = "\n")
     }
   }
   
