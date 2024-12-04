@@ -100,11 +100,11 @@ body blockquote, blockquote {
 code, pre {
   font-family: "Courier New", Courier, monospace;
   background-color: var(--background-color);
-  padding: var(--padding-default);
+  padding: 0
   color: var(--main-color);
   border: 0;
   overflow-x: auto;
-  line-height: 1.4;
+  line-height: 1;
   margin-bottom: 1em;
 }
 
