@@ -1,11 +1,10 @@
-# Load required libraries
-library(dplyr)
-
-# Define function to generate data handling table by variable types and missingness
 generate_data_handling_table <- function(dataset, dataset_name = deparse(substitute(dataset))) {
   
+  # Source the helper function for summary statistics
+  source("scripts/helper-functions/calculate-summary-stats.R")
+  
   # Load variable type lookup
-  variable_type_lookup <- readRDS("datasets/variable_type_lookup.rds")
+  variable_type_lookup <- readRDS("datasets/lookup-tables/variable_type_lookup.rds")
   variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
   
   # Prompt user for mode selection
@@ -104,13 +103,19 @@ generate_data_handling_table <- function(dataset, dataset_name = deparse(substit
     }
   }
   
+  # Add summary statistics column
+  summary_stats <- sapply(missing_data_summary$variable, function(v) {
+    calculate_summary_stats(dataset[[v]], missing_data_summary$type[missing_data_summary$variable == v])$description
+  })
+  
   # Compile results into a table
   handling_summary <- missing_data_summary %>%
     mutate(
       `Missing %` = sprintf("%.1f%%", missing_percentage),
-      `Handling Strategy` = sapply(variable, function(v) handling_decisions[[v]])
+      `Handling Strategy` = sapply(variable, function(v) handling_decisions[[v]]),
+      `Summary Statistics` = summary_stats
     ) %>%
-    select(variable, `Missing %`, type, `Handling Strategy`) %>%
+    select(variable, `Missing %`, type, `Summary Statistics`, `Handling Strategy`) %>%
     rename(
       Variable = variable,
       Type = type

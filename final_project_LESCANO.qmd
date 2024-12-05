@@ -157,7 +157,7 @@ capture_output_to_html(
 )
 ```
 
-> See [Function to Capture Output as HTML].
+> See [Function to Capture Output as HTML](#capture-output-as-html).
 
 ```{r, results='asis', echo=FALSE}
 cat(readLines("outputs/data_renaming.html"), sep = "\n")
@@ -288,7 +288,7 @@ capture_output_to_html(
 )
 ```
 
-> See [Function to Capture Output as HTML].
+> See [Function to Capture Output as HTML](#capture-output-as-html).
 
 ```{r conversions, eval=FALSE}
 # Load required libraries
@@ -386,7 +386,7 @@ capture_output_to_html(
 )
 ```
 
-> See [Function to Capture Output as HTML]
+> See [Function to Capture Output as HTML](#capture-output-as-html)
 
 ```{r, results='asis', echo=FALSE}
 cat(readLines("outputs/data_type_conversions.html"), sep = "\n")
@@ -607,15 +607,15 @@ deduplicated_data_reordered <- deduplicated_data_renamed %>%
 print(names(deduplicated_data_reordered))
 
 # Sort rows by patient_id and then by visit_date
-data_preprocessed <- deduplicated_data_reordered %>%
+predata <- deduplicated_data_reordered %>%
   arrange(patient_id, visit_date)
 
-# Identify variables in data_preprocessed that are not in the lookup table
-new_variables <- setdiff(colnames(data_preprocessed), type_classification$Variable)
+# Identify variables in predata that are not in the lookup table
+new_variables <- setdiff(colnames(predata), type_classification$Variable)
 
 if (length(new_variables) > 0) {
   # Infer the types of the new variables
-  inferred_types <- sapply(data_preprocessed[, new_variables, drop = FALSE], class)
+  inferred_types <- sapply(predata[, new_variables, drop = FALSE], class)
   
   # Create a data frame for new variables
   new_rows <- data.frame(
@@ -631,25 +631,31 @@ if (length(new_variables) > 0) {
 }
 
 # Inspect preprocessed data
-head_data_preprocessed <- head(deduplicated_data_reordered)
+head_predata <- head(deduplicated_data_reordered)
 
 # Sample some rows
 set.seed(123)
-sample_head <- data_preprocessed[sample(nrow(data_preprocessed), 10), ]
+sample_head <- predata[sample(nrow(predata), 10), ]
 
 # Capture Summary of Preprocessed Data
 source("scripts/helper-functions/capture-to-html.R")
 capture_output_to_html(
-  "data_preprocessed_head.html",
+  "predata_head.html",
   "Preprocessed Data",
   "Few Sample Rows" = head(sample_head)
 )
 ```
 
-> See [Function to Capture Output as HTML].
+> See [Function to Capture Output as HTML](#capture-output-as-html).
 
 ```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_preprocessed_head.html"), sep = "\n")
+cat(readLines("outputs/predata_head.html"), sep = "\n")
+```
+
+### Data Transformation
+
+```{r}
+
 ```
 
 ### Missing Data Analysis
@@ -664,14 +670,14 @@ Missing data patterns were analyzed to identify variables with significant gaps.
 # Visualize Missing Data
 source("scripts/helper-functions/plot-missing-values.R")
 
-plot_missing_values_by_type(data_preprocessed, 0, 1)
-plot_missing_values_by_type(data_preprocessed, 1, 5)
-plot_missing_values_by_type(data_preprocessed, 5, 30)
-plot_missing_values_by_type(data_preprocessed, 30, 50)
-plot_missing_values_by_type(data_preprocessed, 50, 100)
+plot_missing_values_by_type(predata, 0, 1)
+plot_missing_values_by_type(predata, 1, 5)
+plot_missing_values_by_type(predata, 5, 30)
+plot_missing_values_by_type(predata, 30, 50)
+plot_missing_values_by_type(predata, 50, 100)
 ```
 
-> See [Function to Plot Missing Values by Type].
+> See [Function to Plot Missing Values by Type](#plot-missing-values-by-type).
 
 ::: scrollable-container
 ![](figures/plots/0-1_missing_data_preprocessed_plot.png)\
@@ -901,39 +907,125 @@ missing_data_options <- list(
 source("scripts/helper-functions/generate-missing-handling-table.R")
 data_handling_table <- generate_data_handling_table(data_preprocessed)
 
-# Capture as HTML
+`# Capture as HTML
 source("scripts/helper-functions/capture-to-html.R")
 capture_output_to_html(
-  "data_preprocessed_handling_table_all_options.html",
-  "Preprocessed Data Handling Table",
-  "All Options" = data_handling_table
+  "predata_handling_table_all_options.html",
+  "PreData Handling Table",
+  "All Options" = data_handling_table[, c(1, 2, 3, 4)]
 )
 ```
 
-> See [Function to Generate Missing Data Handling Strategies] and [Function to Calculate Summary Statistics].
+> See [Function to Generate Missing Data Handling Strategies](#generate-data-handling-table) and [Function to Calculate Summary Statistics](#calculate-summary-stats).
 
 ```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_preprocessed_handling_table_all_options.html"), sep = "\n")
+cat(readLines("outputs/predata_handling_table_all_options.html"), sep = "\n")
 ```
 
-```{r, eval=FALSE}
+### Multiple Imputation
 
+```{r}
+# Load required libraries
+library(mice)
+library(tidyr)
+library(dplyr)
+library(hms)
+
+# Preprocessing Functions
+convert_logical_to_factor <- function(data) {
+  logical_vars <- names(data)[sapply(data, is.logical)]
+  data[logical_vars] <- lapply(data[logical_vars], as.factor)
+  return(data)
+}
+
+convert_date_to_numeric <- function(data) {
+  date_vars <- names(data)[sapply(data, inherits, "Date")]
+  data[date_vars] <- lapply(data[date_vars], as.numeric)
+  return(data)
+}
+
+convert_numeric_to_date <- function(data, original_data) {
+  date_vars <- names(original_data)[sapply(original_data, inherits, "Date")]
+  data[date_vars] <- lapply(data[date_vars], function(x) as.Date(x, origin = "1970-01-01"))
+  return(data)
+}
+
+convert_hms_to_numeric <- function(data) {
+  time_vars <- names(data)[sapply(data, inherits, "hms")]
+  data[time_vars] <- lapply(data[time_vars], as.numeric)
+  return(data)
+}
+
+convert_numeric_to_hms <- function(data, original_data) {
+  time_vars <- names(original_data)[sapply(original_data, inherits, "hms")]
+  data[time_vars] <- lapply(data[time_vars], as_hms)
+  return(data)
+}
+
+encode_list_vars <- function(data) {
+  list_vars <- names(data)[sapply(data, is.list)]
+  for (var in list_vars) {
+    data[[paste0(var, "_length")]] <- sapply(data[[var]], function(x) if (is.null(x)) 0 else length(x))
+    data[[paste0(var, "_has_na")]] <- sapply(data[[var]], function(x) if (is.null(x)) FALSE else any(is.na(x)))
+  }
+  # Drop original list variables
+  data <- data[ , !(names(data) %in% list_vars)]
+  return(data)
+}
+
+# Automatic Preprocessing
+preprocess_data <- function(data) {
+  original_data <- data  # Keep the original for reference
+  data <- convert_logical_to_factor(data)
+  data <- convert_date_to_numeric(data)
+  data <- convert_hms_to_numeric(data)
+  data <- encode_list_vars(data)
+  return(list(preprocessed_data = data, original_data = original_data))
+}
+
+# Preprocess Data
+processed <- preprocess_data(data)
+preprocessed_data <- processed$preprocessed_data
+original_data <- processed$original_data
+
+# Automatically Define Imputation Methods
+methods <- make.method(preprocessed_data)
+methods[sapply(preprocessed_data, is.numeric)] <- "pmm"
+methods[sapply(preprocessed_data, is.factor)] <- "polyreg"
+methods[grep("_length|_has_na", names(preprocessed_data))] <- "pmm"
+
+# Perform Multiple Imputation
+imputed_data <- mice(preprocessed_data, method = methods, m = 5, maxit = 10, seed = 123)
+
+# Postprocess Data
+completed_data <- complete(imputed_data)
+completed_data <- convert_numeric_to_date(completed_data, original_data)
+completed_data <- convert_numeric_to_hms(completed_data, original_data)
+
+# Save Completed Dataset
+write.csv(completed_data, "completed_data.csv", row.names = FALSE)
+
+# Validate Results
+print(summary(imputed_data))
+densityplot(imputed_data)
 ```
+
+### Multiple Imputation
 
 ### Data Reduction
 
 A reduced dataset with fewer variables was created to meet final project deadline. Later iterations will expand the analysis to the complete dataset.
 
 ```{r var_organization, eval=FALSE}
-# Create a data frame from the colnames(data_preprocessed)
-colnames_data <- colnames(data_preprocessed)
+# Create a data frame from the colnames(predata)
+colnames_data <- colnames(predata)
 
-# Filter variable_type_lookup to include only variables present in colnames(data_preprocessed)
+# Filter variable_type_lookup to include only variables present in colnames(predata)
 filtered_lookup <- variable_type_lookup[variable_type_lookup$Variable %in% colnames_data, ]
 
-# Calculate missing percentages for each variable in data_preprocessed
-missingness <- colSums(is.na(data_preprocessed)) / nrow(data_preprocessed) * 100
-missingness_df <- data.frame(Variable = colnames(data_preprocessed), Missingness = round(missingness, 2))
+# Calculate missing percentages for each variable in predata
+missingness <- colSums(is.na(predata)) / nrow(predata) * 100
+missingness_df <- data.frame(Variable = colnames(predata), Missingness = round(missingness, 2))
 
 # Merge the filtered lookup table with the missingness data
 result_df <- merge(filtered_lookup, missingness_df, by = "Variable", all.x = TRUE)
@@ -941,19 +1033,19 @@ result_df <- merge(filtered_lookup, missingness_df, by = "Variable", all.x = TRU
 # Sort the resulting data frame by Missingness ascendingly
 result_df <- result_df[order(result_df$Missingness), ]
 
-# Define detailed logical groups
+# Define logical groups
 logical_groups <- list(
   Identifiers = c("patient_id"),
   
   Demographic_Info = c("age_at_visit_years", "year_of_birth", "legal_sex", "marital_status", "language", "patient_gender_identity", "visit_gender_identity", "patient_sex_assigned", "visit_sex_assigned", "patient_sexual_orientation", "visit_sexual_orientation", "patient_race", "visit_race", "patient_ethnic_group", "patient_religion", "visit_religion"),
   
-  Geographic_Info = c("country", "state", "patient_county", "visit_county", "patient_postal_code", "visit_postal_code", "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", "svi_2020_socioeconomic_percentile_census_tract"),
+  Sociogeographic_Info = c("country", "state", "patient_county", "visit_county", "patient_postal_code", "visit_postal_code", "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", "svi_2020_socioeconomic_percentile_census_tract", "adi_national_percentile", "adi_state_decile"),
   
   Clinical_Info= c("patient_diagnosis", "visit_diagnosis", "primary_diagnosis", "medical_history", "allergies_and_contraindications"),
   
   Treatment_info = c("medications", "outpatient_medications", "patient_medications_ordered", "visit_medications_ordered", "hospital_or_clinic_administered_medications", "procedures", "visit_procedures_ordered", "patient_procedures_ordered"),
   
-  Health_Metrics = c("patient_bmi", "visit_bmi", "patient_bp_diastolic", "visit_bp_diastolic", "patient_bp_systolic", "visit_bp_systolic", "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains", "adi_national_percentile", "adi_state_decile"),
+  Health_Metrics = c("patient_bmi", "visit_bmi", "patient_bp_diastolic", "visit_bp_diastolic", "patient_bp_systolic", "visit_bp_systolic", "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains"),
   
   Encounter_Info = c("continuity_of_care", "encounter_type", "interpreter_needed", "visit_date", "visit_type", "appointment_creation_date", "appointment_time", "appointment_length_minutes", "lead_time_days", "scheduling_source", "appointment_status", "encounter_to_close_day", "chief_complaint", "no_show_probability"),
   
@@ -995,9 +1087,7 @@ capture_output_to_html(
 )
 ```
 
-> See [Function to Capture Output as HTML].
-
-```{r missing-plot, eval=FALSE}
+```{r replot-missingness}
 # Load required Libraries
 library(ggplot2)
 library(dplyr)
@@ -1045,28 +1135,15 @@ create_plot <- function(data, range, range_limits) {
     )
 }
 
-# Generate one plot per missingness range
-plot_list <- lapply(names(range_data), function(range) {
-  data <- range_data[[range]]
-  range_limits <- switch(
-    range,
-    "1–5%" = c(1, 5),
-    "5–30%" = c(5, 30),
-    "30–50%" = c(30, 50),
-    "50–100%" = c(50, 100)
-  )
-  create_plot(data, range, range_limits)
-})
+  create_plot(vars_to_plot, range, range_limits)
 
 # Print each plot
-for (p in plot_list) {
+for (p in vars_to_plot) {
   print(p)
 }
 ```
 
-```{r}
-
-```
+> See [Function to Capture Output as HTML](#capture-output-as-html).
 
 ```{r reduction, eval=FALSE}
 # Load required libraries
@@ -1074,22 +1151,60 @@ library(dplyr)
 library(readr)
 
 # Reduce dataset
-reduced_data_preprocessed <- data_preprocessed %>%
+reduced_predata <- predata %>%
   filter(
     primary_provider_type %in% c("Physician", "Psychiatrist", "Resident", "Nurse Practitioner")
   ) %>%
-  select(
+    select(
+    # Identifiers
+    patient_id,
     
-
+    # Demographic Information
+    year_of_birth, legal_sex, marital_status, language, patient_gender_identity, patient_sexual_orientation, patient_race, patient_ethnic_group, patient_religion,
+    
+    # Sociodemographic Information
+    country, state, patient_postal_code, rural_urban_commuting_area_primary, adi_national_percentile,
+    
+    # Clinical Information
+    patient_diagnosis, primary_diagnosis, medical_history, allergies_and_contraindications,
+    
+    # Treatment Information
+    medications, outpatient_medications, patient_medications_ordered, 
+    visit_medications_ordered, hospital_or_clinic_administered_medications, 
+    procedures, visit_procedures_ordered, patient_procedures_ordered,
+    
+    # Health Metrics
+    patient_bmi, phq_2_total_score, phq_9, general_risk_score, sdoh_risk_level, sdoh_domains,
+    
+    # Encounter Information
+    continuity_of_care, visit_date, visit_type, appointment_creation_date, appointment_time, appointment_length_minutes, appointment_status, encounter_to_close_day, chief_complaint, no_show_probability,
+    
+    # Provider Information
+    primary_provider_type, primary_provider_title, time_physician_spent_post_charting_minutes, time_physician_spent_pre_charting_minutes, time_waiting_for_physician_minutes, time_with_physician_minutes,
+    
+    # Financial Information
+    primary_benefit_plan, primary_payer, primary_payer_financial_class, 
+    self_pay, copay_collected, copay_due, prepayment_due, prepayment_collected, 
+    primary_subscriber_group_number, patient_service_level, visit_service_level,
+    
+    # Status Information
+    portal_active_at_scheduling, mychart_status, new_to_department_specialty, 
+    new_to_facility, new_to_provider, university_of_pennsylvania_student
   )
 
 # Save reduced dataset
-saveRDS(reduced_data_preprocessed, "datasets/reduced_data.rds")
+saveRDS(reduced_predata, "datasets/reduced_data.rds")
+```
+
+### Data Transformation
+
+```{r}
+
 ```
 
 ### Missing Data Handling
 
-> See [Function to Plot Missing Values by Type].
+> See [Function to Plot Missing Values by Type](#plot-missing-values-by-type).
 
 ### Exploratory Data Analysis (EDA)
 
