@@ -1,4 +1,3 @@
-# Define function to capture output to HTML file
 capture_output_to_html <- function(file, ...) {
   # Ensure file is provided
   if (missing(file)) stop("A file name must be provided.")
@@ -34,22 +33,27 @@ capture_output_to_html <- function(file, ...) {
         cat(sprintf("<pre>%s</pre>\n", content), file = con)
         cat("</div>\n", file = con)
       } else if (is.data.frame(args[[i]])) {
+        # Convert all columns to character
+        df <- args[[i]]
+        df <- lapply(df, as.character)
+        df <- as.data.frame(df, stringsAsFactors = FALSE)
+        
         # Render data frames as tables
         cat('<div class="scrollable-inner-container">\n', file = con)
         cat("<table>\n<tr>", file = con)
-        for (col_name in names(args[[i]])) {
+        for (col_name in names(df)) {
           cat(sprintf("<th>%s</th>", col_name), file = con)
         }
         cat("</tr>\n", file = con)
-        for (row in seq_len(nrow(args[[i]]))) {
+        for (row in seq_len(nrow(df))) {
           cat("<tr>", file = con)
-          for (col in names(args[[i]])) {
-            value <- as.character(args[[i]][row, col])
+          for (col in names(df)) {
+            value <- as.character(df[row, col])
             value <- gsub("\n", "<br>", value)
             value <- gsub("(\\d+)\\)", "\\1&#41;", value)
             value <- gsub("^0\\.0%$", "<0.1%", value)
             value <- gsub("^0\\.00%$", "<0.01%", value)
-            cat(sprintf("<td>%s</td>", value), file = con)
+            cat(sprintf("<td><div class='content-wrapper'>%s</div></td>", value), file = con)
           }
           cat("</tr>\n", file = con)
         }

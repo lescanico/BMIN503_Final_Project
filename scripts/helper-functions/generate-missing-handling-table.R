@@ -1,10 +1,218 @@
+# Define missing data handling options
+missing_data_options <- list(
+  "Low (0-5%)" = list(
+    Numeric = c(
+      "Predictive Modeling (Regression)",
+      "Predictive Modeling (KNN)",
+      "Multiple Imputation (MICE)",
+      "Mean Imputation",
+      "Median Imputation",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Indicator Variable + Mean",
+      "Indicator Variable + Median"
+    ),
+    Factor = c(
+      "Predictive Modeling (Decision Tree)",
+      "Predictive Modeling (Random Forest)",
+      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
+      "Mode Imputation",
+      "Add 'Unknown' Category",
+      "Add 'Other' Category"
+    ),
+    Logical = c(
+      "Predictive Modeling (Logistic Regression)",
+      "Mode Imputation",
+      "Add Indicator for Missingness",
+      "Replace with Most Frequent Value",
+      "Assume FALSE (if reasonable)",
+      "Assume TRUE (if reasonable)"
+    ),
+    Date = c(
+      "Median Date Imputation",
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Use Most Frequent Date",
+      "Use Previous Valid Value",
+      "Use Subsequent Valid Value"
+    ),
+    hms = c(
+      "Median Timestamp Imputation",
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Use Most Frequent Timestamp",
+      "Use Previous Valid Timestamp",
+      "Use Subsequent Valid Timestamp"
+    ),
+    List = c(
+      "Predictive Modeling (List Similarity-Based)",
+      "Weighted Average List Imputation",
+      "Replace with Most Frequent List",
+      "Replace with Proxy List",
+      "Replace with Empty List",
+      "Add Indicator for Missingness"
+    )
+  ),
+  "Moderate (5-30%)" = list(
+    Numeric = c(
+      "Multiple Imputation (MICE)",
+      "Predictive Imputation (Regression)",
+      "Predictive Imputation (KNN)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Mean Imputation",
+      "Median Imputation",
+      "Indicator Variable + Mean",
+      "Indicator Variable + Median"
+    ),
+    Factor = c(
+      "Predictive Modeling (Random Forest)",
+      "Predictive Modeling (Decision Tree)",
+      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
+      "Add 'Unknown' Category",
+      "Add 'Other' Category",
+      "Mode Imputation"
+    ),
+    Logical = c(
+      "Predictive Imputation (Logistic Regression)",
+      "Add Indicator for Missingness",
+      "Mode Imputation",
+      "Replace with Most Frequent Value",
+      "Assume FALSE",
+      "Assume TRUE"
+    ),
+    Date = c(
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Indicator + Median Date Imputation",
+      "Use Previous Valid Value",
+      "Use Subsequent Valid Value"
+    ),
+    hms = c(
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Indicator + Median Timestamp Imputation",
+      "Use Previous Valid Timestamp",
+      "Use Subsequent Valid Timestamp"
+    ),
+    List = c(
+      "Predictive Modeling (Clustering-Based List Imputation)",
+      "Weighted Average List Imputation",
+      "Replace with Most Frequent List",
+      "Replace with Proxy List",
+      "Replace with Empty List",
+      "Create Synthetic List"
+    )
+  ),
+  "High (30-50%)" = list(
+    Numeric = c(
+      "Indicator Variable + Multiple Imputation (MICE)",
+      "Indicator Variable + Predictive Modeling (Regression)",
+      "Indicator Variable + Predictive Modeling (KNN)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Mean Imputation",
+      "Median Imputation"
+    ),
+    Factor = c(
+      "Predictive Modeling (Random Forest)",
+      "Predictive Modeling (Decision Tree)",
+      "Add 'Unknown' Category",
+      "Add 'Other' Category",
+      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
+      "Use Most Frequent Category"
+    ),
+    Logical = c(
+      "Indicator Variable + Predictive Imputation",
+      "Add Indicator for Missingness",
+      "Mode Imputation",
+      "Replace with Most Frequent Value",
+      "Assume FALSE",
+      "Assume TRUE"
+    ),
+    Date = c(
+      "Indicator Variable + Median Date Imputation",
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Use Placeholder Dates"
+    ),
+    hms = c(
+      "Indicator Variable + Median Timestamp Imputation",
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Linear Interpolation",
+      "Spline Interpolation",
+      "Use Placeholder Timestamps"
+    ),
+    List = c(
+      "Add Indicator Variable for Missingness",
+      "Replace with Most Frequent List",
+      "Replace with Proxy List",
+      "Replace with Empty List",
+      "Create Synthetic List (via Sampling or Clustering)"
+    )
+  ),
+  "Very High (>50%)" = list(
+    Numeric = c(
+      "Indicator Variable + Rough Imputation (e.g., Overall Mean)",
+      "Indicator Variable + Multiple Imputation (MICE)",
+      "Add 'Unknown' Category",
+      "Drop Variable (if non-critical)"
+    ),
+    Factor = c(
+      "Add 'Unknown' Category",
+      "Add 'Other' Category",
+      "Use Most Frequent Category",
+      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
+      "Drop Variable (if non-critical)"
+    ),
+    Logical = c(
+      "Indicator Variable + Assume FALSE",
+      "Replace with Most Frequent Value",
+      "Assume TRUE",
+      "Drop Variable (if non-critical)"
+    ),
+    Date = c(
+      "Use Placeholder Dates",
+      "Indicator Variable + Rough Date Imputation",
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Drop Variable (if non-critical)"
+    ),
+    hms = c(
+      "Use Placeholder Timestamps",
+      "Indicator Variable + Rough Timestamp Imputation",
+      "Forward Fill (if sequential)",
+      "Backward Fill (if sequential)",
+      "Drop Variable (if non-critical)"
+    ),
+    List = c(
+      "Add Indicator for Missingness",
+      "Replace with Empty List",
+      "Replace with Proxy List",
+      "Create Synthetic List",
+      "Drop Variable (if non-critical)"
+    )
+  )
+)
+
 generate_data_handling_table <- function(dataset, dataset_name = deparse(substitute(dataset))) {
   
   # Source the helper function for summary statistics
   source("scripts/helper-functions/calculate-summary-stats.R")
   
   # Load variable type lookup
-  variable_type_lookup <- readRDS("datasets/lookup-tables/variable_type_lookup.rds")
+  variable_type_lookup <- readRDS("datasets/mappings/types.rds")
   variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
   
   # Prompt user for mode selection
@@ -67,6 +275,7 @@ generate_data_handling_table <- function(dataset, dataset_name = deparse(substit
     if (selected_mode == 1) {
       # Manual selection mode with custom option
       cat(sprintf("Variable: %s (Type: %s, Missingness Level: %s)\n", variable, var_type, missing_level))
+      cat(sprintf("Summary Statistics:\n%s\n", calculate_summary_stats(dataset[[variable]], var_type)$description))
       cat("Available Handling Strategies:\n")
       for (j in seq_along(options)) {
         cat(sprintf("%d: %s\n", j, options[j]))

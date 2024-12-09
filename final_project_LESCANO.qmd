@@ -1,5 +1,5 @@
 ---
-title: "A Data-Driven Approach to Predicting and Optimizing Outpatient Psychiatry Resource Utilization"
+title: "PURPOSe: Predicting Utilization of Resources in Psychiatry Outpatient Services"
 subtitle: "BMIN503/EPID600 Final Project"
 author: "Nicolas Lescano"
 editor: visual
@@ -29,7 +29,7 @@ This project leverages a decade of historical data from the Penn Behavioral Heal
 
 The complete project repository, including scripts and datasets, is available [here](https://github.com/lescanico/BMIN503_Final_Project).
 
-![](images/workflow.png)
+![](images/clipboard-2957942059.png)
 
 ## Introduction {#sec-introduction}
 
@@ -56,18 +56,18 @@ patient_data_raw <- read_csv("H:/secure/patient_data.csv")
 visit_data_raw <- read_csv("H:/secure/visit_data.csv")
 
 # Generate unique patient IDs for anonymization
-mrn_lookup <- tibble(
+mrn_mapping <- tibble(
   MRN = unique(patient_data_raw$MRN),
   patient_id = sprintf("%05d", seq_along(unique(patient_data_raw$MRN)))
 )
 
-# Save mrn_lookup for potential reversibility
-saveRDS(mrn_lookup, file = "H:/secure/mrn_lookup.rds")
+# Save mrn_mapping for potential reversibility
+saveRDS(mrn_mapping, file = "H:/secure/mrn_mapping.rds")
 
 # Anonymize data by replacing sensitive identifiers
-anonymize <- function(data, lookup) {
+anonymize <- function(data, mapping) {
   data %>%
-    left_join(lookup, by = "MRN") %>%
+    left_join(mapping, by = "MRN") %>%
     mutate(
       year_of_birth = year(mdy(`Birth Date (UTC)`)),
       postal_code = substr(`Postal Code`, 1, 3)
@@ -76,15 +76,17 @@ anonymize <- function(data, lookup) {
 }
 
 # Apply anonymization and save
-patient_data_anonymized <- anonymize(patient_data_raw, mrn_lookup)
-visit_data_anonymized <- anonymize(visit_data_raw, mrn_lookup)
+patient_data_anonymized <- anonymize(patient_data_raw, mrn_mapping)
+visit_data_anonymized <- anonymize(visit_data_raw, mrn_mapping)
 saveRDS(patient_data_anonymized, "datasets/patient_data_anonymized.rds")
 saveRDS(visit_data_anonymized, "datasets/visit_data_anonymized.rds")
 ```
 
 ### Data Preprocessing
 
-#### Name Standarization
+#### Standarization
+
+##### Variable Names
 
 Variable names were standardized (e.g., lowercase with underscores) for consistency. Duplicates arising from merged datasets were consolidated, with non-identical columns renamed using descriptive suffixes.
 
@@ -100,21 +102,20 @@ visit_data <- readRDS("datasets/visit_data_anonymized.rds")
 
 # Function to standardize column names
 standardize_column_names <- function(dataset) {
-  colnames(dataset) <- colnames(dataset) %>%
-    str_replace_all(" \\(mmHg\\)| \\(kg/m\\^2\\)", "") %>% # Remove " (mmHg)" and " (kg/m^2)"
-    str_to_lower() %>%                                   # Convert to lowercase
-    str_replace_all("[\\s\\.\\/\\?\\-\\(\\)\\%\\$]+", "_") %>% # Replace special characters with underscores
-    str_replace_all("_+", "_") %>%                       # Collapse multiple underscores
-    str_replace_all("_$", "")                            # Remove trailing underscores
-  dataset
+  dataset |>
+    rename_with(~ . |>
+                  str_replace_all(" \\(mmHg\\)| \\(kg/m\\^2\\)", "") |>
+                  str_to_lower() |>
+                  str_replace_all("[\\s\\.\\/\\?\\-\\(\\)\\%\\$]+", "_") |>
+                  str_replace_all("_+", "_") |>
+                  str_replace_all("_$", ""))
 }
 
 # Function to create column name mapping
 create_name_mapping <- function(original_dataset, standardized_dataset) {
-  data.frame(
+  tibble(
     Original = colnames(original_dataset),
-    Standardized = colnames(standardized_dataset),
-    stringsAsFactors = FALSE
+    Standardized = colnames(standardized_dataset)
   )
 }
 
@@ -124,25 +125,31 @@ colnames(visit_data)
 
 # Remove columns created automatically by Epic export process
 removed_columns <- c('Start Date', 'End Date')
+
 patient_data <- patient_data |> select(-any_of(removed_columns))
 visit_data <- visit_data |> select(-any_of(removed_columns))
 
 # Standardize column names
-patient_data_renamed <- standardize_column_names(patient_data)
-visit_data_renamed <- standardize_column_names(visit_data)
+patient_data_renamed <- patient_data |> standardize_column_names()
+visit_data_renamed <- visit_data |> standardize_column_names()
 
 # Add suffixes to common columns, excluding "patient_id"
-common_cols <- setdiff(intersect(colnames(patient_data_renamed), colnames(visit_data_renamed)), "patient_id")
+common_cols <- colnames(patient_data_renamed) |>
+  intersect(colnames(visit_data_renamed)) |>
+  setdiff("patient_id")
 
-patient_data_renamed <- patient_data_renamed %>% rename_with(~ paste0(., "_from_patient_dataset"), .cols = common_cols)
-visit_data_renamed <- visit_data_renamed %>% rename_with(~ paste0(., "_from_visit_dataset"), .cols = common_cols)
+patient_data_renamed <- patient_data_renamed |> 
+  rename_with(~ paste0(., "_from_patient_dataset"), .cols = common_cols)
+
+visit_data_renamed <- visit_data_renamed |>
+  rename_with(~ paste0(., "_from_visit_dataset"), .cols = common_cols)
 
 # Create column name mappings
-patient_name_mapping <- create_name_mapping(patient_data, patient_data_renamed)
-patient_name_mapping$Source <- "Patient Dataset"
+patient_name_mapping <- create_name_mapping(patient_data, patient_data_renamed) |>
+  mutate(Source = "Patient Dataset")
 
-visit_name_mapping <- create_name_mapping(visit_data, visit_data_renamed)
-visit_name_mapping$Source <- "Visit Dataset"
+visit_name_mapping <- create_name_mapping(visit_data, visit_data_renamed) |>
+  mutate(Source = "Visit Dataset")
 
 # Combine into a single dataframe
 name_mapping <- bind_rows(patient_name_mapping, visit_name_mapping)
@@ -152,8 +159,7 @@ source("scripts/helper-functions/capture-to-html.R")
 
 capture_output_to_html(
   "data_renaming.html",
-  "Data Renaming Table",
-  "Column Names" = name_mapping
+  "Data Renaming Table" = name_mapping
 )
 ```
 
@@ -163,81 +169,47 @@ capture_output_to_html(
 cat(readLines("outputs/data_renaming.html"), sep = "\n")
 ```
 
-#### Type Standarization
+##### Variable Types
 
 Data types were converted to ensure compatibility with analytical processes. Dates, categorical variables, and numerical data were reformatted for accurate statistical analysis and modeling.
 
-```{r type-classification}
+###### Classification
+
+```{r classification, eval=FALSE}
 # Load required libraries
 library(tibble)
 library(dplyr)
+library(readr)
 
-# Define classifications for variables
-type_classification <- tibble(
+# Manually classify variable types
+variable_type_mapping <- tibble(
   Variable = c(
-    
     # Identifier
     "patient_id",
     
     # Patient Dataset - Numeric
-    "adi_national_percentile", "adi_state_decile", "bmi_from_patient_dataset",
-    "bp_diastolic_from_patient_dataset", "bp_systolic_from_patient_dataset",
-    "general_risk_score", "phq_2_total_score", "phq_9",
-    "svi_2020_socioeconomic_percentile_census_tract", "year_of_birth_from_patient_dataset",
+    "adi_national_percentile", "adi_state_decile", "bmi_from_patient_dataset", "bp_diastolic_from_patient_dataset", "bp_systolic_from_patient_dataset", "general_risk_score", "svi_2020_socioeconomic_percentile_census_tract", "year_of_birth_from_patient_dataset",
     
     # Patient Dataset - List
-    "allergies_and_contraindications", "chief_complaint", "diagnosis_from_patient_dataset",
-    "hospital_or_clinic_administered_medications", "medical_history", "medications",
-    "medications_ordered_from_patient_dataset", "outpatient_medications", "procedures",
-    "procedures_ordered_from_patient_dataset", "sdoh_domains",
+    "allergies_and_contraindications", "chief_complaint", "diagnosis_from_patient_dataset", "hospital_or_clinic_administered_medications", "level_of_service_from_patient_dataset" , "medical_history", "medications", "medications_ordered_from_patient_dataset", "outpatient_medications", "phq_2_total_score", "phq_9", "procedures", "procedures_ordered_from_patient_dataset", "sdoh_domains", "sdoh_risk_level",
     
     # Patient Dataset - Factor
-    "country_from_patient_dataset", "country_county_from_patient_dataset",
-    "gender_identity_from_patient_dataset", "language_from_patient_dataset",
-    "legal_sex_from_patient_dataset", "level_of_service_from_patient_dataset",
-    "marital_status", "patient_ethnic_group_from_patient_dataset",
-    "patient_race_from_patient_dataset", "religion_from_patient_dataset",
-    "rural_urban_commuting_area_primary_from_patient_dataset",
-    "rural_urban_commuting_area_secondary_from_patient_dataset",
-    "sdoh_risk_level", "sex_assigned_at_birth_from_patient_dataset",
-    "sexual_orientation_from_patient_dataset", "state_from_patient_dataset", "postal_code_from_patient_dataset","mychart_status_from_patient_dataset",
+    "country_from_patient_dataset", "country_county_from_patient_dataset", "gender_identity_from_patient_dataset", "language_from_patient_dataset", "legal_sex_from_patient_dataset", "marital_status", "patient_ethnic_group_from_patient_dataset", "patient_race_from_patient_dataset", "religion_from_patient_dataset", "rural_urban_commuting_area_primary_from_patient_dataset", "rural_urban_commuting_area_secondary_from_patient_dataset", "sex_assigned_at_birth_from_patient_dataset", "sexual_orientation_from_patient_dataset", "state_from_patient_dataset", "postal_code_from_patient_dataset", "mychart_status_from_patient_dataset",
     
     # Patient Dataset - Logical
     "interpreter_needed_from_patient_dataset", "university_of_pennsylvania_student_from_patient_dataset",
     
     # Visit Dataset - Numeric
-    "age_at_visit_years", "appointment_length_minutes", "bmi_from_visit_dataset",
-    "bp_diastolic_from_visit_dataset", "bp_systolic_from_visit_dataset",
-    "continuity_of_care", "copay_collected", "copay_due", "encounter_to_close_day",
-    "lead_time_days", "no_show_probability", "prepayment_collected", "prepayment_due",
-    "time_physician_spent_post_charting_minutes", "time_physician_spent_pre_charting_minutes",
-    "time_waiting_for_physician_minutes", "time_with_physician_minutes",
-    "year_of_birth_from_visit_dataset",
+    "age_at_visit_years", "appointment_length_minutes", "bmi_from_visit_dataset", "bp_diastolic_from_visit_dataset", "bp_systolic_from_visit_dataset", "continuity_of_care", "copay_collected", "copay_due", "encounter_to_close_day", "lead_time_days", "no_show_probability", "prepayment_collected", "prepayment_due", "time_physician_spent_post_charting_minutes", "time_physician_spent_pre_charting_minutes", "time_waiting_for_physician_minutes", "time_with_physician_minutes", "year_of_birth_from_visit_dataset",
     
     # Visit Dataset - List
-    "diagnosis_from_visit_dataset", "medications_ordered_from_visit_dataset",
-    "procedures_ordered_from_visit_dataset",
+    "diagnosis_from_visit_dataset", "medications_ordered_from_visit_dataset", "procedures_ordered_from_visit_dataset",
     
     # Visit Dataset - Factor
-    "appointment_status", "country_from_visit_dataset",
-    "country_county_from_visit_dataset", "encounter_type",
-    "gender_identity_from_visit_dataset", "language_from_visit_dataset",
-    "legal_sex_from_visit_dataset", "level_of_service_from_visit_dataset",
-    "patient_ethnic_group_from_visit_dataset", "patient_race_from_visit_dataset",
-    "primary_benefit_plan", "primary_diagnosis", "primary_payer",
-    "primary_payer_financial_class", "primary_provider_title",
-    "primary_provider_type", "religion_from_visit_dataset",
-    "rural_urban_commuting_area_primary_from_visit_dataset",
-    "rural_urban_commuting_area_secondary_from_visit_dataset",
-    "scheduling_source", "sex_assigned_at_birth_from_visit_dataset",
-    "sexual_orientation_from_visit_dataset", "state_from_visit_dataset",
-    "visit_type", "postal_code_from_visit_dataset", "primary_subscriber_group_number", "mychart_status_from_visit_dataset",
+    "appointment_status", "country_from_visit_dataset", "country_county_from_visit_dataset", "encounter_type", "gender_identity_from_visit_dataset", "language_from_visit_dataset", "legal_sex_from_visit_dataset", "level_of_service_from_visit_dataset", "patient_ethnic_group_from_visit_dataset", "patient_race_from_visit_dataset", "primary_benefit_plan", "primary_diagnosis", "primary_payer", "primary_payer_financial_class", "primary_provider_title", "primary_provider_type", "religion_from_visit_dataset", "rural_urban_commuting_area_primary_from_visit_dataset", "rural_urban_commuting_area_secondary_from_visit_dataset", "scheduling_source", "sex_assigned_at_birth_from_visit_dataset", "sexual_orientation_from_visit_dataset", "state_from_visit_dataset", "visit_type", "postal_code_from_visit_dataset", "primary_subscriber_group_number", "mychart_status_from_visit_dataset",
     
     # Visit Dataset - Logical
-    "interpreter_needed_from_visit_dataset",
-    "new_to_department_specialty", "new_to_facility", "new_to_provider",
-    "portal_active_at_scheduling", "self_pay",
-    "university_of_pennsylvania_student_from_visit_dataset",
+    "interpreter_needed_from_visit_dataset", "new_to_department_specialty", "new_to_facility", "new_to_provider", "portal_active_at_scheduling", "self_pay", "university_of_pennsylvania_student_from_visit_dataset",
     
     # Visit Dataset - Date
     "appointment_creation_date", "visit_date",
@@ -250,11 +222,11 @@ type_classification <- tibble(
     # Identifier
     rep("identifier", 1),
     # Patient Dataset - Numeric
-    rep("numeric", 10),
+    rep("numeric", 8),
     # Patient Dataset - List
-    rep("list", 11),
+    rep("list", 15),
     # Patient Dataset - Factor
-    rep("factor", 18),
+    rep("factor", 16),
     # Patient Dataset - Logical
     rep("logical", 2),
     # Visit Dataset - Numeric
@@ -273,126 +245,112 @@ type_classification <- tibble(
 )
 
 # Group variables by type
-group_summary <- type_classification %>%
-  group_by(Type) %>%
-  summarise(Variables = list(Variable)) %>%
-  mutate(Count = lengths(Variables)) %>%
+group_summary <- variable_type_mapping |>
+  group_by(Type) |>
+  summarise(Variables = list(Variable), .groups = "drop") |>
+  mutate(Count = lengths(Variables)) |>
   select(Type, Count, Variables)
 
-# Capture as HTML table
-source("scripts/helper-functions/capture-to-html.R")
-
-capture_output_to_html(
-  "variable_type_classification.html",
-  "Variable Type Classification" = group_summary
-)
+# Save classification mapping
+variable_type_mapping |> saveRDS("datasets/mappings/types.rds")
 ```
 
-> See [Function to Capture Output as HTML](#capture-output-as-html).
+###### Conversion
 
-```{r conversions, eval=FALSE}
+```{r conversion, eval=FALSE}
 # Load required libraries
 library(dplyr)
 library(lubridate)
 library(hms)
 
 # Function to convert data types
-convert_types <- function(data) {
+convert_types <- function(df) {
   for (i in seq_len(nrow(group_summary))) {
     vars <- group_summary$Variables[[i]]
     type <- group_summary$Type[i]
     
     # Only apply transformations to variables that exist in the dataset
-    vars <- intersect(vars, names(data))
-    if (length(vars) == 0) next  # Skip if no matching variables
+    vars <- intersect(vars, names(df))
+    if (length(vars) == 0) next
     
-    if (type == "numeric") {
-      data <- data %>% mutate(across(any_of(vars), ~ suppressWarnings(as.numeric(as.character(.)))))
-    } else if (type == "list") {
-      data <- data %>% mutate(across(any_of(vars), ~ tryCatch(
-        strsplit(iconv(as.character(.), from = "", to = "UTF-8"), ","), 
-        error = function(e) { message("Error in list conversion: ", e); NA }
-      )))
-    } else if (type == "factor") {
-      data <- data %>% mutate(across(any_of(vars), ~ as.factor(as.character(.))))
-    } else if (type == "logical") {
-      data <- data %>% mutate(across(any_of(vars), 
-        ~ case_when(
-          . == 1 ~ TRUE,
-          . == 0 ~ FALSE,
-          is.na(.) ~ NA,
-          TRUE ~ NA
-        )
-      ))
-    } else if (type == "Date") {
-      data <- data %>% mutate(across(any_of(vars), 
-        ~ tryCatch(
-          lubridate::parse_date_time(., orders = c("ymd", "dmy", "mdy"), quiet = TRUE),
-          error = function(e) { message("Error in Date conversion: ", e); NA }
-        )
-      ))
-    } else if (type == "hms") {
-      data <- data %>% mutate(across(any_of(vars), 
-        ~ tryCatch(as_hms(.), 
-                   error = function(e) { message("Error in hms conversion: ", e); NA })
-      ))
-    } else if (type == "identifier") {
-      data <- data %>% mutate(across(any_of(vars), ~ as.character(.)))
-    }
+    df <- df |>
+      mutate(across(any_of(vars), ~ {
+        if (type == "numeric") {
+          suppressWarnings(as.numeric(as.character(.)))
+        } else if (type == "list") {
+          tryCatch(
+            strsplit(iconv(as.character(.), from = "", to = "UTF-8"), ","),
+            error = function(e) { message("Error in list conversion: ", e); NA }
+          )
+        } else if (type == "factor") {
+          as.factor(as.character(.))
+        } else if (type == "logical") {
+          case_when(
+            . == 1 ~ TRUE,
+            . == 0 ~ FALSE,
+            is.na(.) ~ NA,
+            TRUE ~ NA
+          )
+        } else if (type == "Date") {
+          tryCatch(
+            as.Date(parse_date_time(., orders = c("ymd", "dmy", "mdy"), quiet = TRUE)),
+            error = function(e) { message("Error in Date conversion: ", e); NA }
+          )
+        } else if (type == "hms") {
+          tryCatch(as_hms(as.numeric(.)), error = function(e) { message("Error in hms conversion: ", e); NA })
+        } else if (type == "identifier") {
+          as.character(.)
+        } else {
+          .
+        }
+      }))
   }
-  return(data)
+  return(df)
 }
 
 # Apply the conversion function
-patient_data_converted <- convert_types(patient_data_renamed)
-visit_data_converted <- convert_types(visit_data_renamed)
+patient_data_converted <- patient_data_renamed |> convert_types()
+visit_data_converted <- visit_data_renamed |> convert_types()
 ```
 
-```{r variable-type-lookup, eval=FALSE}
+###### Mapping
+
+```{r mapping, eval=FALSE}
 # Load required libraries
 library(tibble)
 library(dplyr)
 library(readr)
 
 # Function to create variable type conversions table
-create_type_conversions_lookup<- function(original_data, converted_data) {
+create_type_conversions_mapping <- function(original_df, converted_df) {
   # Get data types for original and converted datasets
-  original_types <- sapply(original_data, function(x) paste(class(x), collapse = ", "))
-  converted_types <- sapply(converted_data, function(x) paste(class(x), collapse = ", "))
-  
-  # Combine into a tibble for comparison
-  type_conversions_lookup <- tibble(
-    Variable = names(original_types),
-    Original_Type = original_types,
-    Converted_Type = converted_types
+  tibble(
+    Variable = names(original_df),
+    Original_Type = sapply(original_df, function(x) paste(class(x), collapse = ", ")),
+    Converted_Type = sapply(converted_df, function(x) paste(class(x), collapse = ", "))
   )
-  
-  return(type_conversions_lookup)
 }
 
-# Create the variable type lookup table
-patient_type_conversions_lookup <- create_type_conversions_lookup(patient_data_renamed, patient_data_converted)
-visit_type_conversions_lookup <- create_type_conversions_lookup(visit_data_renamed, visit_data_converted)
-
-type_conversions_lookup <- bind_rows(patient_type_conversions_lookup, visit_type_conversions_lookup)
-
-# Save the lookup table to a file
-saveRDS(type_conversions_lookup, "type_conversions_lookup.rds")
+# Create the variable type mapping tables and combine them
+type_conversions_mapping <- bind_rows(
+  create_type_conversions_mapping(patient_data_renamed, patient_data_converted),
+  create_type_conversions_mapping(visit_data_renamed, visit_data_converted)
+)
 
 # Capture as HTML table
+source("scripts/helper-functions/capture-to-html.R")
+
 capture_output_to_html(
   "data_type_conversions.html",
-  "Data Type Conversions" = type_conversions_lookup
+  "Data Type Conversions" = type_conversions_mapping
 )
 ```
-
-> See [Function to Capture Output as HTML](#capture-output-as-html)
 
 ```{r, results='asis', echo=FALSE}
 cat(readLines("outputs/data_type_conversions.html"), sep = "\n")
 ```
 
-#### Data Integration
+#### Integration
 
 The process involved merging patient and visit data based on unique identifiers, ensuring all related records were combined accurately.
 
@@ -405,16 +363,16 @@ Patient and visit data were merged using unique patient IDs. This process combin
 library(dplyr)
 
 # Verify unique patient_id values are shared
-unique_patient_ids_patient_data <- unique(patient_data_converted$patient_id)
-unique_patient_ids_visit_data <- unique(visit_data_converted$patient_id)
-
-all_shared <- all(unique_patient_ids_patient_data %in% unique_patient_ids_visit_data) &&
-              all(unique_patient_ids_visit_data %in% unique_patient_ids_patient_data)
+all_shared <- unique(patient_data_converted$patient_id) |>
+  (\(x) all(x %in% visit_data_converted$patient_id))() &&
+  unique(visit_data_converted$patient_id) |>
+  (\(x) all(x %in% patient_data_converted$patient_id))()
 
 if (all_shared) {
   # Perform the merge
-  merged_data <- visit_data_converted %>%
-  left_join(patient_data_converted, by = "patient_id")
+  merged_data <- visit_data_converted |>
+    left_join(patient_data_converted, by = "patient_id")
+  
   print("Merging complete.")
 } else {
   print("There are patient_id values that are not shared between the two datasets.")
@@ -428,873 +386,797 @@ Duplicate columns were identified and processed. Identical values were consolida
 ```{r deduplication, eval=FALSE}
 # Load required libraries
 library(dplyr)
+library(stringr)
+library(tibble)
 
-# Function to compare duplicate columns, check if they are identical, and remove duplicates
-process_duplicate_columns <- function(data, suffix_1 = "_from_patient_dataset", suffix_2 = "_from_visit_dataset") {
-  # Extract column names ending with the specified suffixes
-  cols_suffix_1 <- grep(paste0(suffix_1, "$"), names(data), value = TRUE)
-  cols_suffix_2 <- grep(paste0(suffix_2, "$"), names(data), value = TRUE)
+# Helper function to summarize differences between two columns
+summarize_column_differences <- function(col1, col2) {
+  # Convert factors to characters for comparison
+  if (is.factor(col1)) col1 <- as.character(col1)
+  if (is.factor(col2)) col2 <- as.character(col2)
   
-  # Initialize an empty data frame for storing results
-  results <- data.frame(Column_1 = character(), Column_2 = character(), Identical = logical(), stringsAsFactors = FALSE)
+  if (is.numeric(col1) && is.numeric(col2)) {
+    abs_diff <- abs(col1 - col2)
+    return(tibble(
+      `Total Rows` = length(col1),
+      `Different Rows` = sum(col1 != col2, na.rm = TRUE),
+      `Proportion Different` = mean(col1 != col2, na.rm = TRUE),
+      `Mean Difference` = mean(abs_diff, na.rm = TRUE),
+      `SD Difference` = sd(abs_diff, na.rm = TRUE),
+      `Max Difference` = max(abs_diff, na.rm = TRUE)
+    ))
+  } else if (is.character(col1) || is.logical(col1)) {
+    return(tibble(
+      `Total Rows` = length(col1),
+      `Different Rows` = sum(col1 != col2, na.rm = TRUE),
+      `Proportion Different` = mean(col1 != col2, na.rm = TRUE),
+      `Unique Values Col1` = length(unique(na.omit(col1))),
+      `Unique Values Col2` = length(unique(na.omit(col2))),
+      `Overlap in Values` = length(intersect(unique(na.omit(col1)), unique(na.omit(col2))))
+    ))
+  } else {
+    return(tibble(
+      `Total Rows` = length(col1),
+      `Different Rows` = sum(col1 != col2, na.rm = TRUE),
+      `Proportion Different` = mean(col1 != col2, na.rm = TRUE)
+    ))
+  }
+}
+
+# Function to process and rename duplicate columns
+process_and_rename_duplicates <- function(df, suffix_1 = "_from_patient_dataset", suffix_2 = "_from_visit_dataset") {
+  cols_suffix_1 <- grep(paste0(suffix_1, "$"), names(df), value = TRUE)
+  cols_suffix_2 <- grep(paste0(suffix_2, "$"), names(df), value = TRUE)
   
-  # Vector to store non-identical column names
-  non_identical_columns <- c()
+  integration_log <- list()
   
-  # Loop through columns with the same prefix but different suffixes
   for (col in cols_suffix_1) {
-    # Derive the corresponding column name with the other suffix
     corresponding_col <- gsub(suffix_1, suffix_2, col)
     
-    # Check if the corresponding column exists
-    if (corresponding_col %in% names(data)) {
-      identical_check <- identical(data[[col]], data[[corresponding_col]])
-      results <- rbind(
-        results,
-        data.frame(
-          Column_1 = col,
-          Column_2 = corresponding_col,
-          Identical = identical_check,
-          stringsAsFactors = FALSE
-        )
-      )
-      
-      if (identical_check) {
-        # Remove the suffix from the kept column
-        new_name <- gsub(paste0("_from_patient_dataset|_from_visit_dataset"), "", col)
-        names(data)[names(data) == col] <- new_name
-        # Drop the duplicate column
-        data <- data %>% select(-all_of(corresponding_col))
+    if (corresponding_col %in% cols_suffix_2) {
+      if (identical(df[[col]], df[[corresponding_col]])) {
+        # Consolidate identical columns
+        new_name <- gsub(paste0(suffix_1, "|", suffix_2), "", col)
+        names(df)[names(df) == col] <- new_name
+        df <- df %>% select(-all_of(corresponding_col))
       } else {
-        # Store non-identical columns for further analysis
-        non_identical_columns <- c(non_identical_columns, col, corresponding_col)
-      }
-    } else {
-      results <- rbind(
-        results,
-        data.frame(
-          Column_1 = col,
-          Column_2 = NA,
-          Identical = NA,
-          stringsAsFactors = FALSE
+        # Summarize differences for non-identical columns
+        diff_summary <- tryCatch(
+          summarize_column_differences(df[[col]], df[[corresponding_col]]),
+          error = function(e) tibble(
+            `Error` = as.character(e$message)
+          )
         )
-      )
+        integration_log[[paste0(col, " vs ", corresponding_col)]] <- diff_summary
+        
+        # Rename with patient_ and visit_ prefixes
+        patient_col <- paste0("patient_", gsub(suffix_1, "", col))
+        visit_col <- paste0("visit_", gsub(suffix_1, "", col))
+        names(df)[names(df) == col] <- patient_col
+        names(df)[names(df) == corresponding_col] <- visit_col
+      }
     }
   }
   
-  # Return the updated data, the comparison results, and non-identical columns
-  list(
-    deduplicated_data = data,
-    duplicate_check_results = results,
-    non_identical_columns = unique(non_identical_columns)
-  )
+  list(data = df, integration_log = integration_log)
 }
 
-# Apply the function
-processed_results <- process_duplicate_columns(merged_data)
+# Apply the function to the merged dataset
+processed_results <- process_and_rename_duplicates(merged_data)
 
-# Extract the deduplicated dataset, duplicate check results, and non-identical columns
-deduplicated_data <- processed_results$deduplicated_data
-duplicate_column_check <- processed_results$duplicate_check_results
-non_identical_columns <- processed_results$non_identical_columns
+# Extract processed data and log
+deduplicated_data <- processed_results$data
+difference_log <- processed_results$integration_log
 
-# Function to rename non-identical duplicate columns
-rename_non_identical_columns <- function(data) {
-  # Define mappings for non-identical columns
-  rename_mapping <- c(
-    "bmi_from_patient_dataset" = "patient_bmi",
-    "bmi_from_visit_dataset" = "visit_bmi",
-    "bp_diastolic_from_patient_dataset" = "patient_bp_diastolic",
-    "bp_diastolic_from_visit_dataset" = "visit_bp_diastolic",
-    "bp_systolic_from_patient_dataset" = "patient_bp_systolic",
-    "bp_systolic_from_visit_dataset" = "visit_bp_systolic",
-    "country_county_from_patient_dataset" = "patient_county",
-    "country_county_from_visit_dataset" = "visit_county",
-    "diagnosis_from_patient_dataset" = "patient_diagnosis",
-    "diagnosis_from_visit_dataset" = "visit_diagnosis",
-    "gender_identity_from_patient_dataset" = "patient_gender_identity",
-    "gender_identity_from_visit_dataset" = "visit_gender_identity",
-    "level_of_service_from_patient_dataset" = "patient_service_level",
-    "level_of_service_from_visit_dataset" = "visit_service_level",
-    "medications_ordered_from_patient_dataset" = "patient_medications_ordered",
-    "medications_ordered_from_visit_dataset" = "visit_medications_ordered",
-    "patient_race_from_patient_dataset" = "patient_race",
-    "patient_race_from_visit_dataset" = "visit_race",
-    "procedures_ordered_from_patient_dataset" = "patient_procedures_ordered",
-    "procedures_ordered_from_visit_dataset" = "visit_procedures_ordered",
-    "religion_from_patient_dataset" = "patient_religion",
-    "religion_from_visit_dataset" = "visit_religion",
-    "sex_assigned_at_birth_from_patient_dataset" = "patient_sex_assigned",
-    "sex_assigned_at_birth_from_visit_dataset" = "visit_sex_assigned",
-    "sexual_orientation_from_patient_dataset" = "patient_sexual_orientation",
-    "sexual_orientation_from_visit_dataset" = "visit_sexual_orientation",
-    "postal_code_from_patient_dataset" = "patient_postal_code",
-    "postal_code_from_visit_dataset" = "visit_postal_code"
-  )
-  
-  # Rename columns in the dataset based on the mapping
-  renamed_data <- data %>%
-    rename_with(~ ifelse(.x %in% names(rename_mapping), rename_mapping[.x], .x))
-  
-  return(renamed_data)
-}
+# Print results
+print("Processing complete.")
+print("Differences between non-identical duplicates:")
+print(difference_log)
 
-# Apply the function to the deduplicated dataset
-deduplicated_data_renamed <- rename_non_identical_columns(deduplicated_data)
+# Save log
+difference_log |> saveRDS("datasets/logs/deduplication.rds")
 ```
 
-##### Reordering & Sorting
+##### Organization
 
-The merged dataset was reordered and sorted to prioritize relevant information. Columns were organized by their importance and relevance to the analysis objectives, and data was sorted primarily by patient ID and secondary by visit date. This organization facilitated easier access and manipulation of data for subsequent analyses.
+The merged and deduplicated dataset was reordered and sorted to prioritize relevant information. Columns were organized by their importance and relevance to the analysis objectives, and data was sorted primarily by patient ID and secondary by visit date. This organization facilitated easier access and manipulation of data for subsequent analyses.
 
-```{r sorting, eval=FALSE}
+```{r organization, eval=FALSE}
 # Load required libraries
+library(readr)
 library(dplyr)
 
-# Reorder columns into logical groups
-deduplicated_data_reordered <- deduplicated_data_renamed %>%
-  select(
-      # Identifiers
-      patient_id,
-      
-      # Demographics
-      year_of_birth, legal_sex, patient_gender_identity, visit_gender_identity, patient_sex_assigned, visit_sex_assigned, language, marital_status, country, patient_county, visit_county, state, patient_postal_code, visit_postal_code, university_of_pennsylvania_student,
-      
-      # Visit Information
-      age_at_visit_years, visit_date, visit_type, appointment_creation_date, appointment_time, appointment_length_minutes, lead_time_days, continuity_of_care, portal_active_at_scheduling, new_to_department_specialty, new_to_facility, new_to_provider, encounter_type, scheduling_source,
-      
-      # Health Metrics
-      patient_bmi, visit_bmi, patient_bp_diastolic, visit_bp_diastolic, patient_bp_systolic, visit_bp_systolic,
-      
-      # Symptoms, Diagnoses, and Procedures
-      chief_complaint, primary_diagnosis, patient_diagnosis, visit_diagnosis, procedures, patient_procedures_ordered, visit_procedures_ordered,
-      
-      # Medications
-      medications, outpatient_medications, patient_medications_ordered, visit_medications_ordered, hospital_or_clinic_administered_medications,
-      
-      # Service Level Information
-      visit_service_level, patient_service_level,
-      
-      # Medical and Clinical History
-      allergies_and_contraindications, medical_history,
-      
-      # Risk and Assessments
-      general_risk_score, phq_2_total_score, phq_9, sdoh_domains, sdoh_risk_level,
-      
-      # Sociodemographic Context
-      adi_national_percentile, adi_state_decile, rural_urban_commuting_area_primary, rural_urban_commuting_area_secondary, svi_2020_socioeconomic_percentile_census_tract,
-      
-      # Race, Ethnicity, Religion, and Sexual Orientation
-      patient_race, visit_race, patient_religion, visit_religion, patient_ethnic_group, patient_sexual_orientation, visit_sexual_orientation,
-      
-      # Financial Information
-      copay_collected, copay_due, prepayment_collected, prepayment_due, self_pay, primary_payer, primary_payer_financial_class, primary_subscriber_group_number, primary_benefit_plan,
-      
-      # Provider Information
-      primary_provider_type, primary_provider_title,
-      
-      # Operational Metrics
-    encounter_to_close_day, time_physician_spent_pre_charting_minutes, time_physician_spent_post_charting_minutes, time_waiting_for_physician_minutes, time_with_physician_minutes,
-    
-    # MyChart and Scheduling Metrics
-    mychart_status, no_show_probability, appointment_status,
+logical_groups <- list(
+  Identifiers = c("patient_id"),
+  
+  Demographic_Info = c("year_of_birth", "age_at_visit_years", "legal_sex", "patient_gender_identity", "visit_gender_identity", "patient_sex_assigned_at_birth", "visit_sex_assigned_at_birth", "patient_sexual_orientation", "visit_sexual_orientation", "patient_patient_race", "visit_patient_race", "patient_ethnic_group", "marital_status", "language", "patient_religion", "visit_religion"),
+  
+  Sociogeographic_Info = c("country", "state", "patient_country_county", "visit_country_county", "patient_postal_code", "visit_postal_code", "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", "svi_2020_socioeconomic_percentile_census_tract", "adi_national_percentile", "adi_state_decile"),
+  
+  Clinical_Info = c("primary_diagnosis", "patient_diagnosis", "visit_diagnosis", "medical_history", "allergies_and_contraindications"),
+  
+  Treatment_Info = c("procedures", "patient_procedures_ordered", "visit_procedures_ordered", "medications", "hospital_or_clinic_administered_medications", "outpatient_medications", "patient_medications_ordered", "visit_medications_ordered"),
+  
+  Health_Metrics = c("patient_bmi", "visit_bmi", "patient_bp_systolic", "visit_bp_systolic", "patient_bp_diastolic", "visit_bp_diastolic", "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains"),
+  
+  Encounter_Info = c("visit_date", "visit_type", "continuity_of_care", "encounter_type", "chief_complaint", "interpreter_needed", "appointment_status", "appointment_creation_date", "appointment_time", "appointment_length_minutes", "lead_time_days", "encounter_to_close_day", "scheduling_source", "no_show_probability"),
+  
+  Provider_Info = c("primary_provider_type", "primary_provider_title", "time_physician_spent_pre_charting_minutes", "time_physician_spent_post_charting_minutes", "time_with_physician_minutes", "time_waiting_for_physician_minutes"),
+  
+  Financial_Info = c("primary_benefit_plan", "primary_payer", "primary_payer_financial_class", "self_pay", "copay_due", "copay_collected", "prepayment_due", "prepayment_collected", "primary_subscriber_group_number", "patient_level_of_service", "visit_level_of_service"),
+  
+  Status_Info = c("portal_active_at_scheduling", "mychart_status", "new_to_department_specialty", "new_to_facility", "new_to_provider", "university_of_pennsylvania_student")
+)
 
-    # Remaining Columns (if any)
-    everything()
-  )
-
-# Check reordered columns
-print(names(deduplicated_data_reordered))
-
-# Sort rows by patient_id and then by visit_date
-predata <- deduplicated_data_reordered %>%
+# Reorganize data
+data_organized <- deduplicated_data |>
+  select(all_of(unlist(logical_groups, use.names = FALSE))) |>
   arrange(patient_id, visit_date)
-
-# Identify variables in predata that are not in the lookup table
-new_variables <- setdiff(colnames(predata), type_classification$Variable)
-
-if (length(new_variables) > 0) {
-  # Infer the types of the new variables
-  inferred_types <- sapply(predata[, new_variables, drop = FALSE], class)
-  
-  # Create a data frame for new variables
-  new_rows <- data.frame(
-    Variable = new_variables,
-    Type = inferred_types
-  )
-  
-  # Append the new variables with their types to the lookup table
-  variable_type_lookup <- rbind(type_classification, new_rows)
-  
-  # Save the updated lookup table
-  saveRDS(variable_type_lookup, "datasets/lookup-tables/variable_type_lookup.rds")
-}
-
-# Inspect preprocessed data
-head_predata <- head(deduplicated_data_reordered)
 
 # Sample some rows
 set.seed(123)
-sample_head <- predata[sample(nrow(predata), 10), ]
+sample_data <- data_organized |>
+  slice_sample(n = 5)
 
-# Capture Summary of Preprocessed Data
+# Capture as HTML table
 source("scripts/helper-functions/capture-to-html.R")
+
 capture_output_to_html(
-  "predata_head.html",
-  "Preprocessed Data",
-  "Few Sample Rows" = head(sample_head)
+  "data_organized_sample.html",
+  "Organized Data Sample" = sample_data
 )
+
+# Update and save Variable Type Mapping
+source("scripts/helper-functions/update-type-mapping.R")
+
+updated_mapping <- variable_type_mapping |> update_type_mapping(data_organized)
+variable_type_mapping <- updated_mapping
+variable_type_mapping |> saveRDS("datasets/mappings/types.rds")
 ```
 
-> See [Function to Capture Output as HTML](#capture-output-as-html).
+> See [Function to Update Variable Type Mapping](#update-variable-type-mapping)
 
 ```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/predata_head.html"), sep = "\n")
+cat(readLines("outputs/data_organized_sample.html"), sep = "\n")
 ```
 
-### Data Transformation
+#### Cleaning
 
-```{r}
-
-```
-
-### Missing Data Analysis
+##### Missing Data Analysis
 
 The analysis of missing data was performed to understand its extent and impact on the study. The process included visualizing missing data patterns and deciding on strategies to handle them. This was crucial to maintain the robustness of the statistical analysis and the reliability of the study results.
 
-#### Missingness Visualization
-
-Missing data patterns were analyzed to identify variables with significant gaps. Visualization techniques, such as bar plots, were used to summarize the extent of missingness.
-
-```{r missing-plotting, eval=FALSE}
+```{r plotting, eval=FALSE}
 # Visualize Missing Data
 source("scripts/helper-functions/plot-missing-values.R")
 
-plot_missing_values_by_type(predata, 0, 1)
-plot_missing_values_by_type(predata, 1, 5)
-plot_missing_values_by_type(predata, 5, 30)
-plot_missing_values_by_type(predata, 30, 50)
-plot_missing_values_by_type(predata, 50, 100)
+plot_missing_values_by_type(data_organized, 0, 1)
+plot_missing_values_by_type(data_organized, 1, 5)
+plot_missing_values_by_type(data_organized, 5, 30)
+plot_missing_values_by_type(data_organized, 30, 50)
+plot_missing_values_by_type(data_organized, 50, 100)
 ```
 
 > See [Function to Plot Missing Values by Type](#plot-missing-values-by-type).
 
-::: scrollable-container
-![](figures/plots/0-1_missing_data_preprocessed_plot.png)\
-\
-![](figures/plots/1-5_missing_data_preprocessed_plot.png)\
-\
-![](figures/plots/5-30_missing_data_preprocessed_plot.png)\
-\
-![](figures/plots/30-50_missing_data_preprocessed_plot.png)\
-\
-![](figures/plots/50-100_missing_data_preprocessed_plot.png)\
-\
+::: scrollable-inner-container
+![](figures/plots/0-1_missing_data_organized_plot.png)
+
+![](figures/plots/1-5_missing_data_organized_plot.png)\
+![](figures/plots/30-50_missing_data_organized_plot.png)\
+![](figures/plots/50-100_missing_data_organized_plot.png)\
 :::
 
-#### Default Handling Strategies
+###### Handling Strategies
 
-```{r default-strategies, eval=FALSE}
-# Define missing data handling options
-missing_data_options <- list(
-  "Low (0-5%)" = list(
-    Numeric = c(
-      "Predictive Modeling (Regression)",
-      "Predictive Modeling (KNN)",
-      "Multiple Imputation (MICE)",
-      "Mean Imputation",
-      "Median Imputation",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Indicator Variable + Mean",
-      "Indicator Variable + Median"
-    ),
-    Factor = c(
-      "Predictive Modeling (Decision Tree)",
-      "Predictive Modeling (Random Forest)",
-      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
-      "Mode Imputation",
-      "Add 'Unknown' Category",
-      "Add 'Other' Category"
-    ),
-    Logical = c(
-      "Predictive Modeling (Logistic Regression)",
-      "Mode Imputation",
-      "Add Indicator for Missingness",
-      "Replace with Most Frequent Value",
-      "Assume FALSE (if reasonable)",
-      "Assume TRUE (if reasonable)"
-    ),
-    Date = c(
-      "Median Date Imputation",
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Use Most Frequent Date",
-      "Use Previous Valid Value",
-      "Use Subsequent Valid Value"
-    ),
-    hms = c(
-      "Median Timestamp Imputation",
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Use Most Frequent Timestamp",
-      "Use Previous Valid Timestamp",
-      "Use Subsequent Valid Timestamp"
-    ),
-    List = c(
-      "Predictive Modeling (List Similarity-Based)",
-      "Weighted Average List Imputation",
-      "Replace with Most Frequent List",
-      "Replace with Proxy List",
-      "Replace with Empty List",
-      "Add Indicator for Missingness"
-    )
-  ),
-  "Moderate (5-30%)" = list(
-    Numeric = c(
-      "Multiple Imputation (MICE)",
-      "Predictive Imputation (Regression)",
-      "Predictive Imputation (KNN)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Mean Imputation",
-      "Median Imputation",
-      "Indicator Variable + Mean",
-      "Indicator Variable + Median"
-    ),
-    Factor = c(
-      "Predictive Modeling (Random Forest)",
-      "Predictive Modeling (Decision Tree)",
-      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
-      "Add 'Unknown' Category",
-      "Add 'Other' Category",
-      "Mode Imputation"
-    ),
-    Logical = c(
-      "Predictive Imputation (Logistic Regression)",
-      "Add Indicator for Missingness",
-      "Mode Imputation",
-      "Replace with Most Frequent Value",
-      "Assume FALSE",
-      "Assume TRUE"
-    ),
-    Date = c(
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Indicator + Median Date Imputation",
-      "Use Previous Valid Value",
-      "Use Subsequent Valid Value"
-    ),
-    hms = c(
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Indicator + Median Timestamp Imputation",
-      "Use Previous Valid Timestamp",
-      "Use Subsequent Valid Timestamp"
-    ),
-    List = c(
-      "Predictive Modeling (Clustering-Based List Imputation)",
-      "Weighted Average List Imputation",
-      "Replace with Most Frequent List",
-      "Replace with Proxy List",
-      "Replace with Empty List",
-      "Create Synthetic List"
-    )
-  ),
-  "High (30-50%)" = list(
-    Numeric = c(
-      "Indicator Variable + Multiple Imputation (MICE)",
-      "Indicator Variable + Predictive Modeling (Regression)",
-      "Indicator Variable + Predictive Modeling (KNN)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Mean Imputation",
-      "Median Imputation"
-    ),
-    Factor = c(
-      "Predictive Modeling (Random Forest)",
-      "Predictive Modeling (Decision Tree)",
-      "Add 'Unknown' Category",
-      "Add 'Other' Category",
-      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
-      "Use Most Frequent Category"
-    ),
-    Logical = c(
-      "Indicator Variable + Predictive Imputation",
-      "Add Indicator for Missingness",
-      "Mode Imputation",
-      "Replace with Most Frequent Value",
-      "Assume FALSE",
-      "Assume TRUE"
-    ),
-    Date = c(
-      "Indicator Variable + Median Date Imputation",
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Use Placeholder Dates"
-    ),
-    hms = c(
-      "Indicator Variable + Median Timestamp Imputation",
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Linear Interpolation",
-      "Spline Interpolation",
-      "Use Placeholder Timestamps"
-    ),
-    List = c(
-      "Add Indicator Variable for Missingness",
-      "Replace with Most Frequent List",
-      "Replace with Proxy List",
-      "Replace with Empty List",
-      "Create Synthetic List (via Sampling or Clustering)"
-    )
-  ),
-  "Very High (>50%)" = list(
-    Numeric = c(
-      "Indicator Variable + Rough Imputation (e.g., Overall Mean)",
-      "Indicator Variable + Multiple Imputation (MICE)",
-      "Add 'Unknown' Category",
-      "Drop Variable (if non-critical)"
-    ),
-    Factor = c(
-      "Add 'Unknown' Category",
-      "Add 'Other' Category",
-      "Use Most Frequent Category",
-      "Frequency-Based Imputation (Weighted by Subgroup Frequency)",
-      "Drop Variable (if non-critical)"
-    ),
-    Logical = c(
-      "Indicator Variable + Assume FALSE",
-      "Replace with Most Frequent Value",
-      "Assume TRUE",
-      "Drop Variable (if non-critical)"
-    ),
-    Date = c(
-      "Use Placeholder Dates",
-      "Indicator Variable + Rough Date Imputation",
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Drop Variable (if non-critical)"
-    ),
-    hms = c(
-      "Use Placeholder Timestamps",
-      "Indicator Variable + Rough Timestamp Imputation",
-      "Forward Fill (if sequential)",
-      "Backward Fill (if sequential)",
-      "Drop Variable (if non-critical)"
-    ),
-    List = c(
-      "Add Indicator for Missingness",
-      "Replace with Empty List",
-      "Replace with Proxy List",
-      "Create Synthetic List",
-      "Drop Variable (if non-critical)"
-    )
-  )
-)
-
+```{r handling, eval=FALSE}
 # Generate data handling table with all options
 source("scripts/helper-functions/generate-missing-handling-table.R")
-data_handling_table <- generate_data_handling_table(data_preprocessed)
+data_handling_table <- generate_data_handling_table(data_organized)
 
-`# Capture as HTML
+# Capture as HTML
 source("scripts/helper-functions/capture-to-html.R")
 capture_output_to_html(
-  "predata_handling_table_all_options.html",
-  "PreData Handling Table",
-  "All Options" = data_handling_table[, c(1, 2, 3, 4)]
+  "missing_data_handling_options.html",
+  "Data Handling Table",
+  "All Options" = data_handling_table
 )
 ```
 
 > See [Function to Generate Missing Data Handling Strategies](#generate-data-handling-table) and [Function to Calculate Summary Statistics](#calculate-summary-stats).
 
 ```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/predata_handling_table_all_options.html"), sep = "\n")
+cat(readLines("outputs/missing_data_handling_options.html"), sep = "\n")
 ```
 
-### Multiple Imputation
+##### Aggregation
 
-```{r}
+```{r aggregation, eval=FALSE}
 # Load required libraries
-library(mice)
-library(tidyr)
 library(dplyr)
+
+# Drop problematic 'sdoh_risk_level' variable
+aggregated_data <- data_organized |> select(-sdoh_risk_level)
+
+# Define list_vars: Identify list variables
+list_vars <- names(aggregated_data)[sapply(aggregated_data, is.list)]
+
+# Variables with specific aggregation rules
+special_rules <- c("phq_2_total_score", "phq_9")
+
+# Function to flatten nested lists into a single vector
+flatten_list <- function(x) {
+  if (is.null(x) || all(is.na(x))) return(NA)
+  unlist(x, recursive = TRUE, use.names = FALSE)
+}
+
+# Process list variables
+aggregated_data[list_vars] <- lapply(list_vars, \(var) {
+  if (var %in% special_rules) {
+    # Apply specific aggregation rules
+    sapply(aggregated_data[[var]], \(x) {
+      x <- flatten_list(x)  # Flatten nested structures
+      if (is.null(x) || all(is.na(x))) {
+        NA
+      } else {
+        x_numeric <- suppressWarnings(as.numeric(x))
+        if (all(is.na(x_numeric))) {
+          NA  # If all values are non-numeric, return NA
+        } else {
+          switch(
+            var,
+            "phq_2_total_score" = mean(x_numeric, na.rm = TRUE),
+            "phq_9" = mean(x_numeric, na.rm = TRUE)
+          )
+        }
+      }
+    })
+  } else {
+    # Count unique values (excluding NA)
+    sapply(aggregated_data[[var]], \(x) {
+      x <- flatten_list(x)  # Flatten nested structures
+      if (is.null(x) || all(is.na(x))) {
+        0  # NA or NULL means 0
+      } else {
+        length(unique(na.omit(x)))  # Count unique non-NA values
+      }
+    })
+  }
+})
+
+# Sample some rows
+set.seed(123)
+sample_data <- aggregated_data |>
+  slice_sample(n = 5)
+
+# Capture Organized Data Sample
+source("scripts/helper-functions/capture-to-html.R")
+
+capture_output_to_html(
+  "data_aggregated_sample.html",
+  "Sample",
+  "Aggregated Data" = sample_data
+)
+```
+
+```{r, results='asis', echo=FALSE}
+cat(readLines("outputs/data_aggregated_sample.html"), sep = "\n")
+```
+
+##### Encoding
+
+```{r encoding, eval=FALSE}
+# Load required libraries
+library(dplyr)
+library(tibble)
+library(lubridate)
+
+# Helper function to check if a column is of class "hms"
+is_hms_column <- function(x) inherits(x, "hms")
+
+# Encode variables in aggregated_data while sparing 'patient_id'
+encoding_mappings <- list()
+
+# Save original column order
+original_column_order <- names(aggregated_data)
+
+# Process all columns except 'patient_id'
+aggregated_data_encoded <- aggregated_data |>
+  select(-patient_id) |>
+  mutate(across(
+    where(is.list),
+    ~ {
+      var_name <- cur_column()
+      # Aggregate list into a numeric summary (e.g., count of unique items)
+      list_counts <- sapply(., \(x) if (is.null(x) || all(is.na(x))) 0 else length(unique(na.omit(x))))
+      encoding_mappings[[var_name]] <<- tibble(Value = "count_unique_items", Code = "numeric_summary")
+      list_counts
+    }
+  )) |>
+  mutate(across(
+    where(is.factor),
+    ~ {
+      var_name <- cur_column()
+      levels_cleaned <- levels(.)
+      if (anyNA(levels_cleaned)) levels_cleaned <- c(levels_cleaned, "NA")
+      mapping <- tibble(
+        Level = levels_cleaned,
+        Code = seq_along(levels_cleaned)
+      )
+      encoding_mappings[[var_name]] <<- mapping
+      as.numeric(factor(., levels = levels_cleaned))
+    }
+  )) |>
+  mutate(across(
+    where(is.character),
+    ~ {
+      var_name <- cur_column()
+      unique_vals <- unique(c(., "NA"))
+      mapping <- tibble(
+        Value = unique_vals,
+        Code = seq_along(unique_vals)
+      )
+      encoding_mappings[[var_name]] <<- mapping
+      as.numeric(factor(., levels = unique_vals))
+    }
+  )) |>
+  mutate(across(
+    where(is.logical),
+    ~ {
+      var_name <- cur_column()
+      mapping <- tibble(
+        Value = c(FALSE, TRUE, NA),
+        Code = c(0, 1, -1)
+      )
+      encoding_mappings[[var_name]] <<- mapping
+      ifelse(is.na(.), -1, as.numeric(.))
+    }
+  )) |>
+  mutate(across(
+    where(is.Date),
+    ~ {
+      min_date <- min(., na.rm = TRUE)
+      if (is.infinite(min_date)) {
+        mapping <- tibble(Value = NA, Code = NA)
+        encoding_mappings[[cur_column()]] <<- mapping
+        return(NA)
+      }
+      as.numeric(. - min_date)
+    }
+  )) |>
+  mutate(across(
+    where(is_hms_column),
+    ~ as.numeric(.)
+  ))
+
+# Add 'patient_id' back to its original position
+aggregated_data_encoded <- aggregated_data_encoded |>
+  bind_cols(select(aggregated_data, patient_id)) |>
+  select(all_of(original_column_order))  # Reorder columns to match the original dataset
+
+# Save aggregated and encoded data
+aggregated_data_encoded |>
+  saveRDS("datasets/data_encoded.rds")
+
+# Save the encoding mappings
+dir.create("datasets/mappings", recursive = TRUE, showWarnings = FALSE)
+encoding_mappings |>
+  saveRDS("datasets/mappings/encoding.rds")
+
+# Print confirmation
+cat("Encoding complete.\nDataset saved to 'datasets/data_encoded.rds'.\nMappings saved to 'datasets/mappings/encoding.rds'.\n")
+
+# Validate Dimensions
+validation_passed <- 
+  (aggregated_data_encoded |> nrow()) == (aggregated_data |> nrow()) &&
+  (aggregated_data_encoded |> ncol()) == (aggregated_data |> ncol())
+
+if (!validation_passed) {
+  stop("Validation failed: dimensions do not match.")
+} else {
+  cat("Validation passed: dimensions match.\n")
+}
+
+# Sample some rows
+set.seed(123)
+sample_data <- aggregated_data_encoded |>
+  slice_sample(n = 5)
+
+# Capture Organized Data Sample
+source("scripts/helper-functions/capture-to-html.R")
+
+capture_output_to_html(
+  "data_encoded_sample.html",
+  "Sample",
+  "Data Encoded" = sample_data
+)
+```
+
+```{r, results='asis', echo=FALSE}
+cat(readLines("outputs/data_encoded_sample.html"), sep = "\n")
+```
+
+##### Imputation
+
+```{r imputation, eval=FALSE}
+# Load required libraries
+library(readr)
+library(dplyr)
+library(mice)
+library(zoo)
 library(hms)
 
-# Preprocessing Functions
-convert_logical_to_factor <- function(data) {
-  logical_vars <- names(data)[sapply(data, is.logical)]
-  data[logical_vars] <- lapply(data[logical_vars], as.factor)
-  return(data)
+# Step 1: Load encoded dataset and types
+aggregated_data_encoded <- readRDS("datasets/data_encoded.rds")
+variable_type_mapping <- readRDS("datasets/mappings/types.rds")
+
+# Step 2: Validate that all variables in `aggregated_data_encoded` are mapped
+missing_variables <- setdiff(names(aggregated_data_encoded), variable_type_mapping$Variable)
+if (length(missing_variables) > 0) {
+  stop("The following variables are missing in the type mapping: ", paste(missing_variables, collapse = ", "))
 }
 
-convert_date_to_numeric <- function(data) {
-  date_vars <- names(data)[sapply(data, inherits, "Date")]
-  data[date_vars] <- lapply(data[date_vars], as.numeric)
-  return(data)
-}
-
-convert_numeric_to_date <- function(data, original_data) {
-  date_vars <- names(original_data)[sapply(original_data, inherits, "Date")]
-  data[date_vars] <- lapply(data[date_vars], function(x) as.Date(x, origin = "1970-01-01"))
-  return(data)
-}
-
-convert_hms_to_numeric <- function(data) {
-  time_vars <- names(data)[sapply(data, inherits, "hms")]
-  data[time_vars] <- lapply(data[time_vars], as.numeric)
-  return(data)
-}
-
-convert_numeric_to_hms <- function(data, original_data) {
-  time_vars <- names(original_data)[sapply(original_data, inherits, "hms")]
-  data[time_vars] <- lapply(data[time_vars], as_hms)
-  return(data)
-}
-
-encode_list_vars <- function(data) {
-  list_vars <- names(data)[sapply(data, is.list)]
-  for (var in list_vars) {
-    data[[paste0(var, "_length")]] <- sapply(data[[var]], function(x) if (is.null(x)) 0 else length(x))
-    data[[paste0(var, "_has_na")]] <- sapply(data[[var]], function(x) if (is.null(x)) FALSE else any(is.na(x)))
+# Step 3: Imputation based on type mappings
+impute_variable <- function(variable, var_type, var_name = NULL) {
+  if (var_type == "numeric") {
+    # Numeric: Use mean imputation for <10% missing; else use MICE
+    if (mean(is.na(variable)) < 0.1) {
+      return(ifelse(is.na(variable), mean(variable, na.rm = TRUE), variable))
+    } else {
+      temp_data <- data.frame(var = variable, dummy = rnorm(length(variable)))
+      imputed_data <- mice(temp_data, m = 1)
+      return(mice::complete(imputed_data)$var)
+    }
+  } else if (var_type == "factor") {
+    # Factor: Use mode imputation
+    mode_value <- names(sort(table(variable), decreasing = TRUE))[1]
+    return(ifelse(is.na(variable), mode_value, variable))
+  } else if (var_type == "logical") {
+    # Logical: Use FALSE for missing
+    return(ifelse(is.na(variable), FALSE, variable))
+  } else if (var_type == "Date") {
+    # Date: Use median date
+    median_date <- as.Date(median(as.numeric(variable), na.rm = TRUE), origin = "1970-01-01")
+    return(ifelse(is.na(variable), median_date, variable))
+  } else if (var_type == "hms") {
+    # hms: Use median time
+    median_time <- hms::as_hms(median(as.numeric(variable), na.rm = TRUE))
+    return(ifelse(is.na(variable), median_time, variable))
+  } else if (var_type == "identifier") {
+    # Identifier: Do not impute
+    return(variable)
+  } else if (var_type == "list") {
+    # Handle phq variables differently
+    if (var_name %in% c("phq_2_total_score", "phq_9")) {
+      overall_mean <- mean(unlist(variable), na.rm = TRUE)
+      return(ifelse(is.na(variable), overall_mean, variable))
+    } else {
+      # For other list variables, replace with 0 (count of unique values)
+      return(ifelse(is.na(variable), 0, variable))
+    }
+  } else {
+    stop("Unsupported variable type: ", var_type)
   }
-  # Drop original list variables
-  data <- data[ , !(names(data) %in% list_vars)]
-  return(data)
 }
 
-# Automatic Preprocessing
-preprocess_data <- function(data) {
-  original_data <- data  # Keep the original for reference
-  data <- convert_logical_to_factor(data)
-  data <- convert_date_to_numeric(data)
-  data <- convert_hms_to_numeric(data)
-  data <- encode_list_vars(data)
-  return(list(preprocessed_data = data, original_data = original_data))
+# Apply imputation across all variables
+imputed_data <- aggregated_data_encoded %>%
+  mutate(across(
+    everything(),
+    ~ impute_variable(.x, 
+      variable_type_mapping$Type[variable_type_mapping$Variable == cur_column()], 
+      cur_column()
+    )
+  ))
+
+# Step 4: Save imputed data
+dir.create("datasets/imputed", recursive = TRUE, showWarnings = FALSE)
+saveRDS(imputed_data, "datasets/imputed/data_imputed.rds")
+
+# Print confirmation
+cat("Imputation complete. Imputed dataset saved to 'datasets/imputed/data_imputed.rds'.\n")
+
+# Check for missing values across the dataset
+missing_summary <- colSums(is.na(imputed_data))
+
+# Print the summary of missing values
+if (all(missing_summary == 0)) {
+  cat("No missing values detected in the imputed dataset.\n")
+} else {
+  cat("Missing values detected in the following variables:\n")
+  print(missing_summary[missing_summary > 0])
 }
 
-# Preprocess Data
-processed <- preprocess_data(data)
-preprocessed_data <- processed$preprocessed_data
-original_data <- processed$original_data
+# Sample some rows
+set.seed(123)
+sample_data <- imputed_data |>
+  slice_sample(n = 10)
 
-# Automatically Define Imputation Methods
-methods <- make.method(preprocessed_data)
-methods[sapply(preprocessed_data, is.numeric)] <- "pmm"
-methods[sapply(preprocessed_data, is.factor)] <- "polyreg"
-methods[grep("_length|_has_na", names(preprocessed_data))] <- "pmm"
-
-# Perform Multiple Imputation
-imputed_data <- mice(preprocessed_data, method = methods, m = 5, maxit = 10, seed = 123)
-
-# Postprocess Data
-completed_data <- complete(imputed_data)
-completed_data <- convert_numeric_to_date(completed_data, original_data)
-completed_data <- convert_numeric_to_hms(completed_data, original_data)
-
-# Save Completed Dataset
-write.csv(completed_data, "completed_data.csv", row.names = FALSE)
-
-# Validate Results
-print(summary(imputed_data))
-densityplot(imputed_data)
-```
-
-### Multiple Imputation
-
-### Data Reduction
-
-A reduced dataset with fewer variables was created to meet final project deadline. Later iterations will expand the analysis to the complete dataset.
-
-```{r var_organization, eval=FALSE}
-# Create a data frame from the colnames(predata)
-colnames_data <- colnames(predata)
-
-# Filter variable_type_lookup to include only variables present in colnames(predata)
-filtered_lookup <- variable_type_lookup[variable_type_lookup$Variable %in% colnames_data, ]
-
-# Calculate missing percentages for each variable in predata
-missingness <- colSums(is.na(predata)) / nrow(predata) * 100
-missingness_df <- data.frame(Variable = colnames(predata), Missingness = round(missingness, 2))
-
-# Merge the filtered lookup table with the missingness data
-result_df <- merge(filtered_lookup, missingness_df, by = "Variable", all.x = TRUE)
-
-# Sort the resulting data frame by Missingness ascendingly
-result_df <- result_df[order(result_df$Missingness), ]
-
-# Define logical groups
-logical_groups <- list(
-  Identifiers = c("patient_id"),
-  
-  Demographic_Info = c("age_at_visit_years", "year_of_birth", "legal_sex", "marital_status", "language", "patient_gender_identity", "visit_gender_identity", "patient_sex_assigned", "visit_sex_assigned", "patient_sexual_orientation", "visit_sexual_orientation", "patient_race", "visit_race", "patient_ethnic_group", "patient_religion", "visit_religion"),
-  
-  Sociogeographic_Info = c("country", "state", "patient_county", "visit_county", "patient_postal_code", "visit_postal_code", "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", "svi_2020_socioeconomic_percentile_census_tract", "adi_national_percentile", "adi_state_decile"),
-  
-  Clinical_Info= c("patient_diagnosis", "visit_diagnosis", "primary_diagnosis", "medical_history", "allergies_and_contraindications"),
-  
-  Treatment_info = c("medications", "outpatient_medications", "patient_medications_ordered", "visit_medications_ordered", "hospital_or_clinic_administered_medications", "procedures", "visit_procedures_ordered", "patient_procedures_ordered"),
-  
-  Health_Metrics = c("patient_bmi", "visit_bmi", "patient_bp_diastolic", "visit_bp_diastolic", "patient_bp_systolic", "visit_bp_systolic", "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains"),
-  
-  Encounter_Info = c("continuity_of_care", "encounter_type", "interpreter_needed", "visit_date", "visit_type", "appointment_creation_date", "appointment_time", "appointment_length_minutes", "lead_time_days", "scheduling_source", "appointment_status", "encounter_to_close_day", "chief_complaint", "no_show_probability"),
-  
-  Provider_Info = c("primary_provider_type", "primary_provider_title", "time_physician_spent_post_charting_minutes", "time_physician_spent_pre_charting_minutes", "time_waiting_for_physician_minutes", "time_with_physician_minutes"),
-  
-  Financial_Info = c("primary_benefit_plan", "primary_payer", "primary_payer_financial_class", "self_pay", "copay_collected", "copay_due", "prepayment_due", "prepayment_collected", "primary_subscriber_group_number", "patient_service_level", "visit_service_level"),
-  
-  Status_Info = c("portal_active_at_scheduling", "mychart_status", "new_to_department_specialty", "new_to_facility", "new_to_provider", "university_of_pennsylvania_student")
-)
-
-# Map each variable to its logical group
-group_mapping <- stack(logical_groups)
-colnames(group_mapping) <- c("Variable", "Group")
-
-# Merge the `result_df` with the `group_mapping`
-result_df <- merge(result_df, group_mapping, by = "Variable", all.x = TRUE)
-
-# Reorder columns to make 'Group' the first column
-results_df <- result_df[, c("Group", setdiff(colnames(result_df), "Group"))]
-
-# Sort
-organized_vars <- results_df %>% arrange(Group, Missingness)
-
-# Factorize
-organized_vars <- organized_vars %>%
-  mutate(
-    Group = factor(Group, levels = unique(Group)),
-    Variable = factor(Variable, levels = unique(Variable)),
-    Type = factor(Type, levels = unique(Type))
-  )
-sapply(organized_vars, class)
-
-#Save as RDS
-saveRDS(organized_vars, "datasets/lookup-tables/organized_vars.rds")
+# Capture Organized Data Sample
 source("scripts/helper-functions/capture-to-html.R")
+
 capture_output_to_html(
-  "data_organized_for_reduction.html",
-  "Data Organized for Reduction Criteria" = organized_vars
+  "data_imputed_sample.html",
+  "Sample",
+  "Imputed Data" = sample_data
 )
 ```
 
-```{r replot-missingness}
-# Load required Libraries
-library(ggplot2)
-library(dplyr)
-
-# Define the custom missingness ranges
-vars_to_plot <- organized_vars %>%
-  mutate(
-    Missingness_Range = cut(
-      Missingness,
-      breaks = c(1, 5, 30, 50, 100),
-      labels = c("1–5%", "5–30%", "30–50%", "50–100%"),
-      include.lowest = TRUE
-    )
-  )
-
-# Split the data by Missingness Range
-range_data <- split(vars_to_plot, vars_to_plot$Missingness_Range)
-
-# Define consistent colors for the total gradient fill
-gradient_colors <- c("white", "yellow", "orange", "red", "darkred")
-
-# Define a function to create plots with total gradient fill
-create_plot <- function(data, range, range_limits) {
-  ggplot(data, aes(x = Missingness, y = reorder(Variable, Missingness), fill = Missingness)) +
-    geom_col(color = "black") +
-    scale_fill_gradientn(
-      colors = gradient_colors,
-      limits = c(1, 100),
-      name = "Missingness (%)"
-    ) +
-    theme_minimal(base_size = 12) +
-    theme(
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      axis.text.y = element_text(size = 10, hjust = 1),
-      legend.position = "bottom",
-      strip.text = element_text(size = 12, face = "bold"),
-      panel.spacing = unit(1, "lines"),
-      plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-      plot.subtitle = element_text(hjust = 0.5, size = 12)
-    ) +
-    labs(
-      title = paste("Missingness Range:", range),
-      x = "Missingness (%)"
-    )
-}
-
-  create_plot(vars_to_plot, range, range_limits)
-
-# Print each plot
-for (p in vars_to_plot) {
-  print(p)
-}
+```{r, results='asis', echo=FALSE}
+cat(readLines("outputs/data_imputed_sample.html"), sep = "\n")
 ```
 
-> See [Function to Capture Output as HTML](#capture-output-as-html).
+##### Transformation
 
-```{r reduction, eval=FALSE}
+```{r transformation, eval=FALSE}
 # Load required libraries
 library(dplyr)
+library(caret)
 library(readr)
 
-# Reduce dataset
-reduced_predata <- predata %>%
-  filter(
-    primary_provider_type %in% c("Physician", "Psychiatrist", "Resident", "Nurse Practitioner")
-  ) %>%
-    select(
-    # Identifiers
-    patient_id,
-    
-    # Demographic Information
-    year_of_birth, legal_sex, marital_status, language, patient_gender_identity, patient_sexual_orientation, patient_race, patient_ethnic_group, patient_religion,
-    
-    # Sociodemographic Information
-    country, state, patient_postal_code, rural_urban_commuting_area_primary, adi_national_percentile,
-    
-    # Clinical Information
-    patient_diagnosis, primary_diagnosis, medical_history, allergies_and_contraindications,
-    
-    # Treatment Information
-    medications, outpatient_medications, patient_medications_ordered, 
-    visit_medications_ordered, hospital_or_clinic_administered_medications, 
-    procedures, visit_procedures_ordered, patient_procedures_ordered,
-    
-    # Health Metrics
-    patient_bmi, phq_2_total_score, phq_9, general_risk_score, sdoh_risk_level, sdoh_domains,
-    
-    # Encounter Information
-    continuity_of_care, visit_date, visit_type, appointment_creation_date, appointment_time, appointment_length_minutes, appointment_status, encounter_to_close_day, chief_complaint, no_show_probability,
-    
-    # Provider Information
-    primary_provider_type, primary_provider_title, time_physician_spent_post_charting_minutes, time_physician_spent_pre_charting_minutes, time_waiting_for_physician_minutes, time_with_physician_minutes,
-    
-    # Financial Information
-    primary_benefit_plan, primary_payer, primary_payer_financial_class, 
-    self_pay, copay_collected, copay_due, prepayment_due, prepayment_collected, 
-    primary_subscriber_group_number, patient_service_level, visit_service_level,
-    
-    # Status Information
-    portal_active_at_scheduling, mychart_status, new_to_department_specialty, 
-    new_to_facility, new_to_provider, university_of_pennsylvania_student
+# Step 1: Load the imputed dataset and variable type mappings
+imputed_data <- readRDS("datasets/imputed/data_imputed.rds")
+variable_type_mapping <- readRDS("datasets/mappings/types.rds")
+
+# Step 2: Correct the types in the mapping
+corrected_type_mapping <- variable_type_mapping |>
+  mutate(Type = ifelse(Type == "list", "numeric", Type))  # Convert list types to numeric
+
+# Step 3: Preserve patient_id as an identifier
+identifier_column <- "patient_id"
+identifiers <- imputed_data |>
+  select(all_of(identifier_column))
+
+# Step 4: Exclude identifier from modeling data
+modeling_data <- imputed_data |>
+  select(-all_of(identifier_column))
+
+# Step 5: Handle character variables (categorical encoding)
+# Identify character variables
+char_vars <- corrected_type_mapping |>
+  filter(Type == "character") |>
+  pull(Variable)
+
+# Convert character variables to numeric (one-hot encoding)
+if (length(char_vars) > 0) {
+  dummy_model <- dummyVars(" ~ .", data = modeling_data[char_vars])
+  char_encoded <- predict(dummy_model, newdata = modeling_data[char_vars]) |>
+    as.data.frame()
+  modeling_data <- cbind(modeling_data |>
+                           select(-all_of(char_vars)), char_encoded)
+}
+
+# Step 6: Drop or convert any remaining list columns
+# Identify columns of type list
+list_vars <- corrected_type_mapping |>
+  filter(Type == "numeric") |>  # Lists were reclassified as numeric
+  pull(Variable)
+
+# Drop or convert invalid list columns to numeric (if necessary)
+list_vars_in_data <- intersect(list_vars, names(modeling_data))
+if (length(list_vars_in_data) > 0) {
+  modeling_data[list_vars_in_data] <- lapply(modeling_data[list_vars_in_data], function(col) {
+    if (is.list(col)) {
+      # Example: Replace with length of each list as a numeric proxy
+      sapply(col, function(x) if (is.null(x)) 0 else length(x))
+    } else {
+      col
+    }
+  })
+}
+
+# Step 7: Normalize numeric variables
+# Identify numeric variables that exist in the dataset
+num_vars <- corrected_type_mapping |>
+  filter(Type == "numeric") |>
+  pull(Variable)
+
+# Filter numeric variables to those present in the dataset
+existing_num_vars <- intersect(num_vars, names(modeling_data))
+
+# Scale numeric variables
+if (length(existing_num_vars) > 0) {
+  scaler <- preProcess(modeling_data[existing_num_vars], method = c("center", "scale"))
+  modeling_data[existing_num_vars] <- predict(scaler, modeling_data[existing_num_vars])
+}
+
+# Step 8: Combine the identifiers back with the prepared data (if needed)
+final_data <- cbind(identifiers, modeling_data)
+
+# Save the prepared dataset for modeling
+saveRDS(final_data, "datasets/data_final_for_modeling_with_id.rds")
+
+# Save final type mapping
+updated_mapping <- corrected_type_mapping |>
+  mutate(Final_Type = ifelse(Type == "character", "encoded_numeric", Type))
+saveRDS(updated_mapping, "datasets/mappings/final_types.rds")
+
+# Confirmations
+cat("Dataset prepared for predictive analytics.\n")
+cat("Saved to 'datasets/data_final_for_modeling_with_id.rds'.\n")
+cat("Updated type mapping saved to 'datasets/mappings/final_types.rds'.\n")
+```
+
+#### Feature Engineering
+
+```{r feature_engineering, eval=FALSE}
+# Load required libraries
+library(dplyr)
+library(tidyr)
+
+# Define dataset boundaries and span
+dataset_start <- as.Date("2014-10-01")
+dataset_end <- as.Date("2024-09-30")
+
+# Load data and mappings
+final_data <- readRDS("datasets/data_final_for_modeling_with_id.rds")
+encoding <- readRDS("datasets/mappings/encoding.rds")
+
+# Ensure engineered features directory exists
+dir.create("datasets/engineered_features", recursive = TRUE, showWarnings = FALSE)
+
+# Filter for relevant provider types
+relevant_providers <- c("Physician", "Psychiatrist", "Resident", "Nurse Practitioner")
+relevant_provider_codes <- encoding$primary_provider_type |>
+  filter(Level %in% relevant_providers) |>
+  pull(Code)
+
+# Adjust and Filter Data
+final_data <- final_data |>
+  filter(primary_provider_type %in% relevant_provider_codes) |>  # Filter relevant providers
+  mutate(
+    visit_date = as.Date(visit_date, origin = "1970-01-01"),  # Ensure `visit_date` is a Date
+    appointment_length_minutes = ifelse(appointment_length_minutes < 0, NA, appointment_length_minutes)  # Replace negative values
   )
 
-# Save reduced dataset
-saveRDS(reduced_predata, "datasets/reduced_data.rds")
+# Feature Engineering: Weekly Load (Minutes)
+weekly_load_data <- final_data |>
+  group_by(patient_id) |>
+  summarise(
+    visit_date_min = min(visit_date, na.rm = TRUE),
+    visit_date_max = max(visit_date, na.rm = TRUE),
+    observed_span_days = pmax(as.numeric(visit_date_max - visit_date_min) + 1, 7),  # Minimum span threshold of 7 days
+    visit_count = n(),
+    average_visit_length = mean(appointment_length_minutes, na.rm = TRUE),
+    visit_density = visit_count / observed_span_days,
+    visit_density = pmin(visit_density, 1),  # Cap density at 1 visit per day
+    weekly_load_minutes = pmax(visit_density * average_visit_length * 7, 0)  # Avoid negatives
+  ) |>
+  ungroup()
+
+# Replace NA values with 0 for interpretability
+weekly_load_data <- weekly_load_data |>
+  mutate(across(everything(), ~ replace_na(.x, 0)))
+
+# Save the updated dataset
+saveRDS(weekly_load_data, "datasets/engineered_features/weekly_load_data.rds")
+
+# Print confirmation
+cat("Feature engineering complete. Results saved to 'datasets/engineered_features/weekly_load_data.rds'.\n")
 ```
 
-### Data Transformation
+### Current progress
 
-```{r}
-
-```
-
-### Missing Data Handling
-
-> See [Function to Plot Missing Values by Type](#plot-missing-values-by-type).
-
-### Exploratory Data Analysis (EDA)
-
-```{r}
-
-```
-
-### Data Transformation
-
-Data will be transformed to fit the assumptions required for effective model training. This includes normalizing and scaling continuous variables to prevent attributes with larger ranges from dominating the model's feature importance. Categorical variables will be encoded into numerical values to facilitate their use in machine learning algorithms. Transformations such as logarithmic or square root transformations will be applied to skewed data to approximate normal distributions.
-
-#### Normalization and Scaling
-
-Numerical variables will be normalized using techniques such as Min-Max scaling or Z-score normalization to ensure equal contribution to models.
-
-#### Encoding
-
-Categorical variables will be converted into numerical representations using one-hot encoding or label encoding, depending on their nature.
-
-### Feature Engineering
-
-New features will be engineered to capture resource utilization effectively:
-
--   **Visit Count:** Total number of visits per patient.
-
--   **Visit Span:** Time span between a patient’s first and last recorded visits.
-
--   **Visit Density:** Number of visits divided by the duration of engagement.
-
--   **Diagnostic Complexity:** Count of unique diagnoses over time.
-
--   **Therapeutic Complexity:** Count of unique medications and procedures over time.
-
--   **Resource Utilization Score (RUS):** A composite metric combining visit density, diagnosis complexity, and medication burden to categorize patients into low, medium, or high utilization levels.
-
-These features will be designed and normalized to improve model performance and enhance the interpretability of results.
-
-#### Resource Utilization Score (RUS)
-
-A Resource Utilization Score will be constructed using a composite index that integrates various dimensions of healthcare use, such as visit frequency, diversity of diagnoses, and medication load. This score will categorize patients into different levels of healthcare utilization, aiding in resource planning and management.
-
-The RUS categorized patients into low, medium, or high utilization groups, providing insights into healthcare resource needs.
-
-### Predictive Modeling
-
-Predictive models will be developed to forecast healthcare resource utilization based on historical patient data. These models will help anticipate patient needs, optimizing resource allocation and scheduling. Both regression and classification models will be explored to predict continuous outcomes, such as the number of future visits, and categorical outcomes, such as high or low resource utilization.
-
-#### Baseline Models
-
-Baseline predictors, such as mean and median-based imputation, will serve as benchmarks for evaluating the performance of advanced algorithms.
-
-#### Advanced Models
-
-Both regression and classification models will be developed to predict resource utilization:
-
-1.  **Regression Models:**
-
-    -   **Linear Regression:** To obtain baseline performance for predicting continuous variables, such as visit frequency and duration.
-
-    -   **Random Forest Regression:** To identify key predictors and achieve higher accuracy.
-
-2.  **Classification Models:**
-
-    -   **Logistic Regression:** Will categorize patients into low, medium, or high utilization groups.
-
-    -   **Support Vector Machines (SVM):** To improve separation of utilization categories with complex patterns.
-
-#### Evaluation Metrics
-
-Model performance will be assessed using task-specific metrics:
-
--   **Regression:** Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and R-squared.
-
--   **Classification:** Accuracy, Precision, Recall, F1-score, and Area Under the Receiver Operating Characteristic Curve (AUC-ROC).
-
-#### Validation and Optimization
-
-To ensure generalizability, cross-validation techniques (e.g., k-fold cross-validation) will be employed. Grid search and random search methods will optimize hyperparameters for the best-performing models.
+![](images/clipboard-2928763158.png)
 
 ## Results
 
-The results section will include:
+```{r rf, eval=FALSE}
+# Load required libraries
+library(readr)
+library(dplyr)
+library(ranger)
+library(ggplot2)
 
-1.  **Summary Statistics**
+# Load the dataset
+final_data <- readRDS("datasets/final_data.rds")
 
-2.  **Model Performance**: Summary metrics highlighting predictive accuracy and reliability.
+# Data preparation
+rf_data <- final_data %>%
+  select(-patient_id, -visit_date_min, -visit_date_max) %>%  # Remove unnecessary columns
+  na.omit()  # Remove rows with missing values
 
-3.  **Feature Importance**: Insights into the most impactful predictors of resource utilization.
+# Convert character columns to factors
+rf_data <- rf_data %>%
+  mutate(across(where(is.character), as.factor))
 
-4.  **Validation**: Evaluation of model performance on unseen data.
+# Split into training and testing sets
+set.seed(123)  # For reproducibility
+train_index <- sample(seq_len(nrow(rf_data)), size = 0.7 * nrow(rf_data))
+train_data <- rf_data[train_index, ]
+test_data <- rf_data[-train_index, ]
+
+# Train the random forest model using ranger
+rf_model <- ranger(
+  formula = weekly_load_minutes ~ .,  # Predict weekly_load_minutes
+  data = train_data,                  # Training data
+  num.trees = 500,                    # Number of trees
+  mtry = floor(sqrt(ncol(train_data) - 1)),  # Number of predictors sampled at each split
+  importance = "impurity",            # Calculate variable importance
+  classification = FALSE,             # Regression mode
+  seed = 123                          # For reproducibility
+)
+
+# Print model summary
+print(rf_model)
+
+# Predict on the test data
+predictions <- predict(rf_model, data = test_data)$predictions
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((predictions - test_data$weekly_load_minutes)^2)
+cat("Mean Squared Error (MSE):", mse, "\n")
+
+# Extract variable importance
+importance <- as.data.frame(rf_model$variable.importance)
+colnames(importance) <- c("Importance")
+importance <- importance %>%
+  arrange(desc(Importance))
+
+# Print the top 10 most important variables
+cat("Top 10 Important Variables:\n")
+print(head(importance, 10))
+
+# Plot variable importance
+top_vars <- head(importance, 10)  # Select top 10 variables
+ggplot(top_vars, aes(x = reorder(row.names(top_vars), Importance), y = Importance)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Important Variables",
+    x = "Variable",
+    y = "Importance"
+  ) +
+  theme_minimal()
+```
+
+```{r scatter, eval=FALSE}
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+
+# Generate predictions on OOB samples from the ranger model
+oob_predictions <- rf_model$predictions  # OOB predictions
+actual_values <- train_data$weekly_load_minutes  # Actual values from the training data
+
+# Create a data frame for plotting
+oob_results <- data.frame(
+  Actual = actual_values,
+  Predicted = oob_predictions
+)
+
+# Calculate Mean Squared Error (MSE)
+mse <- mean((oob_results$Actual - oob_results$Predicted)^2)
+
+# Create the scatter plot
+scatter_plot <- ggplot(oob_results, aes(x = Actual, y = Predicted)) +
+  geom_point(alpha = 0.6, color = "blue") +  # Scatter plot points
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red", size = 1) +  # Perfect prediction line
+  labs(
+    title = "Predicted vs. Actual Weekly Load (Minutes)",
+    subtitle = paste("Mean Squared Error (MSE):", round(mse, 5)),
+    x = "Actual Weekly Load (Minutes)",
+    y = "Predicted Weekly Load (Minutes)"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(scatter_plot)
+
+# Save the scatter plot to the directory
+ggsave(
+  filename = "figures/plots/predicted_vs_actual_weekly_load.png",
+  plot = scatter_plot,
+  width = 8,   # Width in inches
+  height = 6,  # Height in inches
+  dpi = 300    # Resolution in dots per inch
+)
+
+# Print confirmation
+cat("Scatter plot saved to 'figures/plots/predicted_vs_actual_weekly_load.png'\n")
+```
+
+![](figures/plots/predicted_vs_actual_weekly_load.png)
 
 ## Conclusion {#sec-conclusion}
 
@@ -1308,13 +1190,19 @@ The results section will include:
 {{< include scripts/helper-functions/capture-to-html.R >}}
 ```
 
-#### Function to Calculate Summary Statistics {#calculate-summary-stats}
+#### Function to Update Variable Type Mapping {#update-variable-type-mapping}
+
+``` r
+{{< include scripts/helper-functions/update-type-mapping.R >}}
+```
+
+#### Function to Plot Missing Values by Type {#plot-missing-values-by-type}
 
 ``` r
 {{< include scripts/helper-functions/calculate-summary-stats.R >}}
 ```
 
-#### Function to Plot Missing Values by Type {#plot-missing-values-by-type}
+#### Function to Calculate Summary Statistics {#calculate-summary-stats}
 
 ``` r
 {{< include scripts/helper-functions/calculate-summary-stats.R >}}

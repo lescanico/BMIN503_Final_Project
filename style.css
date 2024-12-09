@@ -9,7 +9,7 @@
   /* Typography and Spacing */
   --font-size-default: 1em;
   --font-size-small: 0.8em;
-  --font-size-very-small: 0.8em;
+  --font-size-very-small: 0.6em;
   --padding-default: 10px;
 
   /* Effects */
@@ -88,7 +88,7 @@ hr {
 body blockquote, blockquote {
   font-size: var(--font-size-very-small)!important;
   margin: 1em 0;
-  padding: var(--padding-default);
+  padding: 0;
   border-left: 4px solid var(--highlight-color);
   color: #555;
   background-color: var(--secondary-color);
@@ -100,7 +100,7 @@ body blockquote, blockquote {
 code, pre {
   font-family: "Courier New", Courier, monospace;
   background-color: var(--background-color);
-  padding: 0
+  padding: var(--padding-default);
   color: var(--main-color);
   border: 0;
   overflow-x: auto;
@@ -113,6 +113,7 @@ pre code {
 }
 
 img {
+  width: 100%;
   background-color: transparent;
 }
 
@@ -156,6 +157,12 @@ tr:nth-child(even) td {
 
 tr:hover td {
   background-color: #e6e6e6;
+}
+
+td .content-wrapper {
+  max-height: 200px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Table Caption */
@@ -210,7 +217,6 @@ caption {
 /* Scrollable Containers */
 .scrollable-container {
   width: 100%;
-  max-height: 600px;
   overflow-x: hidden;
   overflow-y: auto;
   border: 1px solid #ccc;
@@ -223,7 +229,7 @@ caption {
 
 .scrollable-inner-container {
   width: calc(100% - 20px);
-  max-height: 500px;
+  max-height: 600px;
   overflow: auto;
   border: 1px solid #aaa;
   padding: 0;
@@ -258,7 +264,7 @@ caption {
 }
 
 .scrollable-inner-container td {
-  font-size: var(--font-size-very-small);
+  font-size: var(--font-size-small);
 }
 
 /* Scrollbar Styling */

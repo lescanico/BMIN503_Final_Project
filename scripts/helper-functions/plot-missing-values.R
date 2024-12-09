@@ -17,7 +17,7 @@ plot_missing_values_by_type <- function(dataset, min_missing, max_missing, file_
   plot_title <- sprintf("Missing Values (%d-%d%%) for %s", min_missing, max_missing, dataset_name)
   
   # Ensure column types are matched with the lookup dataframe
-  variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
+  variable_types <- setNames(variable_type_mapping$Type, variable_type_mapping$Variable)
   
   # Create missing data summary
   missing_summary <- dataset %>%
