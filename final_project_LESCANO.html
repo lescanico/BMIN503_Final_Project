@@ -3347,7 +3347,7 @@ window.Quarto = {
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Save mrn_mapping for potential reversibility</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(mrn_mapping, <span class="at">file =</span> <span class="st">&quot;H:/secure/mrn_mapping.rds&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>mrn_mapping <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;H:/secure/mrn_mapping.rds&quot;</span>)</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Anonymize data by replacing sensitive identifiers</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>anonymize <span class="ot">&lt;-</span> <span class="cf">function</span>(data, mapping) {</span>
@@ -3363,8 +3363,8 @@ window.Quarto = {
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply anonymization and save</span></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>patient_data_anonymized <span class="ot">&lt;-</span> <span class="fu">anonymize</span>(patient_data_raw, mrn_mapping)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>visit_data_anonymized <span class="ot">&lt;-</span> <span class="fu">anonymize</span>(visit_data_raw, mrn_mapping)</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(patient_data_anonymized, <span class="st">&quot;datasets/patient_data_anonymized.rds&quot;</span>)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(visit_data_anonymized, <span class="st">&quot;datasets/visit_data_anonymized.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>patient_data_anonymized <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/patient_data_anonymized.rds&quot;</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>visit_data_anonymized <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/visit_data_anonymized.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -14525,41 +14525,39 @@ NA
 <span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(original_column_order))  <span class="co"># Reorder columns to match the original dataset</span></span>
 <span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a><span class="co"># Save aggregated and encoded data</span></span>
-<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>aggregated_data_encoded <span class="sc">|&gt;</span></span>
-<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/data_encoded.rds&quot;</span>)</span>
-<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the encoding mappings</span></span>
-<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;datasets/mappings&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>encoding_mappings <span class="sc">|&gt;</span></span>
-<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/mappings/encoding.rds&quot;</span>)</span>
-<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a><span class="co"># Print confirmation</span></span>
-<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Encoding complete.</span><span class="sc">\n</span><span class="st">Dataset saved to &#39;datasets/data_encoded.rds&#39;.</span><span class="sc">\n</span><span class="st">Mappings saved to &#39;datasets/mappings/encoding.rds&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a><span class="co"># Validate Dimensions</span></span>
-<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>validation_passed <span class="ot">&lt;-</span> </span>
-<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>  (aggregated_data_encoded <span class="sc">|&gt;</span> <span class="fu">nrow</span>()) <span class="sc">==</span> (aggregated_data <span class="sc">|&gt;</span> <span class="fu">nrow</span>()) <span class="sc">&amp;&amp;</span></span>
-<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>  (aggregated_data_encoded <span class="sc">|&gt;</span> <span class="fu">ncol</span>()) <span class="sc">==</span> (aggregated_data <span class="sc">|&gt;</span> <span class="fu">ncol</span>())</span>
-<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span>validation_passed) {</span>
-<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">&quot;Validation failed: dimensions do not match.&quot;</span>)</span>
-<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Validation passed: dimensions match.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample some rows</span></span>
-<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>sample_data <span class="ot">&lt;-</span> aggregated_data_encoded <span class="sc">|&gt;</span></span>
-<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">5</span>)</span>
-<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a><span class="co"># Capture Organized Data Sample</span></span>
-<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;scripts/helper-functions/capture-to-html.R&quot;</span>)</span>
-<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a><span class="fu">capture_output_to_html</span>(</span>
-<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;data_encoded_sample.html&quot;</span>,</span>
-<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Sample&quot;</span>,</span>
-<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Data Encoded&quot;</span> <span class="ot">=</span> sample_data</span>
-<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>aggregated_data_encoded <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/data_encoded.rds&quot;</span>)</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the encoding mappings</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;datasets/mappings&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>encoding_mappings <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/mappings/encoding.rds&quot;</span>)</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a><span class="co"># Print confirmation</span></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Encoding complete.</span><span class="sc">\n</span><span class="st">Dataset saved to &#39;datasets/data_encoded.rds&#39;.</span><span class="sc">\n</span><span class="st">Mappings saved to &#39;datasets/mappings/encoding.rds&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a><span class="co"># Validate Dimensions</span></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>validation_passed <span class="ot">&lt;-</span> </span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>  (aggregated_data_encoded <span class="sc">|&gt;</span> <span class="fu">nrow</span>()) <span class="sc">==</span> (aggregated_data <span class="sc">|&gt;</span> <span class="fu">nrow</span>()) <span class="sc">&amp;&amp;</span></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>  (aggregated_data_encoded <span class="sc">|&gt;</span> <span class="fu">ncol</span>()) <span class="sc">==</span> (aggregated_data <span class="sc">|&gt;</span> <span class="fu">ncol</span>())</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span>validation_passed) {</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">&quot;Validation failed: dimensions do not match.&quot;</span>)</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Validation passed: dimensions match.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample some rows</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>sample_data <span class="ot">&lt;-</span> aggregated_data_encoded <span class="sc">|&gt;</span></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">5</span>)</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="co"># Capture Organized Data Sample</span></span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;scripts/helper-functions/capture-to-html.R&quot;</span>)</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a><span class="fu">capture_output_to_html</span>(</span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;data_encoded_sample.html&quot;</span>,</span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Sample&quot;</span>,</span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Data Encoded&quot;</span> <span class="ot">=</span> sample_data</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 
@@ -17087,8 +17085,8 @@ NA
 <span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">ifelse</span>(<span class="fu">is.na</span>(variable), <span class="fu">mean</span>(variable, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), variable))</span>
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>      temp_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">var =</span> variable, <span class="at">dummy =</span> <span class="fu">rnorm</span>(<span class="fu">length</span>(variable)))</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      imputed_data <span class="ot">&lt;-</span> <span class="fu">mice</span>(temp_data, <span class="at">m =</span> <span class="dv">1</span>)</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(mice<span class="sc">::</span><span class="fu">complete</span>(imputed_data)<span class="sc">$</span>var)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      data_imputed <span class="ot">&lt;-</span> <span class="fu">mice</span>(temp_data, <span class="at">m =</span> <span class="dv">1</span>)</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(mice<span class="sc">::</span><span class="fu">complete</span>(data_imputed)<span class="sc">$</span>var)</span>
 <span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (var_type <span class="sc">==</span> <span class="st">&quot;factor&quot;</span>) {</span>
 <span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Factor: Use mode imputation</span></span>
@@ -17123,7 +17121,7 @@ NA
 <span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply imputation across all variables</span></span>
-<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>imputed_data <span class="ot">&lt;-</span> aggregated_data_encoded <span class="sc">%&gt;%</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>data_imputed <span class="ot">&lt;-</span> aggregated_data_encoded <span class="sc">%&gt;%</span></span>
 <span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(</span>
 <span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">everything</span>(),</span>
 <span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> <span class="fu">impute_variable</span>(.x, </span>
@@ -17134,13 +17132,13 @@ NA
 <span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: Save imputed data</span></span>
 <span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;datasets/imputed&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(imputed_data, <span class="st">&quot;datasets/imputed/data_imputed.rds&quot;</span>)</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>data_imputed <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/data_imputed.rds&quot;</span>)</span>
 <span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a><span class="co"># Print confirmation</span></span>
-<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Imputation complete. Imputed dataset saved to &#39;datasets/imputed/data_imputed.rds&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Imputation complete. Imputed dataset saved to &#39;datasets/data_imputed.rds&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for missing values across the dataset</span></span>
-<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>missing_summary <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(imputed_data))</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>missing_summary <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(data_imputed))</span>
 <span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the summary of missing values</span></span>
 <span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">all</span>(missing_summary <span class="sc">==</span> <span class="dv">0</span>)) {</span>
@@ -17152,7 +17150,7 @@ NA
 <span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample some rows</span></span>
 <span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>sample_data <span class="ot">&lt;-</span> imputed_data <span class="sc">|&gt;</span></span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>sample_data <span class="ot">&lt;-</span> data_imputed <span class="sc">|&gt;</span></span>
 <span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
 <span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a><span class="co"># Capture Organized Data Sample</span></span>
@@ -21881,20 +21879,20 @@ university_of_pennsylvania_student
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Load the imputed dataset and variable type mappings</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>imputed_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/imputed/data_imputed.rds&quot;</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>data_imputed <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/data_imputed.rds&quot;</span>)</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>variable_type_mapping <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/mappings/types.rds&quot;</span>)</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Correct the types in the mapping</span></span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>corrected_type_mapping <span class="ot">&lt;-</span> variable_type_mapping <span class="sc">|&gt;</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="fu">ifelse</span>(Type <span class="sc">==</span> <span class="st">&quot;list&quot;</span>, <span class="st">&quot;numeric&quot;</span>, Type))  <span class="co"># Convert list types to numeric</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="fu">ifelse</span>(Type <span class="sc">==</span> <span class="st">&quot;list&quot;</span>, <span class="st">&quot;numeric&quot;</span>, Type))</span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Preserve patient_id as an identifier</span></span>
 <span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>identifier_column <span class="ot">&lt;-</span> <span class="st">&quot;patient_id&quot;</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>identifiers <span class="ot">&lt;-</span> imputed_data <span class="sc">|&gt;</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>identifiers <span class="ot">&lt;-</span> data_imputed <span class="sc">|&gt;</span></span>
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(identifier_column))</span>
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 4: Exclude identifier from modeling data</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>modeling_data <span class="ot">&lt;-</span> imputed_data <span class="sc">|&gt;</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>modeling_data <span class="ot">&lt;-</span> data_imputed <span class="sc">|&gt;</span></span>
 <span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">all_of</span>(identifier_column))</span>
 <span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 5: Handle character variables (categorical encoding)</span></span>
@@ -21947,15 +21945,15 @@ university_of_pennsylvania_student
 <span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 8: Combine the identifiers back with the prepared data (if needed)</span></span>
-<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>final_data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(identifiers, modeling_data)</span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>prepared_data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(identifiers, modeling_data)</span>
 <span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the prepared dataset for modeling</span></span>
-<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(final_data, <span class="st">&quot;datasets/data_final_for_modeling_with_id.rds&quot;</span>)</span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>prepared_data <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/processed/data_prepared.rds&quot;</span>)</span>
 <span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="co"># Save final type mapping</span></span>
 <span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>updated_mapping <span class="ot">&lt;-</span> corrected_type_mapping <span class="sc">|&gt;</span></span>
 <span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Final_Type =</span> <span class="fu">ifelse</span>(Type <span class="sc">==</span> <span class="st">&quot;character&quot;</span>, <span class="st">&quot;encoded_numeric&quot;</span>, Type))</span>
-<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(updated_mapping, <span class="st">&quot;datasets/mappings/final_types.rds&quot;</span>)</span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a>updated_mapping <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/mappings/final_types.rds&quot;</span>)</span>
 <span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirmations</span></span>
 <span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dataset prepared for predictive analytics.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
@@ -21979,7 +21977,7 @@ university_of_pennsylvania_student
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>dataset_end <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">&quot;2024-09-30&quot;</span>)</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data and mappings</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>final_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/data_final_for_modeling_with_id.rds&quot;</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>prepared_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/data_final_for_modeling_with_id.rds&quot;</span>)</span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>encoding <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/mappings/encoding.rds&quot;</span>)</span>
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure engineered features directory exists</span></span>
@@ -21992,37 +21990,45 @@ university_of_pennsylvania_student
 <span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Code)</span>
 <span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust and Filter Data</span></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>final_data <span class="ot">&lt;-</span> final_data <span class="sc">|&gt;</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>prepared_data <span class="ot">&lt;-</span> prepared_data <span class="sc">|&gt;</span></span>
 <span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(primary_provider_type <span class="sc">%in%</span> relevant_provider_codes) <span class="sc">|&gt;</span>  <span class="co"># Filter relevant providers</span></span>
 <span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_date =</span> <span class="fu">as.Date</span>(visit_date, <span class="at">origin =</span> <span class="st">&quot;1970-01-01&quot;</span>),  <span class="co"># Ensure `visit_date` is a Date</span></span>
 <span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">appointment_length_minutes =</span> <span class="fu">ifelse</span>(appointment_length_minutes <span class="sc">&lt;</span> <span class="dv">0</span>, <span class="cn">NA</span>, appointment_length_minutes)  <span class="co"># Replace negative values</span></span>
 <span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Feature Engineering: Weekly Load (Minutes)</span></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>weekly_load_data <span class="ot">&lt;-</span> final_data <span class="sc">|&gt;</span></span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(patient_id) <span class="sc">|&gt;</span></span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_date_min =</span> <span class="fu">min</span>(visit_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_date_max =</span> <span class="fu">max</span>(visit_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">observed_span_days =</span> <span class="fu">pmax</span>(<span class="fu">as.numeric</span>(visit_date_max <span class="sc">-</span> visit_date_min) <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">7</span>),  <span class="co"># Minimum span threshold of 7 days</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Feature Extraction</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Feature Engineering</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>featured_data <span class="ot">&lt;-</span> prepared_data <span class="sc">|&gt;</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(patient_id) <span class="sc">|&gt;</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_count =</span> <span class="fu">n</span>(),</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_visit_length =</span> <span class="fu">mean</span>(appointment_length_minutes, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_density =</span> visit_count <span class="sc">/</span> observed_span_days,</span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_density =</span> <span class="fu">pmin</span>(visit_density, <span class="dv">1</span>),  <span class="co"># Cap density at 1 visit per day</span></span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">weekly_load_minutes =</span> <span class="fu">pmax</span>(visit_density <span class="sc">*</span> average_visit_length <span class="sc">*</span> <span class="dv">7</span>, <span class="dv">0</span>)  <span class="co"># Avoid negatives</span></span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace NA values with 0 for interpretability</span></span>
-<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>weekly_load_data <span class="ot">&lt;-</span> weekly_load_data <span class="sc">|&gt;</span></span>
-<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">replace_na</span>(.x, <span class="dv">0</span>)))</span>
-<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the updated dataset</span></span>
-<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(weekly_load_data, <span class="st">&quot;datasets/engineered_features/weekly_load_data.rds&quot;</span>)</span>
-<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="co"># Print confirmation</span></span>
-<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Feature engineering complete. Results saved to &#39;datasets/engineered_features/weekly_load_data.rds&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_visit =</span> <span class="fu">min</span>(visit_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_visit =</span> <span class="fu">max</span>(visit_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_span =</span> </span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_date_min =</span> <span class="fu">min</span>(visit_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_date_max =</span> <span class="fu">max</span>(visit_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">observed_span_days =</span> <span class="fu">pmax</span>(<span class="fu">as.numeric</span>(visit_date_max <span class="sc">-</span> visit_date_min) <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">7</span>),  <span class="co"># Minimum span threshold of 7 days</span></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_count =</span> <span class="fu">n</span>(),</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_visit_length =</span> <span class="fu">mean</span>(appointment_length_minutes, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_density =</span> visit_count <span class="sc">/</span> observed_span_days,</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">visit_density =</span> <span class="fu">pmin</span>(visit_density, <span class="dv">1</span>),  <span class="co"># Cap density at 1 visit per day</span></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">weekly_load_minutes =</span> <span class="fu">pmax</span>(visit_density <span class="sc">*</span> average_visit_length <span class="sc">*</span> <span class="dv">7</span>, <span class="dv">0</span>)  <span class="co"># Avoid negatives</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace NA values with 0 for interpretability</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>weekly_load_data <span class="ot">&lt;-</span> weekly_load_data <span class="sc">|&gt;</span></span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">replace_na</span>(.x, <span class="dv">0</span>)))</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the updated dataset</span></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>weekly_load_data <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="st">&quot;datasets/data_featured.rds&quot;</span>)</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Print confirmation</span></span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Feature engineering complete. Results saved to &#39;datasets/engineered_features/weekly_load_data.rds&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -22044,10 +22050,10 @@ university_of_pennsylvania_student
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the dataset</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>final_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/final_data.rds&quot;</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>prepared_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;datasets/data_prepared.rds&quot;</span>)</span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Data preparation</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>rf_data <span class="ot">&lt;-</span> final_data <span class="sc">%&gt;%</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>rf_data <span class="ot">&lt;-</span> prepared_data <span class="sc">%&gt;%</span></span>
 <span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>patient_id, <span class="sc">-</span>visit_date_min, <span class="sc">-</span>visit_date_max) <span class="sc">%&gt;%</span>  <span class="co"># Remove unnecessary columns</span></span>
 <span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()  <span class="co"># Remove rows with missing values</span></span>
 <span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
@@ -23177,7 +23183,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
 <span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a><span class="in"># Save mrn_mapping for potential reversibility</span></span>
-<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(mrn_mapping, file = &quot;H:/secure/mrn_mapping.rds&quot;)</span></span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a><span class="in">mrn_mapping |&gt; saveRDS(&quot;H:/secure/mrn_mapping.rds&quot;)</span></span>
 <span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a><span class="in"># Anonymize data by replacing sensitive identifiers</span></span>
 <span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a><span class="in">anonymize &lt;- function(data, mapping) {</span></span>
@@ -23193,8 +23199,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-78"><a href="#cb23-78" aria-hidden="true" tabindex="-1"></a><span class="in"># Apply anonymization and save</span></span>
 <span id="cb23-79"><a href="#cb23-79" aria-hidden="true" tabindex="-1"></a><span class="in">patient_data_anonymized &lt;- anonymize(patient_data_raw, mrn_mapping)</span></span>
 <span id="cb23-80"><a href="#cb23-80" aria-hidden="true" tabindex="-1"></a><span class="in">visit_data_anonymized &lt;- anonymize(visit_data_raw, mrn_mapping)</span></span>
-<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(patient_data_anonymized, &quot;datasets/patient_data_anonymized.rds&quot;)</span></span>
-<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(visit_data_anonymized, &quot;datasets/visit_data_anonymized.rds&quot;)</span></span>
+<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a><span class="in">patient_data_anonymized |&gt; saveRDS(&quot;datasets/patient_data_anonymized.rds&quot;)</span></span>
+<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a><span class="in">visit_data_anonymized |&gt; saveRDS(&quot;datasets/visit_data_anonymized.rds&quot;)</span></span>
 <span id="cb23-83"><a href="#cb23-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-84"><a href="#cb23-84" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-85"><a href="#cb23-85" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data Preprocessing</span></span>
@@ -23870,466 +23876,472 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-755"><a href="#cb23-755" aria-hidden="true" tabindex="-1"></a><span class="in">  select(all_of(original_column_order))  # Reorder columns to match the original dataset</span></span>
 <span id="cb23-756"><a href="#cb23-756" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-757"><a href="#cb23-757" aria-hidden="true" tabindex="-1"></a><span class="in"># Save aggregated and encoded data</span></span>
-<span id="cb23-758"><a href="#cb23-758" aria-hidden="true" tabindex="-1"></a><span class="in">aggregated_data_encoded |&gt;</span></span>
-<span id="cb23-759"><a href="#cb23-759" aria-hidden="true" tabindex="-1"></a><span class="in">  saveRDS(&quot;datasets/data_encoded.rds&quot;)</span></span>
-<span id="cb23-760"><a href="#cb23-760" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-761"><a href="#cb23-761" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the encoding mappings</span></span>
-<span id="cb23-762"><a href="#cb23-762" aria-hidden="true" tabindex="-1"></a><span class="in">dir.create(&quot;datasets/mappings&quot;, recursive = TRUE, showWarnings = FALSE)</span></span>
-<span id="cb23-763"><a href="#cb23-763" aria-hidden="true" tabindex="-1"></a><span class="in">encoding_mappings |&gt;</span></span>
-<span id="cb23-764"><a href="#cb23-764" aria-hidden="true" tabindex="-1"></a><span class="in">  saveRDS(&quot;datasets/mappings/encoding.rds&quot;)</span></span>
-<span id="cb23-765"><a href="#cb23-765" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-766"><a href="#cb23-766" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
-<span id="cb23-767"><a href="#cb23-767" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Encoding complete.\nDataset saved to &#39;datasets/data_encoded.rds&#39;.\nMappings saved to &#39;datasets/mappings/encoding.rds&#39;.\n&quot;)</span></span>
-<span id="cb23-768"><a href="#cb23-768" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-769"><a href="#cb23-769" aria-hidden="true" tabindex="-1"></a><span class="in"># Validate Dimensions</span></span>
-<span id="cb23-770"><a href="#cb23-770" aria-hidden="true" tabindex="-1"></a><span class="in">validation_passed &lt;- </span></span>
-<span id="cb23-771"><a href="#cb23-771" aria-hidden="true" tabindex="-1"></a><span class="in">  (aggregated_data_encoded |&gt; nrow()) == (aggregated_data |&gt; nrow()) &amp;&amp;</span></span>
-<span id="cb23-772"><a href="#cb23-772" aria-hidden="true" tabindex="-1"></a><span class="in">  (aggregated_data_encoded |&gt; ncol()) == (aggregated_data |&gt; ncol())</span></span>
-<span id="cb23-773"><a href="#cb23-773" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-774"><a href="#cb23-774" aria-hidden="true" tabindex="-1"></a><span class="in">if (!validation_passed) {</span></span>
-<span id="cb23-775"><a href="#cb23-775" aria-hidden="true" tabindex="-1"></a><span class="in">  stop(&quot;Validation failed: dimensions do not match.&quot;)</span></span>
-<span id="cb23-776"><a href="#cb23-776" aria-hidden="true" tabindex="-1"></a><span class="in">} else {</span></span>
-<span id="cb23-777"><a href="#cb23-777" aria-hidden="true" tabindex="-1"></a><span class="in">  cat(&quot;Validation passed: dimensions match.\n&quot;)</span></span>
-<span id="cb23-778"><a href="#cb23-778" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-779"><a href="#cb23-779" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-780"><a href="#cb23-780" aria-hidden="true" tabindex="-1"></a><span class="in"># Sample some rows</span></span>
-<span id="cb23-781"><a href="#cb23-781" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(123)</span></span>
-<span id="cb23-782"><a href="#cb23-782" aria-hidden="true" tabindex="-1"></a><span class="in">sample_data &lt;- aggregated_data_encoded |&gt;</span></span>
-<span id="cb23-783"><a href="#cb23-783" aria-hidden="true" tabindex="-1"></a><span class="in">  slice_sample(n = 5)</span></span>
-<span id="cb23-784"><a href="#cb23-784" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-785"><a href="#cb23-785" aria-hidden="true" tabindex="-1"></a><span class="in"># Capture Organized Data Sample</span></span>
-<span id="cb23-786"><a href="#cb23-786" aria-hidden="true" tabindex="-1"></a><span class="in">source(&quot;scripts/helper-functions/capture-to-html.R&quot;)</span></span>
-<span id="cb23-787"><a href="#cb23-787" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-788"><a href="#cb23-788" aria-hidden="true" tabindex="-1"></a><span class="in">capture_output_to_html(</span></span>
-<span id="cb23-789"><a href="#cb23-789" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;data_encoded_sample.html&quot;,</span></span>
-<span id="cb23-790"><a href="#cb23-790" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Sample&quot;,</span></span>
-<span id="cb23-791"><a href="#cb23-791" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Data Encoded&quot; = sample_data</span></span>
-<span id="cb23-792"><a href="#cb23-792" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb23-793"><a href="#cb23-793" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-794"><a href="#cb23-794" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-795"><a href="#cb23-795" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, results=&#39;asis&#39;, echo=FALSE}</span></span>
-<span id="cb23-796"><a href="#cb23-796" aria-hidden="true" tabindex="-1"></a><span class="in">cat(readLines(&quot;outputs/data_encoded_sample.html&quot;), sep = &quot;\n&quot;)</span></span>
-<span id="cb23-797"><a href="#cb23-797" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-758"><a href="#cb23-758" aria-hidden="true" tabindex="-1"></a><span class="in">aggregated_data_encoded |&gt; saveRDS(&quot;datasets/data_encoded.rds&quot;)</span></span>
+<span id="cb23-759"><a href="#cb23-759" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-760"><a href="#cb23-760" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the encoding mappings</span></span>
+<span id="cb23-761"><a href="#cb23-761" aria-hidden="true" tabindex="-1"></a><span class="in">dir.create(&quot;datasets/mappings&quot;, recursive = TRUE, showWarnings = FALSE)</span></span>
+<span id="cb23-762"><a href="#cb23-762" aria-hidden="true" tabindex="-1"></a><span class="in">encoding_mappings |&gt; saveRDS(&quot;datasets/mappings/encoding.rds&quot;)</span></span>
+<span id="cb23-763"><a href="#cb23-763" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-764"><a href="#cb23-764" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
+<span id="cb23-765"><a href="#cb23-765" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Encoding complete.\nDataset saved to &#39;datasets/data_encoded.rds&#39;.\nMappings saved to &#39;datasets/mappings/encoding.rds&#39;.\n&quot;)</span></span>
+<span id="cb23-766"><a href="#cb23-766" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-767"><a href="#cb23-767" aria-hidden="true" tabindex="-1"></a><span class="in"># Validate Dimensions</span></span>
+<span id="cb23-768"><a href="#cb23-768" aria-hidden="true" tabindex="-1"></a><span class="in">validation_passed &lt;- </span></span>
+<span id="cb23-769"><a href="#cb23-769" aria-hidden="true" tabindex="-1"></a><span class="in">  (aggregated_data_encoded |&gt; nrow()) == (aggregated_data |&gt; nrow()) &amp;&amp;</span></span>
+<span id="cb23-770"><a href="#cb23-770" aria-hidden="true" tabindex="-1"></a><span class="in">  (aggregated_data_encoded |&gt; ncol()) == (aggregated_data |&gt; ncol())</span></span>
+<span id="cb23-771"><a href="#cb23-771" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-772"><a href="#cb23-772" aria-hidden="true" tabindex="-1"></a><span class="in">if (!validation_passed) {</span></span>
+<span id="cb23-773"><a href="#cb23-773" aria-hidden="true" tabindex="-1"></a><span class="in">  stop(&quot;Validation failed: dimensions do not match.&quot;)</span></span>
+<span id="cb23-774"><a href="#cb23-774" aria-hidden="true" tabindex="-1"></a><span class="in">} else {</span></span>
+<span id="cb23-775"><a href="#cb23-775" aria-hidden="true" tabindex="-1"></a><span class="in">  cat(&quot;Validation passed: dimensions match.\n&quot;)</span></span>
+<span id="cb23-776"><a href="#cb23-776" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-777"><a href="#cb23-777" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-778"><a href="#cb23-778" aria-hidden="true" tabindex="-1"></a><span class="in"># Sample some rows</span></span>
+<span id="cb23-779"><a href="#cb23-779" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(123)</span></span>
+<span id="cb23-780"><a href="#cb23-780" aria-hidden="true" tabindex="-1"></a><span class="in">sample_data &lt;- aggregated_data_encoded |&gt;</span></span>
+<span id="cb23-781"><a href="#cb23-781" aria-hidden="true" tabindex="-1"></a><span class="in">  slice_sample(n = 5)</span></span>
+<span id="cb23-782"><a href="#cb23-782" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-783"><a href="#cb23-783" aria-hidden="true" tabindex="-1"></a><span class="in"># Capture Organized Data Sample</span></span>
+<span id="cb23-784"><a href="#cb23-784" aria-hidden="true" tabindex="-1"></a><span class="in">source(&quot;scripts/helper-functions/capture-to-html.R&quot;)</span></span>
+<span id="cb23-785"><a href="#cb23-785" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-786"><a href="#cb23-786" aria-hidden="true" tabindex="-1"></a><span class="in">capture_output_to_html(</span></span>
+<span id="cb23-787"><a href="#cb23-787" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;data_encoded_sample.html&quot;,</span></span>
+<span id="cb23-788"><a href="#cb23-788" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Sample&quot;,</span></span>
+<span id="cb23-789"><a href="#cb23-789" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Data Encoded&quot; = sample_data</span></span>
+<span id="cb23-790"><a href="#cb23-790" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb23-791"><a href="#cb23-791" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-792"><a href="#cb23-792" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-793"><a href="#cb23-793" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, results=&#39;asis&#39;, echo=FALSE}</span></span>
+<span id="cb23-794"><a href="#cb23-794" aria-hidden="true" tabindex="-1"></a><span class="in">cat(readLines(&quot;outputs/data_encoded_sample.html&quot;), sep = &quot;\n&quot;)</span></span>
+<span id="cb23-795"><a href="#cb23-795" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-796"><a href="#cb23-796" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-797"><a href="#cb23-797" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Imputation</span></span>
 <span id="cb23-798"><a href="#cb23-798" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-799"><a href="#cb23-799" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Imputation</span></span>
-<span id="cb23-800"><a href="#cb23-800" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-801"><a href="#cb23-801" aria-hidden="true" tabindex="-1"></a><span class="in">```{r imputation, eval=FALSE}</span></span>
-<span id="cb23-802"><a href="#cb23-802" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
-<span id="cb23-803"><a href="#cb23-803" aria-hidden="true" tabindex="-1"></a><span class="in">library(readr)</span></span>
-<span id="cb23-804"><a href="#cb23-804" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
-<span id="cb23-805"><a href="#cb23-805" aria-hidden="true" tabindex="-1"></a><span class="in">library(mice)</span></span>
-<span id="cb23-806"><a href="#cb23-806" aria-hidden="true" tabindex="-1"></a><span class="in">library(zoo)</span></span>
-<span id="cb23-807"><a href="#cb23-807" aria-hidden="true" tabindex="-1"></a><span class="in">library(hms)</span></span>
-<span id="cb23-808"><a href="#cb23-808" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-809"><a href="#cb23-809" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 1: Load encoded dataset and types</span></span>
-<span id="cb23-810"><a href="#cb23-810" aria-hidden="true" tabindex="-1"></a><span class="in">aggregated_data_encoded &lt;- readRDS(&quot;datasets/data_encoded.rds&quot;)</span></span>
-<span id="cb23-811"><a href="#cb23-811" aria-hidden="true" tabindex="-1"></a><span class="in">variable_type_mapping &lt;- readRDS(&quot;datasets/mappings/types.rds&quot;)</span></span>
-<span id="cb23-812"><a href="#cb23-812" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-813"><a href="#cb23-813" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 2: Validate that all variables in `aggregated_data_encoded` are mapped</span></span>
-<span id="cb23-814"><a href="#cb23-814" aria-hidden="true" tabindex="-1"></a><span class="in">missing_variables &lt;- setdiff(names(aggregated_data_encoded), variable_type_mapping$Variable)</span></span>
-<span id="cb23-815"><a href="#cb23-815" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(missing_variables) &gt; 0) {</span></span>
-<span id="cb23-816"><a href="#cb23-816" aria-hidden="true" tabindex="-1"></a><span class="in">  stop(&quot;The following variables are missing in the type mapping: &quot;, paste(missing_variables, collapse = &quot;, &quot;))</span></span>
-<span id="cb23-817"><a href="#cb23-817" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-818"><a href="#cb23-818" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-819"><a href="#cb23-819" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 3: Imputation based on type mappings</span></span>
-<span id="cb23-820"><a href="#cb23-820" aria-hidden="true" tabindex="-1"></a><span class="in">impute_variable &lt;- function(variable, var_type, var_name = NULL) {</span></span>
-<span id="cb23-821"><a href="#cb23-821" aria-hidden="true" tabindex="-1"></a><span class="in">  if (var_type == &quot;numeric&quot;) {</span></span>
-<span id="cb23-822"><a href="#cb23-822" aria-hidden="true" tabindex="-1"></a><span class="in">    # Numeric: Use mean imputation for &lt;10% missing; else use MICE</span></span>
-<span id="cb23-823"><a href="#cb23-823" aria-hidden="true" tabindex="-1"></a><span class="in">    if (mean(is.na(variable)) &lt; 0.1) {</span></span>
-<span id="cb23-824"><a href="#cb23-824" aria-hidden="true" tabindex="-1"></a><span class="in">      return(ifelse(is.na(variable), mean(variable, na.rm = TRUE), variable))</span></span>
-<span id="cb23-825"><a href="#cb23-825" aria-hidden="true" tabindex="-1"></a><span class="in">    } else {</span></span>
-<span id="cb23-826"><a href="#cb23-826" aria-hidden="true" tabindex="-1"></a><span class="in">      temp_data &lt;- data.frame(var = variable, dummy = rnorm(length(variable)))</span></span>
-<span id="cb23-827"><a href="#cb23-827" aria-hidden="true" tabindex="-1"></a><span class="in">      imputed_data &lt;- mice(temp_data, m = 1)</span></span>
-<span id="cb23-828"><a href="#cb23-828" aria-hidden="true" tabindex="-1"></a><span class="in">      return(mice::complete(imputed_data)$var)</span></span>
-<span id="cb23-829"><a href="#cb23-829" aria-hidden="true" tabindex="-1"></a><span class="in">    }</span></span>
-<span id="cb23-830"><a href="#cb23-830" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;factor&quot;) {</span></span>
-<span id="cb23-831"><a href="#cb23-831" aria-hidden="true" tabindex="-1"></a><span class="in">    # Factor: Use mode imputation</span></span>
-<span id="cb23-832"><a href="#cb23-832" aria-hidden="true" tabindex="-1"></a><span class="in">    mode_value &lt;- names(sort(table(variable), decreasing = TRUE))[1]</span></span>
-<span id="cb23-833"><a href="#cb23-833" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), mode_value, variable))</span></span>
-<span id="cb23-834"><a href="#cb23-834" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;logical&quot;) {</span></span>
-<span id="cb23-835"><a href="#cb23-835" aria-hidden="true" tabindex="-1"></a><span class="in">    # Logical: Use FALSE for missing</span></span>
-<span id="cb23-836"><a href="#cb23-836" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), FALSE, variable))</span></span>
-<span id="cb23-837"><a href="#cb23-837" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;Date&quot;) {</span></span>
-<span id="cb23-838"><a href="#cb23-838" aria-hidden="true" tabindex="-1"></a><span class="in">    # Date: Use median date</span></span>
-<span id="cb23-839"><a href="#cb23-839" aria-hidden="true" tabindex="-1"></a><span class="in">    median_date &lt;- as.Date(median(as.numeric(variable), na.rm = TRUE), origin = &quot;1970-01-01&quot;)</span></span>
-<span id="cb23-840"><a href="#cb23-840" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), median_date, variable))</span></span>
-<span id="cb23-841"><a href="#cb23-841" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;hms&quot;) {</span></span>
-<span id="cb23-842"><a href="#cb23-842" aria-hidden="true" tabindex="-1"></a><span class="in">    # hms: Use median time</span></span>
-<span id="cb23-843"><a href="#cb23-843" aria-hidden="true" tabindex="-1"></a><span class="in">    median_time &lt;- hms::as_hms(median(as.numeric(variable), na.rm = TRUE))</span></span>
-<span id="cb23-844"><a href="#cb23-844" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), median_time, variable))</span></span>
-<span id="cb23-845"><a href="#cb23-845" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;identifier&quot;) {</span></span>
-<span id="cb23-846"><a href="#cb23-846" aria-hidden="true" tabindex="-1"></a><span class="in">    # Identifier: Do not impute</span></span>
-<span id="cb23-847"><a href="#cb23-847" aria-hidden="true" tabindex="-1"></a><span class="in">    return(variable)</span></span>
-<span id="cb23-848"><a href="#cb23-848" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;list&quot;) {</span></span>
-<span id="cb23-849"><a href="#cb23-849" aria-hidden="true" tabindex="-1"></a><span class="in">    # Handle phq variables differently</span></span>
-<span id="cb23-850"><a href="#cb23-850" aria-hidden="true" tabindex="-1"></a><span class="in">    if (var_name %in% c(&quot;phq_2_total_score&quot;, &quot;phq_9&quot;)) {</span></span>
-<span id="cb23-851"><a href="#cb23-851" aria-hidden="true" tabindex="-1"></a><span class="in">      overall_mean &lt;- mean(unlist(variable), na.rm = TRUE)</span></span>
-<span id="cb23-852"><a href="#cb23-852" aria-hidden="true" tabindex="-1"></a><span class="in">      return(ifelse(is.na(variable), overall_mean, variable))</span></span>
-<span id="cb23-853"><a href="#cb23-853" aria-hidden="true" tabindex="-1"></a><span class="in">    } else {</span></span>
-<span id="cb23-854"><a href="#cb23-854" aria-hidden="true" tabindex="-1"></a><span class="in">      # For other list variables, replace with 0 (count of unique values)</span></span>
-<span id="cb23-855"><a href="#cb23-855" aria-hidden="true" tabindex="-1"></a><span class="in">      return(ifelse(is.na(variable), 0, variable))</span></span>
-<span id="cb23-856"><a href="#cb23-856" aria-hidden="true" tabindex="-1"></a><span class="in">    }</span></span>
-<span id="cb23-857"><a href="#cb23-857" aria-hidden="true" tabindex="-1"></a><span class="in">  } else {</span></span>
-<span id="cb23-858"><a href="#cb23-858" aria-hidden="true" tabindex="-1"></a><span class="in">    stop(&quot;Unsupported variable type: &quot;, var_type)</span></span>
-<span id="cb23-859"><a href="#cb23-859" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
-<span id="cb23-860"><a href="#cb23-860" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-861"><a href="#cb23-861" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-862"><a href="#cb23-862" aria-hidden="true" tabindex="-1"></a><span class="in"># Apply imputation across all variables</span></span>
-<span id="cb23-863"><a href="#cb23-863" aria-hidden="true" tabindex="-1"></a><span class="in">imputed_data &lt;- aggregated_data_encoded %&gt;%</span></span>
-<span id="cb23-864"><a href="#cb23-864" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(</span></span>
-<span id="cb23-865"><a href="#cb23-865" aria-hidden="true" tabindex="-1"></a><span class="in">    everything(),</span></span>
-<span id="cb23-866"><a href="#cb23-866" aria-hidden="true" tabindex="-1"></a><span class="in">    ~ impute_variable(.x, </span></span>
-<span id="cb23-867"><a href="#cb23-867" aria-hidden="true" tabindex="-1"></a><span class="in">      variable_type_mapping$Type[variable_type_mapping$Variable == cur_column()], </span></span>
-<span id="cb23-868"><a href="#cb23-868" aria-hidden="true" tabindex="-1"></a><span class="in">      cur_column()</span></span>
-<span id="cb23-869"><a href="#cb23-869" aria-hidden="true" tabindex="-1"></a><span class="in">    )</span></span>
-<span id="cb23-870"><a href="#cb23-870" aria-hidden="true" tabindex="-1"></a><span class="in">  ))</span></span>
-<span id="cb23-871"><a href="#cb23-871" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-872"><a href="#cb23-872" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 4: Save imputed data</span></span>
-<span id="cb23-873"><a href="#cb23-873" aria-hidden="true" tabindex="-1"></a><span class="in">dir.create(&quot;datasets/imputed&quot;, recursive = TRUE, showWarnings = FALSE)</span></span>
-<span id="cb23-874"><a href="#cb23-874" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(imputed_data, &quot;datasets/imputed/data_imputed.rds&quot;)</span></span>
-<span id="cb23-875"><a href="#cb23-875" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-876"><a href="#cb23-876" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
-<span id="cb23-877"><a href="#cb23-877" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Imputation complete. Imputed dataset saved to &#39;datasets/imputed/data_imputed.rds&#39;.\n&quot;)</span></span>
-<span id="cb23-878"><a href="#cb23-878" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-879"><a href="#cb23-879" aria-hidden="true" tabindex="-1"></a><span class="in"># Check for missing values across the dataset</span></span>
-<span id="cb23-880"><a href="#cb23-880" aria-hidden="true" tabindex="-1"></a><span class="in">missing_summary &lt;- colSums(is.na(imputed_data))</span></span>
-<span id="cb23-881"><a href="#cb23-881" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-882"><a href="#cb23-882" aria-hidden="true" tabindex="-1"></a><span class="in"># Print the summary of missing values</span></span>
-<span id="cb23-883"><a href="#cb23-883" aria-hidden="true" tabindex="-1"></a><span class="in">if (all(missing_summary == 0)) {</span></span>
-<span id="cb23-884"><a href="#cb23-884" aria-hidden="true" tabindex="-1"></a><span class="in">  cat(&quot;No missing values detected in the imputed dataset.\n&quot;)</span></span>
-<span id="cb23-885"><a href="#cb23-885" aria-hidden="true" tabindex="-1"></a><span class="in">} else {</span></span>
-<span id="cb23-886"><a href="#cb23-886" aria-hidden="true" tabindex="-1"></a><span class="in">  cat(&quot;Missing values detected in the following variables:\n&quot;)</span></span>
-<span id="cb23-887"><a href="#cb23-887" aria-hidden="true" tabindex="-1"></a><span class="in">  print(missing_summary[missing_summary &gt; 0])</span></span>
-<span id="cb23-888"><a href="#cb23-888" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-889"><a href="#cb23-889" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-890"><a href="#cb23-890" aria-hidden="true" tabindex="-1"></a><span class="in"># Sample some rows</span></span>
-<span id="cb23-891"><a href="#cb23-891" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(123)</span></span>
-<span id="cb23-892"><a href="#cb23-892" aria-hidden="true" tabindex="-1"></a><span class="in">sample_data &lt;- imputed_data |&gt;</span></span>
-<span id="cb23-893"><a href="#cb23-893" aria-hidden="true" tabindex="-1"></a><span class="in">  slice_sample(n = 10)</span></span>
-<span id="cb23-894"><a href="#cb23-894" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-895"><a href="#cb23-895" aria-hidden="true" tabindex="-1"></a><span class="in"># Capture Organized Data Sample</span></span>
-<span id="cb23-896"><a href="#cb23-896" aria-hidden="true" tabindex="-1"></a><span class="in">source(&quot;scripts/helper-functions/capture-to-html.R&quot;)</span></span>
-<span id="cb23-897"><a href="#cb23-897" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-898"><a href="#cb23-898" aria-hidden="true" tabindex="-1"></a><span class="in">capture_output_to_html(</span></span>
-<span id="cb23-899"><a href="#cb23-899" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;data_imputed_sample.html&quot;,</span></span>
-<span id="cb23-900"><a href="#cb23-900" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Sample&quot;,</span></span>
-<span id="cb23-901"><a href="#cb23-901" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Imputed Data&quot; = sample_data</span></span>
-<span id="cb23-902"><a href="#cb23-902" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb23-903"><a href="#cb23-903" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-904"><a href="#cb23-904" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-905"><a href="#cb23-905" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, results=&#39;asis&#39;, echo=FALSE}</span></span>
-<span id="cb23-906"><a href="#cb23-906" aria-hidden="true" tabindex="-1"></a><span class="in">cat(readLines(&quot;outputs/data_imputed_sample.html&quot;), sep = &quot;\n&quot;)</span></span>
-<span id="cb23-907"><a href="#cb23-907" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-799"><a href="#cb23-799" aria-hidden="true" tabindex="-1"></a><span class="in">```{r imputation, eval=FALSE}</span></span>
+<span id="cb23-800"><a href="#cb23-800" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
+<span id="cb23-801"><a href="#cb23-801" aria-hidden="true" tabindex="-1"></a><span class="in">library(readr)</span></span>
+<span id="cb23-802"><a href="#cb23-802" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
+<span id="cb23-803"><a href="#cb23-803" aria-hidden="true" tabindex="-1"></a><span class="in">library(mice)</span></span>
+<span id="cb23-804"><a href="#cb23-804" aria-hidden="true" tabindex="-1"></a><span class="in">library(zoo)</span></span>
+<span id="cb23-805"><a href="#cb23-805" aria-hidden="true" tabindex="-1"></a><span class="in">library(hms)</span></span>
+<span id="cb23-806"><a href="#cb23-806" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-807"><a href="#cb23-807" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 1: Load encoded dataset and types</span></span>
+<span id="cb23-808"><a href="#cb23-808" aria-hidden="true" tabindex="-1"></a><span class="in">aggregated_data_encoded &lt;- readRDS(&quot;datasets/data_encoded.rds&quot;)</span></span>
+<span id="cb23-809"><a href="#cb23-809" aria-hidden="true" tabindex="-1"></a><span class="in">variable_type_mapping &lt;- readRDS(&quot;datasets/mappings/types.rds&quot;)</span></span>
+<span id="cb23-810"><a href="#cb23-810" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-811"><a href="#cb23-811" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 2: Validate that all variables in `aggregated_data_encoded` are mapped</span></span>
+<span id="cb23-812"><a href="#cb23-812" aria-hidden="true" tabindex="-1"></a><span class="in">missing_variables &lt;- setdiff(names(aggregated_data_encoded), variable_type_mapping$Variable)</span></span>
+<span id="cb23-813"><a href="#cb23-813" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(missing_variables) &gt; 0) {</span></span>
+<span id="cb23-814"><a href="#cb23-814" aria-hidden="true" tabindex="-1"></a><span class="in">  stop(&quot;The following variables are missing in the type mapping: &quot;, paste(missing_variables, collapse = &quot;, &quot;))</span></span>
+<span id="cb23-815"><a href="#cb23-815" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-816"><a href="#cb23-816" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-817"><a href="#cb23-817" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 3: Imputation based on type mappings</span></span>
+<span id="cb23-818"><a href="#cb23-818" aria-hidden="true" tabindex="-1"></a><span class="in">impute_variable &lt;- function(variable, var_type, var_name = NULL) {</span></span>
+<span id="cb23-819"><a href="#cb23-819" aria-hidden="true" tabindex="-1"></a><span class="in">  if (var_type == &quot;numeric&quot;) {</span></span>
+<span id="cb23-820"><a href="#cb23-820" aria-hidden="true" tabindex="-1"></a><span class="in">    # Numeric: Use mean imputation for &lt;10% missing; else use MICE</span></span>
+<span id="cb23-821"><a href="#cb23-821" aria-hidden="true" tabindex="-1"></a><span class="in">    if (mean(is.na(variable)) &lt; 0.1) {</span></span>
+<span id="cb23-822"><a href="#cb23-822" aria-hidden="true" tabindex="-1"></a><span class="in">      return(ifelse(is.na(variable), mean(variable, na.rm = TRUE), variable))</span></span>
+<span id="cb23-823"><a href="#cb23-823" aria-hidden="true" tabindex="-1"></a><span class="in">    } else {</span></span>
+<span id="cb23-824"><a href="#cb23-824" aria-hidden="true" tabindex="-1"></a><span class="in">      temp_data &lt;- data.frame(var = variable, dummy = rnorm(length(variable)))</span></span>
+<span id="cb23-825"><a href="#cb23-825" aria-hidden="true" tabindex="-1"></a><span class="in">      data_imputed &lt;- mice(temp_data, m = 1)</span></span>
+<span id="cb23-826"><a href="#cb23-826" aria-hidden="true" tabindex="-1"></a><span class="in">      return(mice::complete(data_imputed)$var)</span></span>
+<span id="cb23-827"><a href="#cb23-827" aria-hidden="true" tabindex="-1"></a><span class="in">    }</span></span>
+<span id="cb23-828"><a href="#cb23-828" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;factor&quot;) {</span></span>
+<span id="cb23-829"><a href="#cb23-829" aria-hidden="true" tabindex="-1"></a><span class="in">    # Factor: Use mode imputation</span></span>
+<span id="cb23-830"><a href="#cb23-830" aria-hidden="true" tabindex="-1"></a><span class="in">    mode_value &lt;- names(sort(table(variable), decreasing = TRUE))[1]</span></span>
+<span id="cb23-831"><a href="#cb23-831" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), mode_value, variable))</span></span>
+<span id="cb23-832"><a href="#cb23-832" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;logical&quot;) {</span></span>
+<span id="cb23-833"><a href="#cb23-833" aria-hidden="true" tabindex="-1"></a><span class="in">    # Logical: Use FALSE for missing</span></span>
+<span id="cb23-834"><a href="#cb23-834" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), FALSE, variable))</span></span>
+<span id="cb23-835"><a href="#cb23-835" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;Date&quot;) {</span></span>
+<span id="cb23-836"><a href="#cb23-836" aria-hidden="true" tabindex="-1"></a><span class="in">    # Date: Use median date</span></span>
+<span id="cb23-837"><a href="#cb23-837" aria-hidden="true" tabindex="-1"></a><span class="in">    median_date &lt;- as.Date(median(as.numeric(variable), na.rm = TRUE), origin = &quot;1970-01-01&quot;)</span></span>
+<span id="cb23-838"><a href="#cb23-838" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), median_date, variable))</span></span>
+<span id="cb23-839"><a href="#cb23-839" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;hms&quot;) {</span></span>
+<span id="cb23-840"><a href="#cb23-840" aria-hidden="true" tabindex="-1"></a><span class="in">    # hms: Use median time</span></span>
+<span id="cb23-841"><a href="#cb23-841" aria-hidden="true" tabindex="-1"></a><span class="in">    median_time &lt;- hms::as_hms(median(as.numeric(variable), na.rm = TRUE))</span></span>
+<span id="cb23-842"><a href="#cb23-842" aria-hidden="true" tabindex="-1"></a><span class="in">    return(ifelse(is.na(variable), median_time, variable))</span></span>
+<span id="cb23-843"><a href="#cb23-843" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;identifier&quot;) {</span></span>
+<span id="cb23-844"><a href="#cb23-844" aria-hidden="true" tabindex="-1"></a><span class="in">    # Identifier: Do not impute</span></span>
+<span id="cb23-845"><a href="#cb23-845" aria-hidden="true" tabindex="-1"></a><span class="in">    return(variable)</span></span>
+<span id="cb23-846"><a href="#cb23-846" aria-hidden="true" tabindex="-1"></a><span class="in">  } else if (var_type == &quot;list&quot;) {</span></span>
+<span id="cb23-847"><a href="#cb23-847" aria-hidden="true" tabindex="-1"></a><span class="in">    # Handle phq variables differently</span></span>
+<span id="cb23-848"><a href="#cb23-848" aria-hidden="true" tabindex="-1"></a><span class="in">    if (var_name %in% c(&quot;phq_2_total_score&quot;, &quot;phq_9&quot;)) {</span></span>
+<span id="cb23-849"><a href="#cb23-849" aria-hidden="true" tabindex="-1"></a><span class="in">      overall_mean &lt;- mean(unlist(variable), na.rm = TRUE)</span></span>
+<span id="cb23-850"><a href="#cb23-850" aria-hidden="true" tabindex="-1"></a><span class="in">      return(ifelse(is.na(variable), overall_mean, variable))</span></span>
+<span id="cb23-851"><a href="#cb23-851" aria-hidden="true" tabindex="-1"></a><span class="in">    } else {</span></span>
+<span id="cb23-852"><a href="#cb23-852" aria-hidden="true" tabindex="-1"></a><span class="in">      # For other list variables, replace with 0 (count of unique values)</span></span>
+<span id="cb23-853"><a href="#cb23-853" aria-hidden="true" tabindex="-1"></a><span class="in">      return(ifelse(is.na(variable), 0, variable))</span></span>
+<span id="cb23-854"><a href="#cb23-854" aria-hidden="true" tabindex="-1"></a><span class="in">    }</span></span>
+<span id="cb23-855"><a href="#cb23-855" aria-hidden="true" tabindex="-1"></a><span class="in">  } else {</span></span>
+<span id="cb23-856"><a href="#cb23-856" aria-hidden="true" tabindex="-1"></a><span class="in">    stop(&quot;Unsupported variable type: &quot;, var_type)</span></span>
+<span id="cb23-857"><a href="#cb23-857" aria-hidden="true" tabindex="-1"></a><span class="in">  }</span></span>
+<span id="cb23-858"><a href="#cb23-858" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-859"><a href="#cb23-859" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-860"><a href="#cb23-860" aria-hidden="true" tabindex="-1"></a><span class="in"># Apply imputation across all variables</span></span>
+<span id="cb23-861"><a href="#cb23-861" aria-hidden="true" tabindex="-1"></a><span class="in">data_imputed &lt;- aggregated_data_encoded %&gt;%</span></span>
+<span id="cb23-862"><a href="#cb23-862" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(</span></span>
+<span id="cb23-863"><a href="#cb23-863" aria-hidden="true" tabindex="-1"></a><span class="in">    everything(),</span></span>
+<span id="cb23-864"><a href="#cb23-864" aria-hidden="true" tabindex="-1"></a><span class="in">    ~ impute_variable(.x, </span></span>
+<span id="cb23-865"><a href="#cb23-865" aria-hidden="true" tabindex="-1"></a><span class="in">      variable_type_mapping$Type[variable_type_mapping$Variable == cur_column()], </span></span>
+<span id="cb23-866"><a href="#cb23-866" aria-hidden="true" tabindex="-1"></a><span class="in">      cur_column()</span></span>
+<span id="cb23-867"><a href="#cb23-867" aria-hidden="true" tabindex="-1"></a><span class="in">    )</span></span>
+<span id="cb23-868"><a href="#cb23-868" aria-hidden="true" tabindex="-1"></a><span class="in">  ))</span></span>
+<span id="cb23-869"><a href="#cb23-869" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-870"><a href="#cb23-870" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 4: Save imputed data</span></span>
+<span id="cb23-871"><a href="#cb23-871" aria-hidden="true" tabindex="-1"></a><span class="in">dir.create(&quot;datasets/imputed&quot;, recursive = TRUE, showWarnings = FALSE)</span></span>
+<span id="cb23-872"><a href="#cb23-872" aria-hidden="true" tabindex="-1"></a><span class="in">data_imputed |&gt; saveRDS(&quot;datasets/data_imputed.rds&quot;)</span></span>
+<span id="cb23-873"><a href="#cb23-873" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-874"><a href="#cb23-874" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
+<span id="cb23-875"><a href="#cb23-875" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Imputation complete. Imputed dataset saved to &#39;datasets/data_imputed.rds&#39;.\n&quot;)</span></span>
+<span id="cb23-876"><a href="#cb23-876" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-877"><a href="#cb23-877" aria-hidden="true" tabindex="-1"></a><span class="in"># Check for missing values across the dataset</span></span>
+<span id="cb23-878"><a href="#cb23-878" aria-hidden="true" tabindex="-1"></a><span class="in">missing_summary &lt;- colSums(is.na(data_imputed))</span></span>
+<span id="cb23-879"><a href="#cb23-879" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-880"><a href="#cb23-880" aria-hidden="true" tabindex="-1"></a><span class="in"># Print the summary of missing values</span></span>
+<span id="cb23-881"><a href="#cb23-881" aria-hidden="true" tabindex="-1"></a><span class="in">if (all(missing_summary == 0)) {</span></span>
+<span id="cb23-882"><a href="#cb23-882" aria-hidden="true" tabindex="-1"></a><span class="in">  cat(&quot;No missing values detected in the imputed dataset.\n&quot;)</span></span>
+<span id="cb23-883"><a href="#cb23-883" aria-hidden="true" tabindex="-1"></a><span class="in">} else {</span></span>
+<span id="cb23-884"><a href="#cb23-884" aria-hidden="true" tabindex="-1"></a><span class="in">  cat(&quot;Missing values detected in the following variables:\n&quot;)</span></span>
+<span id="cb23-885"><a href="#cb23-885" aria-hidden="true" tabindex="-1"></a><span class="in">  print(missing_summary[missing_summary &gt; 0])</span></span>
+<span id="cb23-886"><a href="#cb23-886" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-887"><a href="#cb23-887" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-888"><a href="#cb23-888" aria-hidden="true" tabindex="-1"></a><span class="in"># Sample some rows</span></span>
+<span id="cb23-889"><a href="#cb23-889" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(123)</span></span>
+<span id="cb23-890"><a href="#cb23-890" aria-hidden="true" tabindex="-1"></a><span class="in">sample_data &lt;- data_imputed |&gt;</span></span>
+<span id="cb23-891"><a href="#cb23-891" aria-hidden="true" tabindex="-1"></a><span class="in">  slice_sample(n = 10)</span></span>
+<span id="cb23-892"><a href="#cb23-892" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-893"><a href="#cb23-893" aria-hidden="true" tabindex="-1"></a><span class="in"># Capture Organized Data Sample</span></span>
+<span id="cb23-894"><a href="#cb23-894" aria-hidden="true" tabindex="-1"></a><span class="in">source(&quot;scripts/helper-functions/capture-to-html.R&quot;)</span></span>
+<span id="cb23-895"><a href="#cb23-895" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-896"><a href="#cb23-896" aria-hidden="true" tabindex="-1"></a><span class="in">capture_output_to_html(</span></span>
+<span id="cb23-897"><a href="#cb23-897" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;data_imputed_sample.html&quot;,</span></span>
+<span id="cb23-898"><a href="#cb23-898" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Sample&quot;,</span></span>
+<span id="cb23-899"><a href="#cb23-899" aria-hidden="true" tabindex="-1"></a><span class="in">  &quot;Imputed Data&quot; = sample_data</span></span>
+<span id="cb23-900"><a href="#cb23-900" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb23-901"><a href="#cb23-901" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-902"><a href="#cb23-902" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-903"><a href="#cb23-903" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, results=&#39;asis&#39;, echo=FALSE}</span></span>
+<span id="cb23-904"><a href="#cb23-904" aria-hidden="true" tabindex="-1"></a><span class="in">cat(readLines(&quot;outputs/data_imputed_sample.html&quot;), sep = &quot;\n&quot;)</span></span>
+<span id="cb23-905"><a href="#cb23-905" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-906"><a href="#cb23-906" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-907"><a href="#cb23-907" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Transformation</span></span>
 <span id="cb23-908"><a href="#cb23-908" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-909"><a href="#cb23-909" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Transformation</span></span>
-<span id="cb23-910"><a href="#cb23-910" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-911"><a href="#cb23-911" aria-hidden="true" tabindex="-1"></a><span class="in">```{r transformation, eval=FALSE}</span></span>
-<span id="cb23-912"><a href="#cb23-912" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
-<span id="cb23-913"><a href="#cb23-913" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
-<span id="cb23-914"><a href="#cb23-914" aria-hidden="true" tabindex="-1"></a><span class="in">library(caret)</span></span>
-<span id="cb23-915"><a href="#cb23-915" aria-hidden="true" tabindex="-1"></a><span class="in">library(readr)</span></span>
-<span id="cb23-916"><a href="#cb23-916" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-917"><a href="#cb23-917" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 1: Load the imputed dataset and variable type mappings</span></span>
-<span id="cb23-918"><a href="#cb23-918" aria-hidden="true" tabindex="-1"></a><span class="in">imputed_data &lt;- readRDS(&quot;datasets/imputed/data_imputed.rds&quot;)</span></span>
-<span id="cb23-919"><a href="#cb23-919" aria-hidden="true" tabindex="-1"></a><span class="in">variable_type_mapping &lt;- readRDS(&quot;datasets/mappings/types.rds&quot;)</span></span>
-<span id="cb23-920"><a href="#cb23-920" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-921"><a href="#cb23-921" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 2: Correct the types in the mapping</span></span>
-<span id="cb23-922"><a href="#cb23-922" aria-hidden="true" tabindex="-1"></a><span class="in">corrected_type_mapping &lt;- variable_type_mapping |&gt;</span></span>
-<span id="cb23-923"><a href="#cb23-923" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(Type = ifelse(Type == &quot;list&quot;, &quot;numeric&quot;, Type))  # Convert list types to numeric</span></span>
-<span id="cb23-924"><a href="#cb23-924" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-925"><a href="#cb23-925" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 3: Preserve patient_id as an identifier</span></span>
-<span id="cb23-926"><a href="#cb23-926" aria-hidden="true" tabindex="-1"></a><span class="in">identifier_column &lt;- &quot;patient_id&quot;</span></span>
-<span id="cb23-927"><a href="#cb23-927" aria-hidden="true" tabindex="-1"></a><span class="in">identifiers &lt;- imputed_data |&gt;</span></span>
-<span id="cb23-928"><a href="#cb23-928" aria-hidden="true" tabindex="-1"></a><span class="in">  select(all_of(identifier_column))</span></span>
-<span id="cb23-929"><a href="#cb23-929" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-930"><a href="#cb23-930" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 4: Exclude identifier from modeling data</span></span>
-<span id="cb23-931"><a href="#cb23-931" aria-hidden="true" tabindex="-1"></a><span class="in">modeling_data &lt;- imputed_data |&gt;</span></span>
-<span id="cb23-932"><a href="#cb23-932" aria-hidden="true" tabindex="-1"></a><span class="in">  select(-all_of(identifier_column))</span></span>
-<span id="cb23-933"><a href="#cb23-933" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-934"><a href="#cb23-934" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 5: Handle character variables (categorical encoding)</span></span>
-<span id="cb23-935"><a href="#cb23-935" aria-hidden="true" tabindex="-1"></a><span class="in"># Identify character variables</span></span>
-<span id="cb23-936"><a href="#cb23-936" aria-hidden="true" tabindex="-1"></a><span class="in">char_vars &lt;- corrected_type_mapping |&gt;</span></span>
-<span id="cb23-937"><a href="#cb23-937" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Type == &quot;character&quot;) |&gt;</span></span>
-<span id="cb23-938"><a href="#cb23-938" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Variable)</span></span>
-<span id="cb23-939"><a href="#cb23-939" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-940"><a href="#cb23-940" aria-hidden="true" tabindex="-1"></a><span class="in"># Convert character variables to numeric (one-hot encoding)</span></span>
-<span id="cb23-941"><a href="#cb23-941" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(char_vars) &gt; 0) {</span></span>
-<span id="cb23-942"><a href="#cb23-942" aria-hidden="true" tabindex="-1"></a><span class="in">  dummy_model &lt;- dummyVars(&quot; ~ .&quot;, data = modeling_data[char_vars])</span></span>
-<span id="cb23-943"><a href="#cb23-943" aria-hidden="true" tabindex="-1"></a><span class="in">  char_encoded &lt;- predict(dummy_model, newdata = modeling_data[char_vars]) |&gt;</span></span>
-<span id="cb23-944"><a href="#cb23-944" aria-hidden="true" tabindex="-1"></a><span class="in">    as.data.frame()</span></span>
-<span id="cb23-945"><a href="#cb23-945" aria-hidden="true" tabindex="-1"></a><span class="in">  modeling_data &lt;- cbind(modeling_data |&gt;</span></span>
-<span id="cb23-946"><a href="#cb23-946" aria-hidden="true" tabindex="-1"></a><span class="in">                           select(-all_of(char_vars)), char_encoded)</span></span>
-<span id="cb23-947"><a href="#cb23-947" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-948"><a href="#cb23-948" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-949"><a href="#cb23-949" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 6: Drop or convert any remaining list columns</span></span>
-<span id="cb23-950"><a href="#cb23-950" aria-hidden="true" tabindex="-1"></a><span class="in"># Identify columns of type list</span></span>
-<span id="cb23-951"><a href="#cb23-951" aria-hidden="true" tabindex="-1"></a><span class="in">list_vars &lt;- corrected_type_mapping |&gt;</span></span>
-<span id="cb23-952"><a href="#cb23-952" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Type == &quot;numeric&quot;) |&gt;  # Lists were reclassified as numeric</span></span>
-<span id="cb23-953"><a href="#cb23-953" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Variable)</span></span>
-<span id="cb23-954"><a href="#cb23-954" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-955"><a href="#cb23-955" aria-hidden="true" tabindex="-1"></a><span class="in"># Drop or convert invalid list columns to numeric (if necessary)</span></span>
-<span id="cb23-956"><a href="#cb23-956" aria-hidden="true" tabindex="-1"></a><span class="in">list_vars_in_data &lt;- intersect(list_vars, names(modeling_data))</span></span>
-<span id="cb23-957"><a href="#cb23-957" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(list_vars_in_data) &gt; 0) {</span></span>
-<span id="cb23-958"><a href="#cb23-958" aria-hidden="true" tabindex="-1"></a><span class="in">  modeling_data[list_vars_in_data] &lt;- lapply(modeling_data[list_vars_in_data], function(col) {</span></span>
-<span id="cb23-959"><a href="#cb23-959" aria-hidden="true" tabindex="-1"></a><span class="in">    if (is.list(col)) {</span></span>
-<span id="cb23-960"><a href="#cb23-960" aria-hidden="true" tabindex="-1"></a><span class="in">      # Example: Replace with length of each list as a numeric proxy</span></span>
-<span id="cb23-961"><a href="#cb23-961" aria-hidden="true" tabindex="-1"></a><span class="in">      sapply(col, function(x) if (is.null(x)) 0 else length(x))</span></span>
-<span id="cb23-962"><a href="#cb23-962" aria-hidden="true" tabindex="-1"></a><span class="in">    } else {</span></span>
-<span id="cb23-963"><a href="#cb23-963" aria-hidden="true" tabindex="-1"></a><span class="in">      col</span></span>
-<span id="cb23-964"><a href="#cb23-964" aria-hidden="true" tabindex="-1"></a><span class="in">    }</span></span>
-<span id="cb23-965"><a href="#cb23-965" aria-hidden="true" tabindex="-1"></a><span class="in">  })</span></span>
-<span id="cb23-966"><a href="#cb23-966" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-967"><a href="#cb23-967" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-968"><a href="#cb23-968" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 7: Normalize numeric variables</span></span>
-<span id="cb23-969"><a href="#cb23-969" aria-hidden="true" tabindex="-1"></a><span class="in"># Identify numeric variables that exist in the dataset</span></span>
-<span id="cb23-970"><a href="#cb23-970" aria-hidden="true" tabindex="-1"></a><span class="in">num_vars &lt;- corrected_type_mapping |&gt;</span></span>
-<span id="cb23-971"><a href="#cb23-971" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Type == &quot;numeric&quot;) |&gt;</span></span>
-<span id="cb23-972"><a href="#cb23-972" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Variable)</span></span>
-<span id="cb23-973"><a href="#cb23-973" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-974"><a href="#cb23-974" aria-hidden="true" tabindex="-1"></a><span class="in"># Filter numeric variables to those present in the dataset</span></span>
-<span id="cb23-975"><a href="#cb23-975" aria-hidden="true" tabindex="-1"></a><span class="in">existing_num_vars &lt;- intersect(num_vars, names(modeling_data))</span></span>
-<span id="cb23-976"><a href="#cb23-976" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-977"><a href="#cb23-977" aria-hidden="true" tabindex="-1"></a><span class="in"># Scale numeric variables</span></span>
-<span id="cb23-978"><a href="#cb23-978" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(existing_num_vars) &gt; 0) {</span></span>
-<span id="cb23-979"><a href="#cb23-979" aria-hidden="true" tabindex="-1"></a><span class="in">  scaler &lt;- preProcess(modeling_data[existing_num_vars], method = c(&quot;center&quot;, &quot;scale&quot;))</span></span>
-<span id="cb23-980"><a href="#cb23-980" aria-hidden="true" tabindex="-1"></a><span class="in">  modeling_data[existing_num_vars] &lt;- predict(scaler, modeling_data[existing_num_vars])</span></span>
-<span id="cb23-981"><a href="#cb23-981" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
-<span id="cb23-982"><a href="#cb23-982" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-983"><a href="#cb23-983" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 8: Combine the identifiers back with the prepared data (if needed)</span></span>
-<span id="cb23-984"><a href="#cb23-984" aria-hidden="true" tabindex="-1"></a><span class="in">final_data &lt;- cbind(identifiers, modeling_data)</span></span>
-<span id="cb23-985"><a href="#cb23-985" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-986"><a href="#cb23-986" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the prepared dataset for modeling</span></span>
-<span id="cb23-987"><a href="#cb23-987" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(final_data, &quot;datasets/data_final_for_modeling_with_id.rds&quot;)</span></span>
-<span id="cb23-988"><a href="#cb23-988" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-989"><a href="#cb23-989" aria-hidden="true" tabindex="-1"></a><span class="in"># Save final type mapping</span></span>
-<span id="cb23-990"><a href="#cb23-990" aria-hidden="true" tabindex="-1"></a><span class="in">updated_mapping &lt;- corrected_type_mapping |&gt;</span></span>
-<span id="cb23-991"><a href="#cb23-991" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(Final_Type = ifelse(Type == &quot;character&quot;, &quot;encoded_numeric&quot;, Type))</span></span>
-<span id="cb23-992"><a href="#cb23-992" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(updated_mapping, &quot;datasets/mappings/final_types.rds&quot;)</span></span>
-<span id="cb23-993"><a href="#cb23-993" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-994"><a href="#cb23-994" aria-hidden="true" tabindex="-1"></a><span class="in"># Confirmations</span></span>
-<span id="cb23-995"><a href="#cb23-995" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Dataset prepared for predictive analytics.\n&quot;)</span></span>
-<span id="cb23-996"><a href="#cb23-996" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Saved to &#39;datasets/data_final_for_modeling_with_id.rds&#39;.\n&quot;)</span></span>
-<span id="cb23-997"><a href="#cb23-997" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Updated type mapping saved to &#39;datasets/mappings/final_types.rds&#39;.\n&quot;)</span></span>
-<span id="cb23-998"><a href="#cb23-998" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-909"><a href="#cb23-909" aria-hidden="true" tabindex="-1"></a><span class="in">```{r transformation, eval=FALSE}</span></span>
+<span id="cb23-910"><a href="#cb23-910" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
+<span id="cb23-911"><a href="#cb23-911" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
+<span id="cb23-912"><a href="#cb23-912" aria-hidden="true" tabindex="-1"></a><span class="in">library(caret)</span></span>
+<span id="cb23-913"><a href="#cb23-913" aria-hidden="true" tabindex="-1"></a><span class="in">library(readr)</span></span>
+<span id="cb23-914"><a href="#cb23-914" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-915"><a href="#cb23-915" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 1: Load the imputed dataset and variable type mappings</span></span>
+<span id="cb23-916"><a href="#cb23-916" aria-hidden="true" tabindex="-1"></a><span class="in">data_imputed &lt;- readRDS(&quot;datasets/data_imputed.rds&quot;)</span></span>
+<span id="cb23-917"><a href="#cb23-917" aria-hidden="true" tabindex="-1"></a><span class="in">variable_type_mapping &lt;- readRDS(&quot;datasets/mappings/types.rds&quot;)</span></span>
+<span id="cb23-918"><a href="#cb23-918" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-919"><a href="#cb23-919" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 2: Correct the types in the mapping</span></span>
+<span id="cb23-920"><a href="#cb23-920" aria-hidden="true" tabindex="-1"></a><span class="in">corrected_type_mapping &lt;- variable_type_mapping |&gt;</span></span>
+<span id="cb23-921"><a href="#cb23-921" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(Type = ifelse(Type == &quot;list&quot;, &quot;numeric&quot;, Type))</span></span>
+<span id="cb23-922"><a href="#cb23-922" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-923"><a href="#cb23-923" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 3: Preserve patient_id as an identifier</span></span>
+<span id="cb23-924"><a href="#cb23-924" aria-hidden="true" tabindex="-1"></a><span class="in">identifier_column &lt;- &quot;patient_id&quot;</span></span>
+<span id="cb23-925"><a href="#cb23-925" aria-hidden="true" tabindex="-1"></a><span class="in">identifiers &lt;- data_imputed |&gt;</span></span>
+<span id="cb23-926"><a href="#cb23-926" aria-hidden="true" tabindex="-1"></a><span class="in">  select(all_of(identifier_column))</span></span>
+<span id="cb23-927"><a href="#cb23-927" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-928"><a href="#cb23-928" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 4: Exclude identifier from modeling data</span></span>
+<span id="cb23-929"><a href="#cb23-929" aria-hidden="true" tabindex="-1"></a><span class="in">modeling_data &lt;- data_imputed |&gt;</span></span>
+<span id="cb23-930"><a href="#cb23-930" aria-hidden="true" tabindex="-1"></a><span class="in">  select(-all_of(identifier_column))</span></span>
+<span id="cb23-931"><a href="#cb23-931" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-932"><a href="#cb23-932" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 5: Handle character variables (categorical encoding)</span></span>
+<span id="cb23-933"><a href="#cb23-933" aria-hidden="true" tabindex="-1"></a><span class="in"># Identify character variables</span></span>
+<span id="cb23-934"><a href="#cb23-934" aria-hidden="true" tabindex="-1"></a><span class="in">char_vars &lt;- corrected_type_mapping |&gt;</span></span>
+<span id="cb23-935"><a href="#cb23-935" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Type == &quot;character&quot;) |&gt;</span></span>
+<span id="cb23-936"><a href="#cb23-936" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Variable)</span></span>
+<span id="cb23-937"><a href="#cb23-937" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-938"><a href="#cb23-938" aria-hidden="true" tabindex="-1"></a><span class="in"># Convert character variables to numeric (one-hot encoding)</span></span>
+<span id="cb23-939"><a href="#cb23-939" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(char_vars) &gt; 0) {</span></span>
+<span id="cb23-940"><a href="#cb23-940" aria-hidden="true" tabindex="-1"></a><span class="in">  dummy_model &lt;- dummyVars(&quot; ~ .&quot;, data = modeling_data[char_vars])</span></span>
+<span id="cb23-941"><a href="#cb23-941" aria-hidden="true" tabindex="-1"></a><span class="in">  char_encoded &lt;- predict(dummy_model, newdata = modeling_data[char_vars]) |&gt;</span></span>
+<span id="cb23-942"><a href="#cb23-942" aria-hidden="true" tabindex="-1"></a><span class="in">    as.data.frame()</span></span>
+<span id="cb23-943"><a href="#cb23-943" aria-hidden="true" tabindex="-1"></a><span class="in">  modeling_data &lt;- cbind(modeling_data |&gt;</span></span>
+<span id="cb23-944"><a href="#cb23-944" aria-hidden="true" tabindex="-1"></a><span class="in">                           select(-all_of(char_vars)), char_encoded)</span></span>
+<span id="cb23-945"><a href="#cb23-945" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-946"><a href="#cb23-946" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-947"><a href="#cb23-947" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 6: Drop or convert any remaining list columns</span></span>
+<span id="cb23-948"><a href="#cb23-948" aria-hidden="true" tabindex="-1"></a><span class="in"># Identify columns of type list</span></span>
+<span id="cb23-949"><a href="#cb23-949" aria-hidden="true" tabindex="-1"></a><span class="in">list_vars &lt;- corrected_type_mapping |&gt;</span></span>
+<span id="cb23-950"><a href="#cb23-950" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Type == &quot;numeric&quot;) |&gt;  # Lists were reclassified as numeric</span></span>
+<span id="cb23-951"><a href="#cb23-951" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Variable)</span></span>
+<span id="cb23-952"><a href="#cb23-952" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-953"><a href="#cb23-953" aria-hidden="true" tabindex="-1"></a><span class="in"># Drop or convert invalid list columns to numeric (if necessary)</span></span>
+<span id="cb23-954"><a href="#cb23-954" aria-hidden="true" tabindex="-1"></a><span class="in">list_vars_in_data &lt;- intersect(list_vars, names(modeling_data))</span></span>
+<span id="cb23-955"><a href="#cb23-955" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(list_vars_in_data) &gt; 0) {</span></span>
+<span id="cb23-956"><a href="#cb23-956" aria-hidden="true" tabindex="-1"></a><span class="in">  modeling_data[list_vars_in_data] &lt;- lapply(modeling_data[list_vars_in_data], function(col) {</span></span>
+<span id="cb23-957"><a href="#cb23-957" aria-hidden="true" tabindex="-1"></a><span class="in">    if (is.list(col)) {</span></span>
+<span id="cb23-958"><a href="#cb23-958" aria-hidden="true" tabindex="-1"></a><span class="in">      # Example: Replace with length of each list as a numeric proxy</span></span>
+<span id="cb23-959"><a href="#cb23-959" aria-hidden="true" tabindex="-1"></a><span class="in">      sapply(col, function(x) if (is.null(x)) 0 else length(x))</span></span>
+<span id="cb23-960"><a href="#cb23-960" aria-hidden="true" tabindex="-1"></a><span class="in">    } else {</span></span>
+<span id="cb23-961"><a href="#cb23-961" aria-hidden="true" tabindex="-1"></a><span class="in">      col</span></span>
+<span id="cb23-962"><a href="#cb23-962" aria-hidden="true" tabindex="-1"></a><span class="in">    }</span></span>
+<span id="cb23-963"><a href="#cb23-963" aria-hidden="true" tabindex="-1"></a><span class="in">  })</span></span>
+<span id="cb23-964"><a href="#cb23-964" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-965"><a href="#cb23-965" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-966"><a href="#cb23-966" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 7: Normalize numeric variables</span></span>
+<span id="cb23-967"><a href="#cb23-967" aria-hidden="true" tabindex="-1"></a><span class="in"># Identify numeric variables that exist in the dataset</span></span>
+<span id="cb23-968"><a href="#cb23-968" aria-hidden="true" tabindex="-1"></a><span class="in">num_vars &lt;- corrected_type_mapping |&gt;</span></span>
+<span id="cb23-969"><a href="#cb23-969" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Type == &quot;numeric&quot;) |&gt;</span></span>
+<span id="cb23-970"><a href="#cb23-970" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Variable)</span></span>
+<span id="cb23-971"><a href="#cb23-971" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-972"><a href="#cb23-972" aria-hidden="true" tabindex="-1"></a><span class="in"># Filter numeric variables to those present in the dataset</span></span>
+<span id="cb23-973"><a href="#cb23-973" aria-hidden="true" tabindex="-1"></a><span class="in">existing_num_vars &lt;- intersect(num_vars, names(modeling_data))</span></span>
+<span id="cb23-974"><a href="#cb23-974" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-975"><a href="#cb23-975" aria-hidden="true" tabindex="-1"></a><span class="in"># Scale numeric variables</span></span>
+<span id="cb23-976"><a href="#cb23-976" aria-hidden="true" tabindex="-1"></a><span class="in">if (length(existing_num_vars) &gt; 0) {</span></span>
+<span id="cb23-977"><a href="#cb23-977" aria-hidden="true" tabindex="-1"></a><span class="in">  scaler &lt;- preProcess(modeling_data[existing_num_vars], method = c(&quot;center&quot;, &quot;scale&quot;))</span></span>
+<span id="cb23-978"><a href="#cb23-978" aria-hidden="true" tabindex="-1"></a><span class="in">  modeling_data[existing_num_vars] &lt;- predict(scaler, modeling_data[existing_num_vars])</span></span>
+<span id="cb23-979"><a href="#cb23-979" aria-hidden="true" tabindex="-1"></a><span class="in">}</span></span>
+<span id="cb23-980"><a href="#cb23-980" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-981"><a href="#cb23-981" aria-hidden="true" tabindex="-1"></a><span class="in"># Step 8: Combine the identifiers back with the prepared data (if needed)</span></span>
+<span id="cb23-982"><a href="#cb23-982" aria-hidden="true" tabindex="-1"></a><span class="in">prepared_data &lt;- cbind(identifiers, modeling_data)</span></span>
+<span id="cb23-983"><a href="#cb23-983" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-984"><a href="#cb23-984" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the prepared dataset for modeling</span></span>
+<span id="cb23-985"><a href="#cb23-985" aria-hidden="true" tabindex="-1"></a><span class="in">prepared_data |&gt; saveRDS(&quot;datasets/processed/data_prepared.rds&quot;)</span></span>
+<span id="cb23-986"><a href="#cb23-986" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-987"><a href="#cb23-987" aria-hidden="true" tabindex="-1"></a><span class="in"># Save final type mapping</span></span>
+<span id="cb23-988"><a href="#cb23-988" aria-hidden="true" tabindex="-1"></a><span class="in">updated_mapping &lt;- corrected_type_mapping |&gt;</span></span>
+<span id="cb23-989"><a href="#cb23-989" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(Final_Type = ifelse(Type == &quot;character&quot;, &quot;encoded_numeric&quot;, Type))</span></span>
+<span id="cb23-990"><a href="#cb23-990" aria-hidden="true" tabindex="-1"></a><span class="in">updated_mapping |&gt; saveRDS(&quot;datasets/mappings/final_types.rds&quot;)</span></span>
+<span id="cb23-991"><a href="#cb23-991" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-992"><a href="#cb23-992" aria-hidden="true" tabindex="-1"></a><span class="in"># Confirmations</span></span>
+<span id="cb23-993"><a href="#cb23-993" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Dataset prepared for predictive analytics.\n&quot;)</span></span>
+<span id="cb23-994"><a href="#cb23-994" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Saved to &#39;datasets/data_final_for_modeling_with_id.rds&#39;.\n&quot;)</span></span>
+<span id="cb23-995"><a href="#cb23-995" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Updated type mapping saved to &#39;datasets/mappings/final_types.rds&#39;.\n&quot;)</span></span>
+<span id="cb23-996"><a href="#cb23-996" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-997"><a href="#cb23-997" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-998"><a href="#cb23-998" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Feature Engineering</span></span>
 <span id="cb23-999"><a href="#cb23-999" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1000"><a href="#cb23-1000" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Feature Engineering</span></span>
-<span id="cb23-1001"><a href="#cb23-1001" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1002"><a href="#cb23-1002" aria-hidden="true" tabindex="-1"></a><span class="in">```{r feature_engineering, eval=FALSE}</span></span>
-<span id="cb23-1003"><a href="#cb23-1003" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
-<span id="cb23-1004"><a href="#cb23-1004" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
-<span id="cb23-1005"><a href="#cb23-1005" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyr)</span></span>
-<span id="cb23-1006"><a href="#cb23-1006" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1007"><a href="#cb23-1007" aria-hidden="true" tabindex="-1"></a><span class="in"># Define dataset boundaries and span</span></span>
-<span id="cb23-1008"><a href="#cb23-1008" aria-hidden="true" tabindex="-1"></a><span class="in">dataset_start &lt;- as.Date(&quot;2014-10-01&quot;)</span></span>
-<span id="cb23-1009"><a href="#cb23-1009" aria-hidden="true" tabindex="-1"></a><span class="in">dataset_end &lt;- as.Date(&quot;2024-09-30&quot;)</span></span>
-<span id="cb23-1010"><a href="#cb23-1010" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1011"><a href="#cb23-1011" aria-hidden="true" tabindex="-1"></a><span class="in"># Load data and mappings</span></span>
-<span id="cb23-1012"><a href="#cb23-1012" aria-hidden="true" tabindex="-1"></a><span class="in">final_data &lt;- readRDS(&quot;datasets/data_final_for_modeling_with_id.rds&quot;)</span></span>
-<span id="cb23-1013"><a href="#cb23-1013" aria-hidden="true" tabindex="-1"></a><span class="in">encoding &lt;- readRDS(&quot;datasets/mappings/encoding.rds&quot;)</span></span>
-<span id="cb23-1014"><a href="#cb23-1014" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1015"><a href="#cb23-1015" aria-hidden="true" tabindex="-1"></a><span class="in"># Ensure engineered features directory exists</span></span>
-<span id="cb23-1016"><a href="#cb23-1016" aria-hidden="true" tabindex="-1"></a><span class="in">dir.create(&quot;datasets/engineered_features&quot;, recursive = TRUE, showWarnings = FALSE)</span></span>
-<span id="cb23-1017"><a href="#cb23-1017" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1018"><a href="#cb23-1018" aria-hidden="true" tabindex="-1"></a><span class="in"># Filter for relevant provider types</span></span>
-<span id="cb23-1019"><a href="#cb23-1019" aria-hidden="true" tabindex="-1"></a><span class="in">relevant_providers &lt;- c(&quot;Physician&quot;, &quot;Psychiatrist&quot;, &quot;Resident&quot;, &quot;Nurse Practitioner&quot;)</span></span>
-<span id="cb23-1020"><a href="#cb23-1020" aria-hidden="true" tabindex="-1"></a><span class="in">relevant_provider_codes &lt;- encoding$primary_provider_type |&gt;</span></span>
-<span id="cb23-1021"><a href="#cb23-1021" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Level %in% relevant_providers) |&gt;</span></span>
-<span id="cb23-1022"><a href="#cb23-1022" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Code)</span></span>
-<span id="cb23-1023"><a href="#cb23-1023" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1024"><a href="#cb23-1024" aria-hidden="true" tabindex="-1"></a><span class="in"># Adjust and Filter Data</span></span>
-<span id="cb23-1025"><a href="#cb23-1025" aria-hidden="true" tabindex="-1"></a><span class="in">final_data &lt;- final_data |&gt;</span></span>
-<span id="cb23-1026"><a href="#cb23-1026" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(primary_provider_type %in% relevant_provider_codes) |&gt;  # Filter relevant providers</span></span>
-<span id="cb23-1027"><a href="#cb23-1027" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(</span></span>
-<span id="cb23-1028"><a href="#cb23-1028" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_date = as.Date(visit_date, origin = &quot;1970-01-01&quot;),  # Ensure `visit_date` is a Date</span></span>
-<span id="cb23-1029"><a href="#cb23-1029" aria-hidden="true" tabindex="-1"></a><span class="in">    appointment_length_minutes = ifelse(appointment_length_minutes &lt; 0, NA, appointment_length_minutes)  # Replace negative values</span></span>
-<span id="cb23-1030"><a href="#cb23-1030" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
+<span id="cb23-1000"><a href="#cb23-1000" aria-hidden="true" tabindex="-1"></a><span class="in">```{r feature_engineering, eval=FALSE}</span></span>
+<span id="cb23-1001"><a href="#cb23-1001" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
+<span id="cb23-1002"><a href="#cb23-1002" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
+<span id="cb23-1003"><a href="#cb23-1003" aria-hidden="true" tabindex="-1"></a><span class="in">library(tidyr)</span></span>
+<span id="cb23-1004"><a href="#cb23-1004" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1005"><a href="#cb23-1005" aria-hidden="true" tabindex="-1"></a><span class="in"># Define dataset boundaries and span</span></span>
+<span id="cb23-1006"><a href="#cb23-1006" aria-hidden="true" tabindex="-1"></a><span class="in">dataset_start &lt;- as.Date(&quot;2014-10-01&quot;)</span></span>
+<span id="cb23-1007"><a href="#cb23-1007" aria-hidden="true" tabindex="-1"></a><span class="in">dataset_end &lt;- as.Date(&quot;2024-09-30&quot;)</span></span>
+<span id="cb23-1008"><a href="#cb23-1008" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1009"><a href="#cb23-1009" aria-hidden="true" tabindex="-1"></a><span class="in"># Load data and mappings</span></span>
+<span id="cb23-1010"><a href="#cb23-1010" aria-hidden="true" tabindex="-1"></a><span class="in">prepared_data &lt;- readRDS(&quot;datasets/data_final_for_modeling_with_id.rds&quot;)</span></span>
+<span id="cb23-1011"><a href="#cb23-1011" aria-hidden="true" tabindex="-1"></a><span class="in">encoding &lt;- readRDS(&quot;datasets/mappings/encoding.rds&quot;)</span></span>
+<span id="cb23-1012"><a href="#cb23-1012" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1013"><a href="#cb23-1013" aria-hidden="true" tabindex="-1"></a><span class="in"># Ensure engineered features directory exists</span></span>
+<span id="cb23-1014"><a href="#cb23-1014" aria-hidden="true" tabindex="-1"></a><span class="in">dir.create(&quot;datasets/engineered_features&quot;, recursive = TRUE, showWarnings = FALSE)</span></span>
+<span id="cb23-1015"><a href="#cb23-1015" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1016"><a href="#cb23-1016" aria-hidden="true" tabindex="-1"></a><span class="in"># Filter for relevant provider types</span></span>
+<span id="cb23-1017"><a href="#cb23-1017" aria-hidden="true" tabindex="-1"></a><span class="in">relevant_providers &lt;- c(&quot;Physician&quot;, &quot;Psychiatrist&quot;, &quot;Resident&quot;, &quot;Nurse Practitioner&quot;)</span></span>
+<span id="cb23-1018"><a href="#cb23-1018" aria-hidden="true" tabindex="-1"></a><span class="in">relevant_provider_codes &lt;- encoding$primary_provider_type |&gt;</span></span>
+<span id="cb23-1019"><a href="#cb23-1019" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(Level %in% relevant_providers) |&gt;</span></span>
+<span id="cb23-1020"><a href="#cb23-1020" aria-hidden="true" tabindex="-1"></a><span class="in">  pull(Code)</span></span>
+<span id="cb23-1021"><a href="#cb23-1021" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1022"><a href="#cb23-1022" aria-hidden="true" tabindex="-1"></a><span class="in"># Adjust and Filter Data</span></span>
+<span id="cb23-1023"><a href="#cb23-1023" aria-hidden="true" tabindex="-1"></a><span class="in">prepared_data &lt;- prepared_data |&gt;</span></span>
+<span id="cb23-1024"><a href="#cb23-1024" aria-hidden="true" tabindex="-1"></a><span class="in">  filter(primary_provider_type %in% relevant_provider_codes) |&gt;  # Filter relevant providers</span></span>
+<span id="cb23-1025"><a href="#cb23-1025" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(</span></span>
+<span id="cb23-1026"><a href="#cb23-1026" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_date = as.Date(visit_date, origin = &quot;1970-01-01&quot;),  # Ensure `visit_date` is a Date</span></span>
+<span id="cb23-1027"><a href="#cb23-1027" aria-hidden="true" tabindex="-1"></a><span class="in">    appointment_length_minutes = ifelse(appointment_length_minutes &lt; 0, NA, appointment_length_minutes)  # Replace negative values</span></span>
+<span id="cb23-1028"><a href="#cb23-1028" aria-hidden="true" tabindex="-1"></a><span class="in">  )</span></span>
+<span id="cb23-1029"><a href="#cb23-1029" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1030"><a href="#cb23-1030" aria-hidden="true" tabindex="-1"></a><span class="in"># Feature Extraction</span></span>
 <span id="cb23-1031"><a href="#cb23-1031" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1032"><a href="#cb23-1032" aria-hidden="true" tabindex="-1"></a><span class="in"># Feature Engineering: Weekly Load (Minutes)</span></span>
-<span id="cb23-1033"><a href="#cb23-1033" aria-hidden="true" tabindex="-1"></a><span class="in">weekly_load_data &lt;- final_data |&gt;</span></span>
-<span id="cb23-1034"><a href="#cb23-1034" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(patient_id) |&gt;</span></span>
-<span id="cb23-1035"><a href="#cb23-1035" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(</span></span>
-<span id="cb23-1036"><a href="#cb23-1036" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_date_min = min(visit_date, na.rm = TRUE),</span></span>
-<span id="cb23-1037"><a href="#cb23-1037" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_date_max = max(visit_date, na.rm = TRUE),</span></span>
-<span id="cb23-1038"><a href="#cb23-1038" aria-hidden="true" tabindex="-1"></a><span class="in">    observed_span_days = pmax(as.numeric(visit_date_max - visit_date_min) + 1, 7),  # Minimum span threshold of 7 days</span></span>
-<span id="cb23-1039"><a href="#cb23-1039" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_count = n(),</span></span>
-<span id="cb23-1040"><a href="#cb23-1040" aria-hidden="true" tabindex="-1"></a><span class="in">    average_visit_length = mean(appointment_length_minutes, na.rm = TRUE),</span></span>
-<span id="cb23-1041"><a href="#cb23-1041" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_density = visit_count / observed_span_days,</span></span>
-<span id="cb23-1042"><a href="#cb23-1042" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_density = pmin(visit_density, 1),  # Cap density at 1 visit per day</span></span>
-<span id="cb23-1043"><a href="#cb23-1043" aria-hidden="true" tabindex="-1"></a><span class="in">    weekly_load_minutes = pmax(visit_density * average_visit_length * 7, 0)  # Avoid negatives</span></span>
-<span id="cb23-1044"><a href="#cb23-1044" aria-hidden="true" tabindex="-1"></a><span class="in">  ) |&gt;</span></span>
-<span id="cb23-1045"><a href="#cb23-1045" aria-hidden="true" tabindex="-1"></a><span class="in">  ungroup()</span></span>
-<span id="cb23-1046"><a href="#cb23-1046" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1047"><a href="#cb23-1047" aria-hidden="true" tabindex="-1"></a><span class="in"># Replace NA values with 0 for interpretability</span></span>
-<span id="cb23-1048"><a href="#cb23-1048" aria-hidden="true" tabindex="-1"></a><span class="in">weekly_load_data &lt;- weekly_load_data |&gt;</span></span>
-<span id="cb23-1049"><a href="#cb23-1049" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(everything(), ~ replace_na(.x, 0)))</span></span>
-<span id="cb23-1050"><a href="#cb23-1050" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1051"><a href="#cb23-1051" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the updated dataset</span></span>
-<span id="cb23-1052"><a href="#cb23-1052" aria-hidden="true" tabindex="-1"></a><span class="in">saveRDS(weekly_load_data, &quot;datasets/engineered_features/weekly_load_data.rds&quot;)</span></span>
-<span id="cb23-1053"><a href="#cb23-1053" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1054"><a href="#cb23-1054" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
-<span id="cb23-1055"><a href="#cb23-1055" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Feature engineering complete. Results saved to &#39;datasets/engineered_features/weekly_load_data.rds&#39;.\n&quot;)</span></span>
-<span id="cb23-1056"><a href="#cb23-1056" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-1057"><a href="#cb23-1057" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1058"><a href="#cb23-1058" aria-hidden="true" tabindex="-1"></a><span class="fu">### Current progress</span></span>
+<span id="cb23-1032"><a href="#cb23-1032" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1033"><a href="#cb23-1033" aria-hidden="true" tabindex="-1"></a><span class="in"># Feature Engineering</span></span>
+<span id="cb23-1034"><a href="#cb23-1034" aria-hidden="true" tabindex="-1"></a><span class="in">featured_data &lt;- prepared_data |&gt;</span></span>
+<span id="cb23-1035"><a href="#cb23-1035" aria-hidden="true" tabindex="-1"></a><span class="in">  group_by(patient_id) |&gt;</span></span>
+<span id="cb23-1036"><a href="#cb23-1036" aria-hidden="true" tabindex="-1"></a><span class="in">  summarise(</span></span>
+<span id="cb23-1037"><a href="#cb23-1037" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_count = n(),</span></span>
+<span id="cb23-1038"><a href="#cb23-1038" aria-hidden="true" tabindex="-1"></a><span class="in">    first_visit = min(visit_date, na.rm = TRUE),</span></span>
+<span id="cb23-1039"><a href="#cb23-1039" aria-hidden="true" tabindex="-1"></a><span class="in">    last_visit = max(visit_date, na.rm = TRUE),</span></span>
+<span id="cb23-1040"><a href="#cb23-1040" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_span = </span></span>
+<span id="cb23-1041"><a href="#cb23-1041" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1042"><a href="#cb23-1042" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_date_min = min(visit_date, na.rm = TRUE),</span></span>
+<span id="cb23-1043"><a href="#cb23-1043" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_date_max = max(visit_date, na.rm = TRUE),</span></span>
+<span id="cb23-1044"><a href="#cb23-1044" aria-hidden="true" tabindex="-1"></a><span class="in">    observed_span_days = pmax(as.numeric(visit_date_max - visit_date_min) + 1, 7),  # Minimum span threshold of 7 days</span></span>
+<span id="cb23-1045"><a href="#cb23-1045" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_count = n(),</span></span>
+<span id="cb23-1046"><a href="#cb23-1046" aria-hidden="true" tabindex="-1"></a><span class="in">    average_visit_length = mean(appointment_length_minutes, na.rm = TRUE),</span></span>
+<span id="cb23-1047"><a href="#cb23-1047" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_density = visit_count / observed_span_days,</span></span>
+<span id="cb23-1048"><a href="#cb23-1048" aria-hidden="true" tabindex="-1"></a><span class="in">    visit_density = pmin(visit_density, 1),  # Cap density at 1 visit per day</span></span>
+<span id="cb23-1049"><a href="#cb23-1049" aria-hidden="true" tabindex="-1"></a><span class="in">    weekly_load_minutes = pmax(visit_density * average_visit_length * 7, 0)  # Avoid negatives</span></span>
+<span id="cb23-1050"><a href="#cb23-1050" aria-hidden="true" tabindex="-1"></a><span class="in">  ) |&gt;</span></span>
+<span id="cb23-1051"><a href="#cb23-1051" aria-hidden="true" tabindex="-1"></a><span class="in">  ungroup()</span></span>
+<span id="cb23-1052"><a href="#cb23-1052" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1053"><a href="#cb23-1053" aria-hidden="true" tabindex="-1"></a><span class="in"># Replace NA values with 0 for interpretability</span></span>
+<span id="cb23-1054"><a href="#cb23-1054" aria-hidden="true" tabindex="-1"></a><span class="in">weekly_load_data &lt;- weekly_load_data |&gt;</span></span>
+<span id="cb23-1055"><a href="#cb23-1055" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(everything(), ~ replace_na(.x, 0)))</span></span>
+<span id="cb23-1056"><a href="#cb23-1056" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1057"><a href="#cb23-1057" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the updated dataset</span></span>
+<span id="cb23-1058"><a href="#cb23-1058" aria-hidden="true" tabindex="-1"></a><span class="in">weekly_load_data |&gt; saveRDS(&quot;datasets/data_featured.rds&quot;)</span></span>
 <span id="cb23-1059"><a href="#cb23-1059" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1060"><a href="#cb23-1060" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/clipboard-2928763158.png)</span></span>
-<span id="cb23-1061"><a href="#cb23-1061" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1062"><a href="#cb23-1062" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb23-1060"><a href="#cb23-1060" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
+<span id="cb23-1061"><a href="#cb23-1061" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Feature engineering complete. Results saved to &#39;datasets/engineered_features/weekly_load_data.rds&#39;.\n&quot;)</span></span>
+<span id="cb23-1062"><a href="#cb23-1062" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-1063"><a href="#cb23-1063" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1064"><a href="#cb23-1064" aria-hidden="true" tabindex="-1"></a><span class="in">```{r rf, eval=FALSE}</span></span>
-<span id="cb23-1065"><a href="#cb23-1065" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
-<span id="cb23-1066"><a href="#cb23-1066" aria-hidden="true" tabindex="-1"></a><span class="in">library(readr)</span></span>
-<span id="cb23-1067"><a href="#cb23-1067" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
-<span id="cb23-1068"><a href="#cb23-1068" aria-hidden="true" tabindex="-1"></a><span class="in">library(ranger)</span></span>
-<span id="cb23-1069"><a href="#cb23-1069" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggplot2)</span></span>
-<span id="cb23-1070"><a href="#cb23-1070" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1071"><a href="#cb23-1071" aria-hidden="true" tabindex="-1"></a><span class="in"># Load the dataset</span></span>
-<span id="cb23-1072"><a href="#cb23-1072" aria-hidden="true" tabindex="-1"></a><span class="in">final_data &lt;- readRDS(&quot;datasets/final_data.rds&quot;)</span></span>
-<span id="cb23-1073"><a href="#cb23-1073" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1074"><a href="#cb23-1074" aria-hidden="true" tabindex="-1"></a><span class="in"># Data preparation</span></span>
-<span id="cb23-1075"><a href="#cb23-1075" aria-hidden="true" tabindex="-1"></a><span class="in">rf_data &lt;- final_data %&gt;%</span></span>
-<span id="cb23-1076"><a href="#cb23-1076" aria-hidden="true" tabindex="-1"></a><span class="in">  select(-patient_id, -visit_date_min, -visit_date_max) %&gt;%  # Remove unnecessary columns</span></span>
-<span id="cb23-1077"><a href="#cb23-1077" aria-hidden="true" tabindex="-1"></a><span class="in">  na.omit()  # Remove rows with missing values</span></span>
-<span id="cb23-1078"><a href="#cb23-1078" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1079"><a href="#cb23-1079" aria-hidden="true" tabindex="-1"></a><span class="in"># Convert character columns to factors</span></span>
-<span id="cb23-1080"><a href="#cb23-1080" aria-hidden="true" tabindex="-1"></a><span class="in">rf_data &lt;- rf_data %&gt;%</span></span>
-<span id="cb23-1081"><a href="#cb23-1081" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(where(is.character), as.factor))</span></span>
-<span id="cb23-1082"><a href="#cb23-1082" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1083"><a href="#cb23-1083" aria-hidden="true" tabindex="-1"></a><span class="in"># Split into training and testing sets</span></span>
-<span id="cb23-1084"><a href="#cb23-1084" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(123)  # For reproducibility</span></span>
-<span id="cb23-1085"><a href="#cb23-1085" aria-hidden="true" tabindex="-1"></a><span class="in">train_index &lt;- sample(seq_len(nrow(rf_data)), size = 0.7 * nrow(rf_data))</span></span>
-<span id="cb23-1086"><a href="#cb23-1086" aria-hidden="true" tabindex="-1"></a><span class="in">train_data &lt;- rf_data[train_index, ]</span></span>
-<span id="cb23-1087"><a href="#cb23-1087" aria-hidden="true" tabindex="-1"></a><span class="in">test_data &lt;- rf_data[-train_index, ]</span></span>
+<span id="cb23-1064"><a href="#cb23-1064" aria-hidden="true" tabindex="-1"></a><span class="fu">### Current progress</span></span>
+<span id="cb23-1065"><a href="#cb23-1065" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1066"><a href="#cb23-1066" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/clipboard-2928763158.png)</span></span>
+<span id="cb23-1067"><a href="#cb23-1067" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1068"><a href="#cb23-1068" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb23-1069"><a href="#cb23-1069" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1070"><a href="#cb23-1070" aria-hidden="true" tabindex="-1"></a><span class="in">```{r rf, eval=FALSE}</span></span>
+<span id="cb23-1071"><a href="#cb23-1071" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
+<span id="cb23-1072"><a href="#cb23-1072" aria-hidden="true" tabindex="-1"></a><span class="in">library(readr)</span></span>
+<span id="cb23-1073"><a href="#cb23-1073" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
+<span id="cb23-1074"><a href="#cb23-1074" aria-hidden="true" tabindex="-1"></a><span class="in">library(ranger)</span></span>
+<span id="cb23-1075"><a href="#cb23-1075" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggplot2)</span></span>
+<span id="cb23-1076"><a href="#cb23-1076" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1077"><a href="#cb23-1077" aria-hidden="true" tabindex="-1"></a><span class="in"># Load the dataset</span></span>
+<span id="cb23-1078"><a href="#cb23-1078" aria-hidden="true" tabindex="-1"></a><span class="in">prepared_data &lt;- readRDS(&quot;datasets/data_prepared.rds&quot;)</span></span>
+<span id="cb23-1079"><a href="#cb23-1079" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1080"><a href="#cb23-1080" aria-hidden="true" tabindex="-1"></a><span class="in"># Data preparation</span></span>
+<span id="cb23-1081"><a href="#cb23-1081" aria-hidden="true" tabindex="-1"></a><span class="in">rf_data &lt;- prepared_data %&gt;%</span></span>
+<span id="cb23-1082"><a href="#cb23-1082" aria-hidden="true" tabindex="-1"></a><span class="in">  select(-patient_id, -visit_date_min, -visit_date_max) %&gt;%  # Remove unnecessary columns</span></span>
+<span id="cb23-1083"><a href="#cb23-1083" aria-hidden="true" tabindex="-1"></a><span class="in">  na.omit()  # Remove rows with missing values</span></span>
+<span id="cb23-1084"><a href="#cb23-1084" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1085"><a href="#cb23-1085" aria-hidden="true" tabindex="-1"></a><span class="in"># Convert character columns to factors</span></span>
+<span id="cb23-1086"><a href="#cb23-1086" aria-hidden="true" tabindex="-1"></a><span class="in">rf_data &lt;- rf_data %&gt;%</span></span>
+<span id="cb23-1087"><a href="#cb23-1087" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(across(where(is.character), as.factor))</span></span>
 <span id="cb23-1088"><a href="#cb23-1088" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1089"><a href="#cb23-1089" aria-hidden="true" tabindex="-1"></a><span class="in"># Train the random forest model using ranger</span></span>
-<span id="cb23-1090"><a href="#cb23-1090" aria-hidden="true" tabindex="-1"></a><span class="in">rf_model &lt;- ranger(</span></span>
-<span id="cb23-1091"><a href="#cb23-1091" aria-hidden="true" tabindex="-1"></a><span class="in">  formula = weekly_load_minutes ~ .,  # Predict weekly_load_minutes</span></span>
-<span id="cb23-1092"><a href="#cb23-1092" aria-hidden="true" tabindex="-1"></a><span class="in">  data = train_data,                  # Training data</span></span>
-<span id="cb23-1093"><a href="#cb23-1093" aria-hidden="true" tabindex="-1"></a><span class="in">  num.trees = 500,                    # Number of trees</span></span>
-<span id="cb23-1094"><a href="#cb23-1094" aria-hidden="true" tabindex="-1"></a><span class="in">  mtry = floor(sqrt(ncol(train_data) - 1)),  # Number of predictors sampled at each split</span></span>
-<span id="cb23-1095"><a href="#cb23-1095" aria-hidden="true" tabindex="-1"></a><span class="in">  importance = &quot;impurity&quot;,            # Calculate variable importance</span></span>
-<span id="cb23-1096"><a href="#cb23-1096" aria-hidden="true" tabindex="-1"></a><span class="in">  classification = FALSE,             # Regression mode</span></span>
-<span id="cb23-1097"><a href="#cb23-1097" aria-hidden="true" tabindex="-1"></a><span class="in">  seed = 123                          # For reproducibility</span></span>
-<span id="cb23-1098"><a href="#cb23-1098" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb23-1099"><a href="#cb23-1099" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1100"><a href="#cb23-1100" aria-hidden="true" tabindex="-1"></a><span class="in"># Print model summary</span></span>
-<span id="cb23-1101"><a href="#cb23-1101" aria-hidden="true" tabindex="-1"></a><span class="in">print(rf_model)</span></span>
-<span id="cb23-1102"><a href="#cb23-1102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1103"><a href="#cb23-1103" aria-hidden="true" tabindex="-1"></a><span class="in"># Predict on the test data</span></span>
-<span id="cb23-1104"><a href="#cb23-1104" aria-hidden="true" tabindex="-1"></a><span class="in">predictions &lt;- predict(rf_model, data = test_data)$predictions</span></span>
+<span id="cb23-1089"><a href="#cb23-1089" aria-hidden="true" tabindex="-1"></a><span class="in"># Split into training and testing sets</span></span>
+<span id="cb23-1090"><a href="#cb23-1090" aria-hidden="true" tabindex="-1"></a><span class="in">set.seed(123)  # For reproducibility</span></span>
+<span id="cb23-1091"><a href="#cb23-1091" aria-hidden="true" tabindex="-1"></a><span class="in">train_index &lt;- sample(seq_len(nrow(rf_data)), size = 0.7 * nrow(rf_data))</span></span>
+<span id="cb23-1092"><a href="#cb23-1092" aria-hidden="true" tabindex="-1"></a><span class="in">train_data &lt;- rf_data[train_index, ]</span></span>
+<span id="cb23-1093"><a href="#cb23-1093" aria-hidden="true" tabindex="-1"></a><span class="in">test_data &lt;- rf_data[-train_index, ]</span></span>
+<span id="cb23-1094"><a href="#cb23-1094" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1095"><a href="#cb23-1095" aria-hidden="true" tabindex="-1"></a><span class="in"># Train the random forest model using ranger</span></span>
+<span id="cb23-1096"><a href="#cb23-1096" aria-hidden="true" tabindex="-1"></a><span class="in">rf_model &lt;- ranger(</span></span>
+<span id="cb23-1097"><a href="#cb23-1097" aria-hidden="true" tabindex="-1"></a><span class="in">  formula = weekly_load_minutes ~ .,  # Predict weekly_load_minutes</span></span>
+<span id="cb23-1098"><a href="#cb23-1098" aria-hidden="true" tabindex="-1"></a><span class="in">  data = train_data,                  # Training data</span></span>
+<span id="cb23-1099"><a href="#cb23-1099" aria-hidden="true" tabindex="-1"></a><span class="in">  num.trees = 500,                    # Number of trees</span></span>
+<span id="cb23-1100"><a href="#cb23-1100" aria-hidden="true" tabindex="-1"></a><span class="in">  mtry = floor(sqrt(ncol(train_data) - 1)),  # Number of predictors sampled at each split</span></span>
+<span id="cb23-1101"><a href="#cb23-1101" aria-hidden="true" tabindex="-1"></a><span class="in">  importance = &quot;impurity&quot;,            # Calculate variable importance</span></span>
+<span id="cb23-1102"><a href="#cb23-1102" aria-hidden="true" tabindex="-1"></a><span class="in">  classification = FALSE,             # Regression mode</span></span>
+<span id="cb23-1103"><a href="#cb23-1103" aria-hidden="true" tabindex="-1"></a><span class="in">  seed = 123                          # For reproducibility</span></span>
+<span id="cb23-1104"><a href="#cb23-1104" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
 <span id="cb23-1105"><a href="#cb23-1105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1106"><a href="#cb23-1106" aria-hidden="true" tabindex="-1"></a><span class="in"># Calculate Mean Squared Error (MSE)</span></span>
-<span id="cb23-1107"><a href="#cb23-1107" aria-hidden="true" tabindex="-1"></a><span class="in">mse &lt;- mean((predictions - test_data$weekly_load_minutes)^2)</span></span>
-<span id="cb23-1108"><a href="#cb23-1108" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Mean Squared Error (MSE):&quot;, mse, &quot;\n&quot;)</span></span>
-<span id="cb23-1109"><a href="#cb23-1109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1110"><a href="#cb23-1110" aria-hidden="true" tabindex="-1"></a><span class="in"># Extract variable importance</span></span>
-<span id="cb23-1111"><a href="#cb23-1111" aria-hidden="true" tabindex="-1"></a><span class="in">importance &lt;- as.data.frame(rf_model$variable.importance)</span></span>
-<span id="cb23-1112"><a href="#cb23-1112" aria-hidden="true" tabindex="-1"></a><span class="in">colnames(importance) &lt;- c(&quot;Importance&quot;)</span></span>
-<span id="cb23-1113"><a href="#cb23-1113" aria-hidden="true" tabindex="-1"></a><span class="in">importance &lt;- importance %&gt;%</span></span>
-<span id="cb23-1114"><a href="#cb23-1114" aria-hidden="true" tabindex="-1"></a><span class="in">  arrange(desc(Importance))</span></span>
+<span id="cb23-1106"><a href="#cb23-1106" aria-hidden="true" tabindex="-1"></a><span class="in"># Print model summary</span></span>
+<span id="cb23-1107"><a href="#cb23-1107" aria-hidden="true" tabindex="-1"></a><span class="in">print(rf_model)</span></span>
+<span id="cb23-1108"><a href="#cb23-1108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1109"><a href="#cb23-1109" aria-hidden="true" tabindex="-1"></a><span class="in"># Predict on the test data</span></span>
+<span id="cb23-1110"><a href="#cb23-1110" aria-hidden="true" tabindex="-1"></a><span class="in">predictions &lt;- predict(rf_model, data = test_data)$predictions</span></span>
+<span id="cb23-1111"><a href="#cb23-1111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1112"><a href="#cb23-1112" aria-hidden="true" tabindex="-1"></a><span class="in"># Calculate Mean Squared Error (MSE)</span></span>
+<span id="cb23-1113"><a href="#cb23-1113" aria-hidden="true" tabindex="-1"></a><span class="in">mse &lt;- mean((predictions - test_data$weekly_load_minutes)^2)</span></span>
+<span id="cb23-1114"><a href="#cb23-1114" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Mean Squared Error (MSE):&quot;, mse, &quot;\n&quot;)</span></span>
 <span id="cb23-1115"><a href="#cb23-1115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1116"><a href="#cb23-1116" aria-hidden="true" tabindex="-1"></a><span class="in"># Print the top 10 most important variables</span></span>
-<span id="cb23-1117"><a href="#cb23-1117" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Top 10 Important Variables:\n&quot;)</span></span>
-<span id="cb23-1118"><a href="#cb23-1118" aria-hidden="true" tabindex="-1"></a><span class="in">print(head(importance, 10))</span></span>
-<span id="cb23-1119"><a href="#cb23-1119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1120"><a href="#cb23-1120" aria-hidden="true" tabindex="-1"></a><span class="in"># Plot variable importance</span></span>
-<span id="cb23-1121"><a href="#cb23-1121" aria-hidden="true" tabindex="-1"></a><span class="in">top_vars &lt;- head(importance, 10)  # Select top 10 variables</span></span>
-<span id="cb23-1122"><a href="#cb23-1122" aria-hidden="true" tabindex="-1"></a><span class="in">ggplot(top_vars, aes(x = reorder(row.names(top_vars), Importance), y = Importance)) +</span></span>
-<span id="cb23-1123"><a href="#cb23-1123" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_bar(stat = &quot;identity&quot;, fill = &quot;steelblue&quot;) +</span></span>
-<span id="cb23-1124"><a href="#cb23-1124" aria-hidden="true" tabindex="-1"></a><span class="in">  coord_flip() +</span></span>
-<span id="cb23-1125"><a href="#cb23-1125" aria-hidden="true" tabindex="-1"></a><span class="in">  labs(</span></span>
-<span id="cb23-1126"><a href="#cb23-1126" aria-hidden="true" tabindex="-1"></a><span class="in">    title = &quot;Top 10 Important Variables&quot;,</span></span>
-<span id="cb23-1127"><a href="#cb23-1127" aria-hidden="true" tabindex="-1"></a><span class="in">    x = &quot;Variable&quot;,</span></span>
-<span id="cb23-1128"><a href="#cb23-1128" aria-hidden="true" tabindex="-1"></a><span class="in">    y = &quot;Importance&quot;</span></span>
-<span id="cb23-1129"><a href="#cb23-1129" aria-hidden="true" tabindex="-1"></a><span class="in">  ) +</span></span>
-<span id="cb23-1130"><a href="#cb23-1130" aria-hidden="true" tabindex="-1"></a><span class="in">  theme_minimal()</span></span>
-<span id="cb23-1131"><a href="#cb23-1131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-1132"><a href="#cb23-1132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1133"><a href="#cb23-1133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r scatter, eval=FALSE}</span></span>
-<span id="cb23-1134"><a href="#cb23-1134" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
-<span id="cb23-1135"><a href="#cb23-1135" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggplot2)</span></span>
-<span id="cb23-1136"><a href="#cb23-1136" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
-<span id="cb23-1137"><a href="#cb23-1137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1138"><a href="#cb23-1138" aria-hidden="true" tabindex="-1"></a><span class="in"># Generate predictions on OOB samples from the ranger model</span></span>
-<span id="cb23-1139"><a href="#cb23-1139" aria-hidden="true" tabindex="-1"></a><span class="in">oob_predictions &lt;- rf_model$predictions  # OOB predictions</span></span>
-<span id="cb23-1140"><a href="#cb23-1140" aria-hidden="true" tabindex="-1"></a><span class="in">actual_values &lt;- train_data$weekly_load_minutes  # Actual values from the training data</span></span>
-<span id="cb23-1141"><a href="#cb23-1141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1142"><a href="#cb23-1142" aria-hidden="true" tabindex="-1"></a><span class="in"># Create a data frame for plotting</span></span>
-<span id="cb23-1143"><a href="#cb23-1143" aria-hidden="true" tabindex="-1"></a><span class="in">oob_results &lt;- data.frame(</span></span>
-<span id="cb23-1144"><a href="#cb23-1144" aria-hidden="true" tabindex="-1"></a><span class="in">  Actual = actual_values,</span></span>
-<span id="cb23-1145"><a href="#cb23-1145" aria-hidden="true" tabindex="-1"></a><span class="in">  Predicted = oob_predictions</span></span>
-<span id="cb23-1146"><a href="#cb23-1146" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb23-1116"><a href="#cb23-1116" aria-hidden="true" tabindex="-1"></a><span class="in"># Extract variable importance</span></span>
+<span id="cb23-1117"><a href="#cb23-1117" aria-hidden="true" tabindex="-1"></a><span class="in">importance &lt;- as.data.frame(rf_model$variable.importance)</span></span>
+<span id="cb23-1118"><a href="#cb23-1118" aria-hidden="true" tabindex="-1"></a><span class="in">colnames(importance) &lt;- c(&quot;Importance&quot;)</span></span>
+<span id="cb23-1119"><a href="#cb23-1119" aria-hidden="true" tabindex="-1"></a><span class="in">importance &lt;- importance %&gt;%</span></span>
+<span id="cb23-1120"><a href="#cb23-1120" aria-hidden="true" tabindex="-1"></a><span class="in">  arrange(desc(Importance))</span></span>
+<span id="cb23-1121"><a href="#cb23-1121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1122"><a href="#cb23-1122" aria-hidden="true" tabindex="-1"></a><span class="in"># Print the top 10 most important variables</span></span>
+<span id="cb23-1123"><a href="#cb23-1123" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Top 10 Important Variables:\n&quot;)</span></span>
+<span id="cb23-1124"><a href="#cb23-1124" aria-hidden="true" tabindex="-1"></a><span class="in">print(head(importance, 10))</span></span>
+<span id="cb23-1125"><a href="#cb23-1125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1126"><a href="#cb23-1126" aria-hidden="true" tabindex="-1"></a><span class="in"># Plot variable importance</span></span>
+<span id="cb23-1127"><a href="#cb23-1127" aria-hidden="true" tabindex="-1"></a><span class="in">top_vars &lt;- head(importance, 10)  # Select top 10 variables</span></span>
+<span id="cb23-1128"><a href="#cb23-1128" aria-hidden="true" tabindex="-1"></a><span class="in">ggplot(top_vars, aes(x = reorder(row.names(top_vars), Importance), y = Importance)) +</span></span>
+<span id="cb23-1129"><a href="#cb23-1129" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_bar(stat = &quot;identity&quot;, fill = &quot;steelblue&quot;) +</span></span>
+<span id="cb23-1130"><a href="#cb23-1130" aria-hidden="true" tabindex="-1"></a><span class="in">  coord_flip() +</span></span>
+<span id="cb23-1131"><a href="#cb23-1131" aria-hidden="true" tabindex="-1"></a><span class="in">  labs(</span></span>
+<span id="cb23-1132"><a href="#cb23-1132" aria-hidden="true" tabindex="-1"></a><span class="in">    title = &quot;Top 10 Important Variables&quot;,</span></span>
+<span id="cb23-1133"><a href="#cb23-1133" aria-hidden="true" tabindex="-1"></a><span class="in">    x = &quot;Variable&quot;,</span></span>
+<span id="cb23-1134"><a href="#cb23-1134" aria-hidden="true" tabindex="-1"></a><span class="in">    y = &quot;Importance&quot;</span></span>
+<span id="cb23-1135"><a href="#cb23-1135" aria-hidden="true" tabindex="-1"></a><span class="in">  ) +</span></span>
+<span id="cb23-1136"><a href="#cb23-1136" aria-hidden="true" tabindex="-1"></a><span class="in">  theme_minimal()</span></span>
+<span id="cb23-1137"><a href="#cb23-1137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-1138"><a href="#cb23-1138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1139"><a href="#cb23-1139" aria-hidden="true" tabindex="-1"></a><span class="in">```{r scatter, eval=FALSE}</span></span>
+<span id="cb23-1140"><a href="#cb23-1140" aria-hidden="true" tabindex="-1"></a><span class="in"># Load required libraries</span></span>
+<span id="cb23-1141"><a href="#cb23-1141" aria-hidden="true" tabindex="-1"></a><span class="in">library(ggplot2)</span></span>
+<span id="cb23-1142"><a href="#cb23-1142" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
+<span id="cb23-1143"><a href="#cb23-1143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1144"><a href="#cb23-1144" aria-hidden="true" tabindex="-1"></a><span class="in"># Generate predictions on OOB samples from the ranger model</span></span>
+<span id="cb23-1145"><a href="#cb23-1145" aria-hidden="true" tabindex="-1"></a><span class="in">oob_predictions &lt;- rf_model$predictions  # OOB predictions</span></span>
+<span id="cb23-1146"><a href="#cb23-1146" aria-hidden="true" tabindex="-1"></a><span class="in">actual_values &lt;- train_data$weekly_load_minutes  # Actual values from the training data</span></span>
 <span id="cb23-1147"><a href="#cb23-1147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1148"><a href="#cb23-1148" aria-hidden="true" tabindex="-1"></a><span class="in"># Calculate Mean Squared Error (MSE)</span></span>
-<span id="cb23-1149"><a href="#cb23-1149" aria-hidden="true" tabindex="-1"></a><span class="in">mse &lt;- mean((oob_results$Actual - oob_results$Predicted)^2)</span></span>
-<span id="cb23-1150"><a href="#cb23-1150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1151"><a href="#cb23-1151" aria-hidden="true" tabindex="-1"></a><span class="in"># Create the scatter plot</span></span>
-<span id="cb23-1152"><a href="#cb23-1152" aria-hidden="true" tabindex="-1"></a><span class="in">scatter_plot &lt;- ggplot(oob_results, aes(x = Actual, y = Predicted)) +</span></span>
-<span id="cb23-1153"><a href="#cb23-1153" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point(alpha = 0.6, color = &quot;blue&quot;) +  # Scatter plot points</span></span>
-<span id="cb23-1154"><a href="#cb23-1154" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;, color = &quot;red&quot;, size = 1) +  # Perfect prediction line</span></span>
-<span id="cb23-1155"><a href="#cb23-1155" aria-hidden="true" tabindex="-1"></a><span class="in">  labs(</span></span>
-<span id="cb23-1156"><a href="#cb23-1156" aria-hidden="true" tabindex="-1"></a><span class="in">    title = &quot;Predicted vs. Actual Weekly Load (Minutes)&quot;,</span></span>
-<span id="cb23-1157"><a href="#cb23-1157" aria-hidden="true" tabindex="-1"></a><span class="in">    subtitle = paste(&quot;Mean Squared Error (MSE):&quot;, round(mse, 5)),</span></span>
-<span id="cb23-1158"><a href="#cb23-1158" aria-hidden="true" tabindex="-1"></a><span class="in">    x = &quot;Actual Weekly Load (Minutes)&quot;,</span></span>
-<span id="cb23-1159"><a href="#cb23-1159" aria-hidden="true" tabindex="-1"></a><span class="in">    y = &quot;Predicted Weekly Load (Minutes)&quot;</span></span>
-<span id="cb23-1160"><a href="#cb23-1160" aria-hidden="true" tabindex="-1"></a><span class="in">  ) +</span></span>
-<span id="cb23-1161"><a href="#cb23-1161" aria-hidden="true" tabindex="-1"></a><span class="in">  theme_minimal()</span></span>
-<span id="cb23-1162"><a href="#cb23-1162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1163"><a href="#cb23-1163" aria-hidden="true" tabindex="-1"></a><span class="in"># Print the plot</span></span>
-<span id="cb23-1164"><a href="#cb23-1164" aria-hidden="true" tabindex="-1"></a><span class="in">print(scatter_plot)</span></span>
-<span id="cb23-1165"><a href="#cb23-1165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1166"><a href="#cb23-1166" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the scatter plot to the directory</span></span>
-<span id="cb23-1167"><a href="#cb23-1167" aria-hidden="true" tabindex="-1"></a><span class="in">ggsave(</span></span>
-<span id="cb23-1168"><a href="#cb23-1168" aria-hidden="true" tabindex="-1"></a><span class="in">  filename = &quot;figures/plots/predicted_vs_actual_weekly_load.png&quot;,</span></span>
-<span id="cb23-1169"><a href="#cb23-1169" aria-hidden="true" tabindex="-1"></a><span class="in">  plot = scatter_plot,</span></span>
-<span id="cb23-1170"><a href="#cb23-1170" aria-hidden="true" tabindex="-1"></a><span class="in">  width = 8,   # Width in inches</span></span>
-<span id="cb23-1171"><a href="#cb23-1171" aria-hidden="true" tabindex="-1"></a><span class="in">  height = 6,  # Height in inches</span></span>
-<span id="cb23-1172"><a href="#cb23-1172" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi = 300    # Resolution in dots per inch</span></span>
-<span id="cb23-1173"><a href="#cb23-1173" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb23-1174"><a href="#cb23-1174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1175"><a href="#cb23-1175" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
-<span id="cb23-1176"><a href="#cb23-1176" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Scatter plot saved to &#39;figures/plots/predicted_vs_actual_weekly_load.png&#39;\n&quot;)</span></span>
-<span id="cb23-1177"><a href="#cb23-1177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-1178"><a href="#cb23-1178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1179"><a href="#cb23-1179" aria-hidden="true" tabindex="-1"></a><span class="al">![](figures/plots/predicted_vs_actual_weekly_load.png)</span></span>
+<span id="cb23-1148"><a href="#cb23-1148" aria-hidden="true" tabindex="-1"></a><span class="in"># Create a data frame for plotting</span></span>
+<span id="cb23-1149"><a href="#cb23-1149" aria-hidden="true" tabindex="-1"></a><span class="in">oob_results &lt;- data.frame(</span></span>
+<span id="cb23-1150"><a href="#cb23-1150" aria-hidden="true" tabindex="-1"></a><span class="in">  Actual = actual_values,</span></span>
+<span id="cb23-1151"><a href="#cb23-1151" aria-hidden="true" tabindex="-1"></a><span class="in">  Predicted = oob_predictions</span></span>
+<span id="cb23-1152"><a href="#cb23-1152" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb23-1153"><a href="#cb23-1153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1154"><a href="#cb23-1154" aria-hidden="true" tabindex="-1"></a><span class="in"># Calculate Mean Squared Error (MSE)</span></span>
+<span id="cb23-1155"><a href="#cb23-1155" aria-hidden="true" tabindex="-1"></a><span class="in">mse &lt;- mean((oob_results$Actual - oob_results$Predicted)^2)</span></span>
+<span id="cb23-1156"><a href="#cb23-1156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1157"><a href="#cb23-1157" aria-hidden="true" tabindex="-1"></a><span class="in"># Create the scatter plot</span></span>
+<span id="cb23-1158"><a href="#cb23-1158" aria-hidden="true" tabindex="-1"></a><span class="in">scatter_plot &lt;- ggplot(oob_results, aes(x = Actual, y = Predicted)) +</span></span>
+<span id="cb23-1159"><a href="#cb23-1159" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_point(alpha = 0.6, color = &quot;blue&quot;) +  # Scatter plot points</span></span>
+<span id="cb23-1160"><a href="#cb23-1160" aria-hidden="true" tabindex="-1"></a><span class="in">  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;, color = &quot;red&quot;, size = 1) +  # Perfect prediction line</span></span>
+<span id="cb23-1161"><a href="#cb23-1161" aria-hidden="true" tabindex="-1"></a><span class="in">  labs(</span></span>
+<span id="cb23-1162"><a href="#cb23-1162" aria-hidden="true" tabindex="-1"></a><span class="in">    title = &quot;Predicted vs. Actual Weekly Load (Minutes)&quot;,</span></span>
+<span id="cb23-1163"><a href="#cb23-1163" aria-hidden="true" tabindex="-1"></a><span class="in">    subtitle = paste(&quot;Mean Squared Error (MSE):&quot;, round(mse, 5)),</span></span>
+<span id="cb23-1164"><a href="#cb23-1164" aria-hidden="true" tabindex="-1"></a><span class="in">    x = &quot;Actual Weekly Load (Minutes)&quot;,</span></span>
+<span id="cb23-1165"><a href="#cb23-1165" aria-hidden="true" tabindex="-1"></a><span class="in">    y = &quot;Predicted Weekly Load (Minutes)&quot;</span></span>
+<span id="cb23-1166"><a href="#cb23-1166" aria-hidden="true" tabindex="-1"></a><span class="in">  ) +</span></span>
+<span id="cb23-1167"><a href="#cb23-1167" aria-hidden="true" tabindex="-1"></a><span class="in">  theme_minimal()</span></span>
+<span id="cb23-1168"><a href="#cb23-1168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1169"><a href="#cb23-1169" aria-hidden="true" tabindex="-1"></a><span class="in"># Print the plot</span></span>
+<span id="cb23-1170"><a href="#cb23-1170" aria-hidden="true" tabindex="-1"></a><span class="in">print(scatter_plot)</span></span>
+<span id="cb23-1171"><a href="#cb23-1171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1172"><a href="#cb23-1172" aria-hidden="true" tabindex="-1"></a><span class="in"># Save the scatter plot to the directory</span></span>
+<span id="cb23-1173"><a href="#cb23-1173" aria-hidden="true" tabindex="-1"></a><span class="in">ggsave(</span></span>
+<span id="cb23-1174"><a href="#cb23-1174" aria-hidden="true" tabindex="-1"></a><span class="in">  filename = &quot;figures/plots/predicted_vs_actual_weekly_load.png&quot;,</span></span>
+<span id="cb23-1175"><a href="#cb23-1175" aria-hidden="true" tabindex="-1"></a><span class="in">  plot = scatter_plot,</span></span>
+<span id="cb23-1176"><a href="#cb23-1176" aria-hidden="true" tabindex="-1"></a><span class="in">  width = 8,   # Width in inches</span></span>
+<span id="cb23-1177"><a href="#cb23-1177" aria-hidden="true" tabindex="-1"></a><span class="in">  height = 6,  # Height in inches</span></span>
+<span id="cb23-1178"><a href="#cb23-1178" aria-hidden="true" tabindex="-1"></a><span class="in">  dpi = 300    # Resolution in dots per inch</span></span>
+<span id="cb23-1179"><a href="#cb23-1179" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
 <span id="cb23-1180"><a href="#cb23-1180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1181"><a href="#cb23-1181" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion {#sec-conclusion}</span></span>
-<span id="cb23-1182"><a href="#cb23-1182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1183"><a href="#cb23-1183" aria-hidden="true" tabindex="-1"></a><span class="fu">## Appendix</span></span>
+<span id="cb23-1181"><a href="#cb23-1181" aria-hidden="true" tabindex="-1"></a><span class="in"># Print confirmation</span></span>
+<span id="cb23-1182"><a href="#cb23-1182" aria-hidden="true" tabindex="-1"></a><span class="in">cat(&quot;Scatter plot saved to &#39;figures/plots/predicted_vs_actual_weekly_load.png&#39;\n&quot;)</span></span>
+<span id="cb23-1183"><a href="#cb23-1183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-1184"><a href="#cb23-1184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1185"><a href="#cb23-1185" aria-hidden="true" tabindex="-1"></a><span class="fu">### Helper Functions</span></span>
+<span id="cb23-1185"><a href="#cb23-1185" aria-hidden="true" tabindex="-1"></a><span class="al">![](figures/plots/predicted_vs_actual_weekly_load.png)</span></span>
 <span id="cb23-1186"><a href="#cb23-1186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1187"><a href="#cb23-1187" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Capture Output as HTML {#capture-output-as-html}</span></span>
+<span id="cb23-1187"><a href="#cb23-1187" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion {#sec-conclusion}</span></span>
 <span id="cb23-1188"><a href="#cb23-1188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1189"><a href="#cb23-1189" aria-hidden="true" tabindex="-1"></a><span class="in">``` r</span></span>
-<span id="cb23-1190"><a href="#cb23-1190" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>capture<span class="sc">-</span>to<span class="sc">-</span>html.R <span class="sc">&gt;</span>}}</span>
-<span id="cb23-1191"><a href="#cb23-1191" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-1189"><a href="#cb23-1189" aria-hidden="true" tabindex="-1"></a><span class="fu">## Appendix</span></span>
+<span id="cb23-1190"><a href="#cb23-1190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1191"><a href="#cb23-1191" aria-hidden="true" tabindex="-1"></a><span class="fu">### Helper Functions</span></span>
 <span id="cb23-1192"><a href="#cb23-1192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1193"><a href="#cb23-1193" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Update Variable Type Mapping {#update-variable-type-mapping}</span></span>
+<span id="cb23-1193"><a href="#cb23-1193" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Capture Output as HTML {#capture-output-as-html}</span></span>
 <span id="cb23-1194"><a href="#cb23-1194" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-1195"><a href="#cb23-1195" aria-hidden="true" tabindex="-1"></a><span class="in">``` r</span></span>
-<span id="cb23-1196"><a href="#cb23-1196" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>update<span class="sc">-</span>type<span class="sc">-</span>mapping.R <span class="sc">&gt;</span>}}</span>
+<span id="cb23-1196"><a href="#cb23-1196" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>capture<span class="sc">-</span>to<span class="sc">-</span>html.R <span class="sc">&gt;</span>}}</span>
 <span id="cb23-1197"><a href="#cb23-1197" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-1198"><a href="#cb23-1198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1199"><a href="#cb23-1199" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Plot Missing Values by Type {#plot-missing-values-by-type}</span></span>
+<span id="cb23-1199"><a href="#cb23-1199" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Update Variable Type Mapping {#update-variable-type-mapping}</span></span>
 <span id="cb23-1200"><a href="#cb23-1200" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-1201"><a href="#cb23-1201" aria-hidden="true" tabindex="-1"></a><span class="in">``` r</span></span>
-<span id="cb23-1202"><a href="#cb23-1202" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>calculate<span class="sc">-</span>summary<span class="sc">-</span>stats.R <span class="sc">&gt;</span>}}</span>
+<span id="cb23-1202"><a href="#cb23-1202" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>update<span class="sc">-</span>type<span class="sc">-</span>mapping.R <span class="sc">&gt;</span>}}</span>
 <span id="cb23-1203"><a href="#cb23-1203" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-1204"><a href="#cb23-1204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1205"><a href="#cb23-1205" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Calculate Summary Statistics {#calculate-summary-stats}</span></span>
+<span id="cb23-1205"><a href="#cb23-1205" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Plot Missing Values by Type {#plot-missing-values-by-type}</span></span>
 <span id="cb23-1206"><a href="#cb23-1206" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-1207"><a href="#cb23-1207" aria-hidden="true" tabindex="-1"></a><span class="in">``` r</span></span>
 <span id="cb23-1208"><a href="#cb23-1208" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>calculate<span class="sc">-</span>summary<span class="sc">-</span>stats.R <span class="sc">&gt;</span>}}</span>
 <span id="cb23-1209"><a href="#cb23-1209" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-1210"><a href="#cb23-1210" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1211"><a href="#cb23-1211" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Generate Missing Data Handling Strategies {#generate-data-handling-table}</span></span>
+<span id="cb23-1211"><a href="#cb23-1211" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Calculate Summary Statistics {#calculate-summary-stats}</span></span>
 <span id="cb23-1212"><a href="#cb23-1212" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-1213"><a href="#cb23-1213" aria-hidden="true" tabindex="-1"></a><span class="in">``` r</span></span>
 <span id="cb23-1214"><a href="#cb23-1214" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>calculate<span class="sc">-</span>summary<span class="sc">-</span>stats.R <span class="sc">&gt;</span>}}</span>
 <span id="cb23-1215"><a href="#cb23-1215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-1216"><a href="#cb23-1216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-1217"><a href="#cb23-1217" aria-hidden="true" tabindex="-1"></a><span class="fu">### Additional Visualizations</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></pre></div>
+<span id="cb23-1217"><a href="#cb23-1217" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Function to Generate Missing Data Handling Strategies {#generate-data-handling-table}</span></span>
+<span id="cb23-1218"><a href="#cb23-1218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1219"><a href="#cb23-1219" aria-hidden="true" tabindex="-1"></a><span class="in">``` r</span></span>
+<span id="cb23-1220"><a href="#cb23-1220" aria-hidden="true" tabindex="-1"></a>{{<span class="sc">&lt;</span> include scripts<span class="sc">/</span>helper<span class="sc">-</span>functions<span class="sc">/</span>calculate<span class="sc">-</span>summary<span class="sc">-</span>stats.R <span class="sc">&gt;</span>}}</span>
+<span id="cb23-1221"><a href="#cb23-1221" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-1222"><a href="#cb23-1222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-1223"><a href="#cb23-1223" aria-hidden="true" tabindex="-1"></a><span class="fu">### Additional Visualizations</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

@@ -62,7 +62,7 @@ mrn_mapping <- tibble(
 )
 
 # Save mrn_mapping for potential reversibility
-saveRDS(mrn_mapping, file = "H:/secure/mrn_mapping.rds")
+mrn_mapping |> saveRDS("H:/secure/mrn_mapping.rds")
 
 # Anonymize data by replacing sensitive identifiers
 anonymize <- function(data, mapping) {
@@ -78,8 +78,8 @@ anonymize <- function(data, mapping) {
 # Apply anonymization and save
 patient_data_anonymized <- anonymize(patient_data_raw, mrn_mapping)
 visit_data_anonymized <- anonymize(visit_data_raw, mrn_mapping)
-saveRDS(patient_data_anonymized, "datasets/patient_data_anonymized.rds")
-saveRDS(visit_data_anonymized, "datasets/visit_data_anonymized.rds")
+patient_data_anonymized |> saveRDS("datasets/patient_data_anonymized.rds")
+visit_data_anonymized |> saveRDS("datasets/visit_data_anonymized.rds")
 ```
 
 ### Data Preprocessing
@@ -755,13 +755,11 @@ aggregated_data_encoded <- aggregated_data_encoded |>
   select(all_of(original_column_order))  # Reorder columns to match the original dataset
 
 # Save aggregated and encoded data
-aggregated_data_encoded |>
-  saveRDS("datasets/data_encoded.rds")
+aggregated_data_encoded |> saveRDS("datasets/data_encoded.rds")
 
 # Save the encoding mappings
 dir.create("datasets/mappings", recursive = TRUE, showWarnings = FALSE)
-encoding_mappings |>
-  saveRDS("datasets/mappings/encoding.rds")
+encoding_mappings |> saveRDS("datasets/mappings/encoding.rds")
 
 # Print confirmation
 cat("Encoding complete.\nDataset saved to 'datasets/data_encoded.rds'.\nMappings saved to 'datasets/mappings/encoding.rds'.\n")
@@ -824,8 +822,8 @@ impute_variable <- function(variable, var_type, var_name = NULL) {
       return(ifelse(is.na(variable), mean(variable, na.rm = TRUE), variable))
     } else {
       temp_data <- data.frame(var = variable, dummy = rnorm(length(variable)))
-      imputed_data <- mice(temp_data, m = 1)
-      return(mice::complete(imputed_data)$var)
+      data_imputed <- mice(temp_data, m = 1)
+      return(mice::complete(data_imputed)$var)
     }
   } else if (var_type == "factor") {
     # Factor: Use mode imputation
@@ -860,7 +858,7 @@ impute_variable <- function(variable, var_type, var_name = NULL) {
 }
 
 # Apply imputation across all variables
-imputed_data <- aggregated_data_encoded %>%
+data_imputed <- aggregated_data_encoded %>%
   mutate(across(
     everything(),
     ~ impute_variable(.x, 
@@ -871,13 +869,13 @@ imputed_data <- aggregated_data_encoded %>%
 
 # Step 4: Save imputed data
 dir.create("datasets/imputed", recursive = TRUE, showWarnings = FALSE)
-saveRDS(imputed_data, "datasets/imputed/data_imputed.rds")
+data_imputed |> saveRDS("datasets/data_imputed.rds")
 
 # Print confirmation
-cat("Imputation complete. Imputed dataset saved to 'datasets/imputed/data_imputed.rds'.\n")
+cat("Imputation complete. Imputed dataset saved to 'datasets/data_imputed.rds'.\n")
 
 # Check for missing values across the dataset
-missing_summary <- colSums(is.na(imputed_data))
+missing_summary <- colSums(is.na(data_imputed))
 
 # Print the summary of missing values
 if (all(missing_summary == 0)) {
@@ -889,7 +887,7 @@ if (all(missing_summary == 0)) {
 
 # Sample some rows
 set.seed(123)
-sample_data <- imputed_data |>
+sample_data <- data_imputed |>
   slice_sample(n = 10)
 
 # Capture Organized Data Sample
@@ -915,20 +913,20 @@ library(caret)
 library(readr)
 
 # Step 1: Load the imputed dataset and variable type mappings
-imputed_data <- readRDS("datasets/imputed/data_imputed.rds")
+data_imputed <- readRDS("datasets/data_imputed.rds")
 variable_type_mapping <- readRDS("datasets/mappings/types.rds")
 
 # Step 2: Correct the types in the mapping
 corrected_type_mapping <- variable_type_mapping |>
-  mutate(Type = ifelse(Type == "list", "numeric", Type))  # Convert list types to numeric
+  mutate(Type = ifelse(Type == "list", "numeric", Type))
 
 # Step 3: Preserve patient_id as an identifier
 identifier_column <- "patient_id"
-identifiers <- imputed_data |>
+identifiers <- data_imputed |>
   select(all_of(identifier_column))
 
 # Step 4: Exclude identifier from modeling data
-modeling_data <- imputed_data |>
+modeling_data <- data_imputed |>
   select(-all_of(identifier_column))
 
 # Step 5: Handle character variables (categorical encoding)
@@ -981,15 +979,15 @@ if (length(existing_num_vars) > 0) {
 }
 
 # Step 8: Combine the identifiers back with the prepared data (if needed)
-final_data <- cbind(identifiers, modeling_data)
+prepared_data <- cbind(identifiers, modeling_data)
 
 # Save the prepared dataset for modeling
-saveRDS(final_data, "datasets/data_final_for_modeling_with_id.rds")
+prepared_data |> saveRDS("datasets/processed/data_prepared.rds")
 
 # Save final type mapping
 updated_mapping <- corrected_type_mapping |>
   mutate(Final_Type = ifelse(Type == "character", "encoded_numeric", Type))
-saveRDS(updated_mapping, "datasets/mappings/final_types.rds")
+updated_mapping |> saveRDS("datasets/mappings/final_types.rds")
 
 # Confirmations
 cat("Dataset prepared for predictive analytics.\n")
@@ -1009,7 +1007,7 @@ dataset_start <- as.Date("2014-10-01")
 dataset_end <- as.Date("2024-09-30")
 
 # Load data and mappings
-final_data <- readRDS("datasets/data_final_for_modeling_with_id.rds")
+prepared_data <- readRDS("datasets/data_final_for_modeling_with_id.rds")
 encoding <- readRDS("datasets/mappings/encoding.rds")
 
 # Ensure engineered features directory exists
@@ -1022,17 +1020,25 @@ relevant_provider_codes <- encoding$primary_provider_type |>
   pull(Code)
 
 # Adjust and Filter Data
-final_data <- final_data |>
+prepared_data <- prepared_data |>
   filter(primary_provider_type %in% relevant_provider_codes) |>  # Filter relevant providers
   mutate(
     visit_date = as.Date(visit_date, origin = "1970-01-01"),  # Ensure `visit_date` is a Date
     appointment_length_minutes = ifelse(appointment_length_minutes < 0, NA, appointment_length_minutes)  # Replace negative values
   )
 
-# Feature Engineering: Weekly Load (Minutes)
-weekly_load_data <- final_data |>
+# Feature Extraction
+
+
+# Feature Engineering
+featured_data <- prepared_data |>
   group_by(patient_id) |>
   summarise(
+    visit_count = n(),
+    first_visit = min(visit_date, na.rm = TRUE),
+    last_visit = max(visit_date, na.rm = TRUE),
+    visit_span = 
+
     visit_date_min = min(visit_date, na.rm = TRUE),
     visit_date_max = max(visit_date, na.rm = TRUE),
     observed_span_days = pmax(as.numeric(visit_date_max - visit_date_min) + 1, 7),  # Minimum span threshold of 7 days
@@ -1049,7 +1055,7 @@ weekly_load_data <- weekly_load_data |>
   mutate(across(everything(), ~ replace_na(.x, 0)))
 
 # Save the updated dataset
-saveRDS(weekly_load_data, "datasets/engineered_features/weekly_load_data.rds")
+weekly_load_data |> saveRDS("datasets/data_featured.rds")
 
 # Print confirmation
 cat("Feature engineering complete. Results saved to 'datasets/engineered_features/weekly_load_data.rds'.\n")
@@ -1069,10 +1075,10 @@ library(ranger)
 library(ggplot2)
 
 # Load the dataset
-final_data <- readRDS("datasets/final_data.rds")
+prepared_data <- readRDS("datasets/data_prepared.rds")
 
 # Data preparation
-rf_data <- final_data %>%
+rf_data <- prepared_data %>%
   select(-patient_id, -visit_date_min, -visit_date_max) %>%  # Remove unnecessary columns
   na.omit()  # Remove rows with missing values
 
