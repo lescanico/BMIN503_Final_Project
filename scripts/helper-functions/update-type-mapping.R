@@ -3,7 +3,7 @@ library(stringdist)
 library(dplyr)
 
 # Function to update variable type mapping
-update_type_mapping <- function(variable_type_mapping, dataset, threshold = 0.2) {
+update_type_mapping <- function(variable_type_mapping, dataset, threshold = 0.5) {
   # Validate inputs
   if (!all(c("Variable", "Type") %in% colnames(variable_type_mapping))) {
     stop("variable_type_mapping must have 'Variable' and 'Type' columns.")

@@ -43,7 +43,7 @@ This project addresses these challenges by applying a data-driven approach to pr
 
 Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics platform. The raw files, originally in `.xlsx` format, were converted to `.csv` and securely stored as `patient_data.csv` and `visit_data.csv`.
 
-Sensitive identifiers such as medical record numbers (MRNs) were replaced with anonymized IDs. Key demographics like birth dates and postal codes were generalized to ensure compliance with HIPAA and other privacy regulations.
+Sensitive identifiers such as medical record numbers (MRNs) were replaced with anonymized IDs. Key demographics like birth dates and postal codes were generalized.
 
 ```{r anonymization, eval=FALSE}
 # Load required libraries
@@ -86,9 +86,9 @@ visit_data_anonymized |> saveRDS("datasets/visit_data_anonymized.rds")
 
 #### Standarization
 
-##### Variable Names
+In the process of standardization, column names across datasets were reformatted to ensure consistency, clarity, and compatibility for downstream analysis. Special characters, spaces, and irregular naming conventions were replaced with concise, standardized formats, making the dataset easier to work with programmatically. To prevent conflicts during data integration, shared column names, excluding unique identifiers like `patient_id`, were appended with descriptive suffixes such as `_from_patient_dataset` and `_from_visit_dataset`. Additionally, redundant columns that were automatically generated during data export, such as `Start Date` and `End Date`, were identified and removed to streamline the data. A mapping table was created to document the original and standardized names, enabling traceability and facilitating efficient troubleshooting.
 
-Variable names were standardized (e.g., lowercase with underscores) for consistency. Duplicates arising from merged datasets were consolidated, with non-identical columns renamed using descriptive suffixes.
+##### Variable Names
 
 ```{r renaming, eval=FALSE}
 # Load required libraries
@@ -170,8 +170,6 @@ cat(readLines("outputs/data_renaming.html"), sep = "\n")
 ```
 
 ##### Variable Types
-
-Data types were converted to ensure compatibility with analytical processes. Dates, categorical variables, and numerical data were reformatted for accurate statistical analysis and modeling.
 
 ###### Classification
 
@@ -258,60 +256,15 @@ variable_type_mapping |> saveRDS("datasets/mappings/types.rds")
 ###### Conversion
 
 ```{r conversion, eval=FALSE}
-# Load required libraries
-library(dplyr)
-library(lubridate)
-library(hms)
+# Load conversion function
+source("scripts/helper-functions/convert-types.R")
 
-# Function to convert data types
-convert_types <- function(df) {
-  for (i in seq_len(nrow(group_summary))) {
-    vars <- group_summary$Variables[[i]]
-    type <- group_summary$Type[i]
-    
-    # Only apply transformations to variables that exist in the dataset
-    vars <- intersect(vars, names(df))
-    if (length(vars) == 0) next
-    
-    df <- df |>
-      mutate(across(any_of(vars), ~ {
-        if (type == "numeric") {
-          suppressWarnings(as.numeric(as.character(.)))
-        } else if (type == "list") {
-          tryCatch(
-            strsplit(iconv(as.character(.), from = "", to = "UTF-8"), ","),
-            error = function(e) { message("Error in list conversion: ", e); NA }
-          )
-        } else if (type == "factor") {
-          as.factor(as.character(.))
-        } else if (type == "logical") {
-          case_when(
-            . == 1 ~ TRUE,
-            . == 0 ~ FALSE,
-            is.na(.) ~ NA,
-            TRUE ~ NA
-          )
-        } else if (type == "Date") {
-          tryCatch(
-            as.Date(parse_date_time(., orders = c("ymd", "dmy", "mdy"), quiet = TRUE)),
-            error = function(e) { message("Error in Date conversion: ", e); NA }
-          )
-        } else if (type == "hms") {
-          tryCatch(as_hms(as.numeric(.)), error = function(e) { message("Error in hms conversion: ", e); NA })
-        } else if (type == "identifier") {
-          as.character(.)
-        } else {
-          .
-        }
-      }))
-  }
-  return(df)
-}
-
-# Apply the conversion function
+# Apply function
 patient_data_converted <- patient_data_renamed |> convert_types()
 visit_data_converted <- visit_data_renamed |> convert_types()
 ```
+
+> See [Function to Convert Data Types].
 
 ###### Mapping
 
@@ -319,7 +272,6 @@ visit_data_converted <- visit_data_renamed |> convert_types()
 # Load required libraries
 library(tibble)
 library(dplyr)
-library(readr)
 
 # Function to create variable type conversions table
 create_type_conversions_mapping <- function(original_df, converted_df) {
@@ -350,224 +302,48 @@ capture_output_to_html(
 cat(readLines("outputs/data_type_conversions.html"), sep = "\n")
 ```
 
-#### Integration
-
-The process involved merging patient and visit data based on unique identifiers, ensuring all related records were combined accurately.
-
-##### Merging
-
-Patient and visit data were merged using unique patient IDs. This process combined all related records into a unified dataset for comprehensive analysis. Any conflicts between overlapping columns were resolved by renaming non-identical columns with descriptive suffixes.
-
-```{r merging, eval=FALSE}
-# Load required libraries
-library(dplyr)
-
-# Verify unique patient_id values are shared
-all_shared <- unique(patient_data_converted$patient_id) |>
-  (\(x) all(x %in% visit_data_converted$patient_id))() &&
-  unique(visit_data_converted$patient_id) |>
-  (\(x) all(x %in% patient_data_converted$patient_id))()
-
-if (all_shared) {
-  # Perform the merge
-  merged_data <- visit_data_converted |>
-    left_join(patient_data_converted, by = "patient_id")
-  
-  print("Merging complete.")
-} else {
-  print("There are patient_id values that are not shared between the two datasets.")
-}
-```
-
-##### Deduplication
-
-Duplicate columns were identified and processed. Identical values were consolidated, while non-identical columns were renamed appropriately to retain critical information.
-
-```{r deduplication, eval=FALSE}
-# Load required libraries
-library(dplyr)
-library(stringr)
-library(tibble)
-
-# Helper function to summarize differences between two columns
-summarize_column_differences <- function(col1, col2) {
-  # Convert factors to characters for comparison
-  if (is.factor(col1)) col1 <- as.character(col1)
-  if (is.factor(col2)) col2 <- as.character(col2)
-  
-  if (is.numeric(col1) && is.numeric(col2)) {
-    abs_diff <- abs(col1 - col2)
-    return(tibble(
-      `Total Rows` = length(col1),
-      `Different Rows` = sum(col1 != col2, na.rm = TRUE),
-      `Proportion Different` = mean(col1 != col2, na.rm = TRUE),
-      `Mean Difference` = mean(abs_diff, na.rm = TRUE),
-      `SD Difference` = sd(abs_diff, na.rm = TRUE),
-      `Max Difference` = max(abs_diff, na.rm = TRUE)
-    ))
-  } else if (is.character(col1) || is.logical(col1)) {
-    return(tibble(
-      `Total Rows` = length(col1),
-      `Different Rows` = sum(col1 != col2, na.rm = TRUE),
-      `Proportion Different` = mean(col1 != col2, na.rm = TRUE),
-      `Unique Values Col1` = length(unique(na.omit(col1))),
-      `Unique Values Col2` = length(unique(na.omit(col2))),
-      `Overlap in Values` = length(intersect(unique(na.omit(col1)), unique(na.omit(col2))))
-    ))
-  } else {
-    return(tibble(
-      `Total Rows` = length(col1),
-      `Different Rows` = sum(col1 != col2, na.rm = TRUE),
-      `Proportion Different` = mean(col1 != col2, na.rm = TRUE)
-    ))
-  }
-}
-
-# Function to process and rename duplicate columns
-process_and_rename_duplicates <- function(df, suffix_1 = "_from_patient_dataset", suffix_2 = "_from_visit_dataset") {
-  cols_suffix_1 <- grep(paste0(suffix_1, "$"), names(df), value = TRUE)
-  cols_suffix_2 <- grep(paste0(suffix_2, "$"), names(df), value = TRUE)
-  
-  integration_log <- list()
-  
-  for (col in cols_suffix_1) {
-    corresponding_col <- gsub(suffix_1, suffix_2, col)
-    
-    if (corresponding_col %in% cols_suffix_2) {
-      if (identical(df[[col]], df[[corresponding_col]])) {
-        # Consolidate identical columns
-        new_name <- gsub(paste0(suffix_1, "|", suffix_2), "", col)
-        names(df)[names(df) == col] <- new_name
-        df <- df %>% select(-all_of(corresponding_col))
-      } else {
-        # Summarize differences for non-identical columns
-        diff_summary <- tryCatch(
-          summarize_column_differences(df[[col]], df[[corresponding_col]]),
-          error = function(e) tibble(
-            `Error` = as.character(e$message)
-          )
-        )
-        integration_log[[paste0(col, " vs ", corresponding_col)]] <- diff_summary
-        
-        # Rename with patient_ and visit_ prefixes
-        patient_col <- paste0("patient_", gsub(suffix_1, "", col))
-        visit_col <- paste0("visit_", gsub(suffix_1, "", col))
-        names(df)[names(df) == col] <- patient_col
-        names(df)[names(df) == corresponding_col] <- visit_col
-      }
-    }
-  }
-  
-  list(data = df, integration_log = integration_log)
-}
-
-# Apply the function to the merged dataset
-processed_results <- process_and_rename_duplicates(merged_data)
-
-# Extract processed data and log
-deduplicated_data <- processed_results$data
-difference_log <- processed_results$integration_log
-
-# Print results
-print("Processing complete.")
-print("Differences between non-identical duplicates:")
-print(difference_log)
-
-# Save log
-difference_log |> saveRDS("datasets/logs/deduplication.rds")
-```
-
-##### Organization
-
-The merged and deduplicated dataset was reordered and sorted to prioritize relevant information. Columns were organized by their importance and relevance to the analysis objectives, and data was sorted primarily by patient ID and secondary by visit date. This organization facilitated easier access and manipulation of data for subsequent analyses.
-
-```{r organization, eval=FALSE}
-# Load required libraries
-library(readr)
-library(dplyr)
-
-logical_groups <- list(
-  Identifiers = c("patient_id"),
-  
-  Demographic_Info = c("year_of_birth", "age_at_visit_years", "legal_sex", "patient_gender_identity", "visit_gender_identity", "patient_sex_assigned_at_birth", "visit_sex_assigned_at_birth", "patient_sexual_orientation", "visit_sexual_orientation", "patient_patient_race", "visit_patient_race", "patient_ethnic_group", "marital_status", "language", "patient_religion", "visit_religion"),
-  
-  Sociogeographic_Info = c("country", "state", "patient_country_county", "visit_country_county", "patient_postal_code", "visit_postal_code", "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", "svi_2020_socioeconomic_percentile_census_tract", "adi_national_percentile", "adi_state_decile"),
-  
-  Clinical_Info = c("primary_diagnosis", "patient_diagnosis", "visit_diagnosis", "medical_history", "allergies_and_contraindications"),
-  
-  Treatment_Info = c("procedures", "patient_procedures_ordered", "visit_procedures_ordered", "medications", "hospital_or_clinic_administered_medications", "outpatient_medications", "patient_medications_ordered", "visit_medications_ordered"),
-  
-  Health_Metrics = c("patient_bmi", "visit_bmi", "patient_bp_systolic", "visit_bp_systolic", "patient_bp_diastolic", "visit_bp_diastolic", "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains"),
-  
-  Encounter_Info = c("visit_date", "visit_type", "continuity_of_care", "encounter_type", "chief_complaint", "interpreter_needed", "appointment_status", "appointment_creation_date", "appointment_time", "appointment_length_minutes", "lead_time_days", "encounter_to_close_day", "scheduling_source", "no_show_probability"),
-  
-  Provider_Info = c("primary_provider_type", "primary_provider_title", "time_physician_spent_pre_charting_minutes", "time_physician_spent_post_charting_minutes", "time_with_physician_minutes", "time_waiting_for_physician_minutes"),
-  
-  Financial_Info = c("primary_benefit_plan", "primary_payer", "primary_payer_financial_class", "self_pay", "copay_due", "copay_collected", "prepayment_due", "prepayment_collected", "primary_subscriber_group_number", "patient_level_of_service", "visit_level_of_service"),
-  
-  Status_Info = c("portal_active_at_scheduling", "mychart_status", "new_to_department_specialty", "new_to_facility", "new_to_provider", "university_of_pennsylvania_student")
-)
-
-# Reorganize data
-data_organized <- deduplicated_data |>
-  select(all_of(unlist(logical_groups, use.names = FALSE))) |>
-  arrange(patient_id, visit_date)
-
-# Sample some rows
-set.seed(123)
-sample_data <- data_organized |>
-  slice_sample(n = 5)
-
-# Capture as HTML table
-source("scripts/helper-functions/capture-to-html.R")
-
-capture_output_to_html(
-  "data_organized_sample.html",
-  "Organized Data Sample" = sample_data
-)
-
-# Update and save Variable Type Mapping
-source("scripts/helper-functions/update-type-mapping.R")
-
-updated_mapping <- variable_type_mapping |> update_type_mapping(data_organized)
-variable_type_mapping <- updated_mapping
-variable_type_mapping |> saveRDS("datasets/mappings/types.rds")
-```
-
-> See [Function to Update Variable Type Mapping](#update-variable-type-mapping)
-
-```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_organized_sample.html"), sep = "\n")
-```
-
 #### Cleaning
 
 ##### Missing Data Analysis
-
-The analysis of missing data was performed to understand its extent and impact on the study. The process included visualizing missing data patterns and deciding on strategies to handle them. This was crucial to maintain the robustness of the statistical analysis and the reliability of the study results.
 
 ```{r plotting, eval=FALSE}
 # Visualize Missing Data
 source("scripts/helper-functions/plot-missing-values.R")
 
-plot_missing_values_by_type(data_organized, 0, 1)
-plot_missing_values_by_type(data_organized, 1, 5)
-plot_missing_values_by_type(data_organized, 5, 30)
-plot_missing_values_by_type(data_organized, 30, 50)
-plot_missing_values_by_type(data_organized, 50, 100)
+# Patient Data
+plot_missing_values_by_type(patient_data_converted, 0, 5)
+plot_missing_values_by_type(patient_data_converted, 5, 30)
+plot_missing_values_by_type(patient_data_converted, 30, 50)
+plot_missing_values_by_type(patient_data_converted, 50, 100)
+
+# Visit Data
+plot_missing_values_by_type(visit_data_converted, 0, 5)
+plot_missing_values_by_type(visit_data_converted, 5, 30)
+plot_missing_values_by_type(visit_data_converted, 30, 50)
+plot_missing_values_by_type(visit_data_converted, 50, 100)
+
+# Capture as HTML
+source("scripts/helper-functions/capture-to-html.R")
+capture_output_to_html(
+  "patient_and_visit_missing_data_plots.html",
+  "Missing Data Plots" = list(
+    "figures/plots/0-5_missing_patient_data_converted_plot.png",
+    "figures/plots/5-30_missing_patient_data_converted_plot.png",
+    "figures/plots/30-50_missing_patient_data_converted_plot.png",
+    "figures/plots/50-100_missing_patient_data_converted_plot.png",
+    "figures/plots/0-5_missing_visit_data_converted_plot.png",
+    "figures/plots/5-30_missing_visit_data_converted_plot.png",
+    "figures/plots/30-50_missing_visit_data_converted_plot.png",
+    "figures/plots/50-100_missing_visit_data_converted_plot.png"
+    )
+)
 ```
 
-> See [Function to Plot Missing Values by Type](#plot-missing-values-by-type).
+> See [Function to Plot Missing Values by Type].
 
-::: scrollable-inner-container
-![](figures/plots/0-1_missing_data_organized_plot.png)
-
-![](figures/plots/1-5_missing_data_organized_plot.png)\
-![](figures/plots/30-50_missing_data_organized_plot.png)\
-![](figures/plots/50-100_missing_data_organized_plot.png)\
-:::
-
-###### Handling Strategies
+```{r, results='asis', echo=FALSE}
+cat(readLines("outputs/patient_and_visit_data_missingness_plots.html"), sep = "\n")
+```
 
 ```{r handling, eval=FALSE}
 # Generate data handling table with all options
@@ -589,78 +365,329 @@ capture_output_to_html(
 cat(readLines("outputs/missing_data_handling_options.html"), sep = "\n")
 ```
 
+##### Merging
+
+```{r merging, eval=FALSE}
+# Load required libraries
+library(dplyr)
+
+# Verify unique patient_id values are shared
+all_shared <- unique(patient_data_converted$patient_id) |>
+  (\(x) all(x %in% visit_data_converted$patient_id))() &&
+  unique(visit_data_converted$patient_id) |>
+  (\(x) all(x %in% patient_data_converted$patient_id))()
+
+if (all_shared) {
+  # Perform the merge
+  data_merged <- visit_data_converted |>
+    left_join(patient_data_converted, by = "patient_id")
+  
+  print("Merging complete.")
+} else {
+  print("There are patient_id values that are not shared between the two datasets.")
+}
+```
+
+##### Deduplication
+
+```{r deduplication, eval=FALSE}
+# Load required libraries
+library(dplyr)
+library(stringr)
+
+# Function to process and rename only identical duplicate columns
+process_identical_duplicates <- function(df, suffix_1 = "_from_patient_dataset", suffix_2 = "_from_visit_dataset") {
+  # Identify columns with specified suffixes
+  cols_suffix_1 <- grep(paste0(suffix_1, "$"), names(df), value = TRUE)
+  cols_suffix_2 <- grep(paste0(suffix_2, "$"), names(df), value = TRUE)
+  
+  for (col in cols_suffix_1) {
+    # Find corresponding column with the second suffix
+    corresponding_col <- gsub(suffix_1, suffix_2, col)
+    
+    # Check if the corresponding column exists
+    if (corresponding_col %in% cols_suffix_2) {
+      # Check if the columns are identical
+      if (identical(df[[col]], df[[corresponding_col]])) {
+        # Consolidate identical columns by renaming the first and removing the second
+        new_name <- gsub(paste0(suffix_1, "|", suffix_2), "", col)
+        names(df)[names(df) == col] <- new_name
+        df <- df %>% select(-all_of(corresponding_col))
+      }
+    }
+  }
+  
+  # Return the deduplicated data
+  return(df)
+}
+
+# Apply the function to the merged dataset
+data_deduplicated <- process_identical_duplicates(data_merged)
+
+# Update and save Variable Type Mapping
+source("scripts/helper-functions/update-type-mapping.R")
+
+updated_mapping <- variable_type_mapping |> update_type_mapping(data_deduplicated)
+variable_type_mapping <- updated_mapping
+variable_type_mapping |> saveRDS("datasets/mappings/types.rds")
+```
+
+> See [Function to Update Variable Type Mapping](#update-variable-type-mapping).
+
+##### Organization
+
+```{r organization, eval=FALSE}
+# Load required libraries
+library(readr)
+library(dplyr)
+
+logical_groups <- list(
+
+  Identifiers = c("patient_id"),
+
+  Demographic_Info = c(
+    "year_of_birth", "age_at_visit_years", "legal_sex", 
+    "gender_identity_from_patient_dataset", "gender_identity_from_visit_dataset", 
+    "sex_assigned_at_birth_from_patient_dataset", "sex_assigned_at_birth_from_visit_dataset", 
+    "sexual_orientation_from_patient_dataset", "sexual_orientation_from_visit_dataset", 
+    "patient_race_from_patient_dataset", "patient_race_from_visit_dataset", 
+    "patient_ethnic_group", "marital_status", "language", 
+    "religion_from_patient_dataset", "religion_from_visit_dataset"
+  ),
+  
+  Sociogeographic_Info = c(
+    "country", "state", 
+    "country_county_from_patient_dataset", "country_county_from_visit_dataset", 
+    "postal_code_from_patient_dataset", "postal_code_from_visit_dataset", 
+    "rural_urban_commuting_area_primary", "rural_urban_commuting_area_secondary", 
+    "svi_2020_socioeconomic_percentile_census_tract", "adi_national_percentile", "adi_state_decile"
+  ),
+  
+  Clinical_Info = c(
+    "primary_diagnosis", "diagnosis_from_patient_dataset", "diagnosis_from_visit_dataset", 
+    "medical_history", "allergies_and_contraindications"
+  ),
+  
+  Treatment_Info = c(
+    "procedures", "procedures_ordered_from_patient_dataset", "procedures_ordered_from_visit_dataset", 
+    "medications", "hospital_or_clinic_administered_medications", "outpatient_medications", 
+    "medications_ordered_from_patient_dataset", "medications_ordered_from_visit_dataset"
+  ),
+  
+  Health_Metrics = c(
+    "bmi_from_patient_dataset", "bmi_from_visit_dataset", 
+    "bp_systolic_from_patient_dataset", "bp_systolic_from_visit_dataset", 
+    "bp_diastolic_from_patient_dataset", "bp_diastolic_from_visit_dataset", 
+    "phq_2_total_score", "phq_9", "general_risk_score", "sdoh_risk_level", "sdoh_domains"
+  ),
+  
+  Encounter_Info = c(
+    "visit_date", "visit_type", "continuity_of_care", "encounter_type", 
+    "chief_complaint", "interpreter_needed", "appointment_status", 
+    "appointment_creation_date", "appointment_time", "appointment_length_minutes", 
+    "lead_time_days", "encounter_to_close_day", "scheduling_source", "no_show_probability"
+  ),
+  
+  Provider_Info = c(
+    "primary_provider_type", "primary_provider_title", 
+    "time_physician_spent_pre_charting_minutes", "time_physician_spent_post_charting_minutes", 
+    "time_with_physician_minutes", "time_waiting_for_physician_minutes"
+  ),
+  
+  Financial_Info = c(
+    "primary_benefit_plan", "primary_payer", "primary_payer_financial_class", "self_pay", 
+    "copay_due", "copay_collected", "prepayment_due", "prepayment_collected", 
+    "primary_subscriber_group_number", "level_of_service_from_patient_dataset", 
+    "level_of_service_from_visit_dataset"
+  ),
+  
+  Status_Info = c(
+    "portal_active_at_scheduling", "mychart_status", 
+    "new_to_department_specialty", "new_to_facility", "new_to_provider", 
+    "university_of_pennsylvania_student"
+  )
+)
+
+# Reorganize data
+data_organized <- data_deduplicated |>
+  select(all_of(unlist(logical_groups, use.names = FALSE))) |>
+  arrange(patient_id, visit_date)
+
+# Sample some rows
+set.seed(123)
+sample_data <- data_organized |>
+  slice_sample(n = 5)
+
+# Capture as HTML table
+source("scripts/helper-functions/capture-to-html.R")
+
+capture_output_to_html(
+  "data_organized_sample.html",
+  "Organized Data Sample" = sample_data
+)
+```
+
+> See [Function to Update Variable Type Mapping](#update-variable-type-mapping)
+
+```{r, results='asis', echo=FALSE}
+cat(readLines("outputs/data_organized_sample.html"), sep = "\n")
+```
+
 ##### Aggregation
 
 ```{r aggregation, eval=FALSE}
 # Load required libraries
-library(dplyr)
+library(tidyverse)
+library(purrr)
+library(readr)
 
-# Drop problematic 'sdoh_risk_level' variable
-aggregated_data <- data_organized |> select(-sdoh_risk_level)
-
-# Define list_vars: Identify list variables
-list_vars <- names(aggregated_data)[sapply(aggregated_data, is.list)]
-
-# Variables with specific aggregation rules
-special_rules <- c("phq_2_total_score", "phq_9")
-
-# Function to flatten nested lists into a single vector
-flatten_list <- function(x) {
-  if (is.null(x) || all(is.na(x))) return(NA)
-  unlist(x, recursive = TRUE, use.names = FALSE)
+# Custom mode function
+get_mode <- function(x) {
+  if (length(x) == 0 || all(is.na(x))) return(NA)  # Handle empty or NA input
+  uniq_vals <- unique(na.omit(x))
+  uniq_vals[which.max(tabulate(match(x, uniq_vals)))]
 }
 
-# Process list variables
-aggregated_data[list_vars] <- lapply(list_vars, \(var) {
-  if (var %in% special_rules) {
-    # Apply specific aggregation rules
-    sapply(aggregated_data[[var]], \(x) {
-      x <- flatten_list(x)  # Flatten nested structures
-      if (is.null(x) || all(is.na(x))) {
-        NA
-      } else {
-        x_numeric <- suppressWarnings(as.numeric(x))
-        if (all(is.na(x_numeric))) {
-          NA  # If all values are non-numeric, return NA
-        } else {
-          switch(
-            var,
-            "phq_2_total_score" = mean(x_numeric, na.rm = TRUE),
-            "phq_9" = mean(x_numeric, na.rm = TRUE)
-          )
-        }
-      }
-    })
-  } else {
-    # Count unique values (excluding NA)
-    sapply(aggregated_data[[var]], \(x) {
-      x <- flatten_list(x)  # Flatten nested structures
-      if (is.null(x) || all(is.na(x))) {
-        0  # NA or NULL means 0
-      } else {
-        length(unique(na.omit(x)))  # Count unique non-NA values
-      }
-    })
-  }
-})
+# Flatten all list variables
+data_flattened <- data_organized |> 
+  mutate(across(where(is.list), ~ map_chr(., ~ paste(.x, collapse = ", "))))
+
+# Row-wise aggregation
+data_aggregated <- data_flattened |> 
+  rowwise() |> 
+  mutate(
+    # Aggregate general_risk_score by mode
+    general_risk_score_mode = if (is.list(general_risk_score)) 
+      get_mode(unlist(general_risk_score)) else general_risk_score,
+    
+    # Aggregate phq_2_total_score and phq_9 by mean
+    phq_2_total_score_mean = mean(as.numeric(unlist(strsplit(phq_2_total_score, ", "))), na.rm = TRUE),
+    phq_9_mean = mean(as.numeric(unlist(strsplit(phq_9, ", "))), na.rm = TRUE),
+    
+    # Aggregate other list variables by count
+    across(
+      where(is.character) & !all_of(c("general_risk_score", "phq_2_total_score", "phq_9")), 
+      ~ length(unlist(strsplit(., ", "))),
+      .names = "count_{.col}"
+    )
+  ) |> 
+  ungroup()
+
+# Save aggregated data
+data_aggregated |> saveRDS("datasets/processed/data_aggregated.rds")
+
+# Update the type mapping
+corrected_type_mapping <- variable_type_mapping |> 
+  mutate(Type = ifelse(Type == "list", "numeric", Type))
+
+# Save the updated type mapping
+corrected_type_mapping |> saveRDS("datasets/mappings/post-aggregation-types.rds")
 
 # Sample some rows
 set.seed(123)
-sample_data <- aggregated_data |>
+sample_data <- data_aggregated |>
   slice_sample(n = 5)
 
-# Capture Organized Data Sample
+# Capture as HTML table
 source("scripts/helper-functions/capture-to-html.R")
 
 capture_output_to_html(
   "data_aggregated_sample.html",
-  "Sample",
-  "Aggregated Data" = sample_data
+  "Aggregated Data Sample" = sample_data
 )
 ```
 
 ```{r, results='asis', echo=FALSE}
 cat(readLines("outputs/data_aggregated_sample.html"), sep = "\n")
+```
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(caret)
+library(readr)
+
+# Step 1: Load the imputed dataset and variable type mappings
+data_imputed <- readRDS("datasets/data_imputed.rds")
+variable_type_mapping <- readRDS("datasets/mappings/types.rds")
+
+# Step 2: Correct the types in the mapping
+corrected_type_mapping <- variable_type_mapping |>
+  mutate(Type = ifelse(Type == "list", "numeric", Type))
+
+# Step 3: Preserve patient_id as an identifier
+identifier_column <- "patient_id"
+identifiers <- data_imputed |>
+  select(all_of(identifier_column))
+
+# Step 4: Exclude identifier from modeling data
+modeling_data <- data_imputed |>
+  select(-all_of(identifier_column))
+
+# Step 5: Handle character variables (categorical encoding)
+# Identify character variables
+char_vars <- corrected_type_mapping |>
+  filter(Type == "character") |>
+  pull(Variable)
+
+# Convert character variables to numeric (one-hot encoding)
+if (length(char_vars) > 0) {
+  dummy_model <- dummyVars(" ~ .", data = modeling_data[char_vars])
+  char_encoded <- predict(dummy_model, newdata = modeling_data[char_vars]) |>
+    as.data.frame()
+  modeling_data <- cbind(modeling_data |>
+                           select(-all_of(char_vars)), char_encoded)
+}
+
+# Step 6: Drop or convert any remaining list columns
+# Identify columns of type list
+list_vars <- corrected_type_mapping |>
+  filter(Type == "numeric") |>  # Lists were reclassified as numeric
+  pull(Variable)
+
+# Drop or convert invalid list columns to numeric (if necessary)
+list_vars_in_data <- intersect(list_vars, names(modeling_data))
+if (length(list_vars_in_data) > 0) {
+  modeling_data[list_vars_in_data] <- lapply(modeling_data[list_vars_in_data], function(col) {
+    if (is.list(col)) {
+      # Example: Replace with length of each list as a numeric proxy
+      sapply(col, function(x) if (is.null(x)) 0 else length(x))
+    } else {
+      col
+    }
+  })
+}
+
+# Step 7: Normalize numeric variables
+# Identify numeric variables that exist in the dataset
+num_vars <- corrected_type_mapping |>
+  filter(Type == "numeric") |>
+  pull(Variable)
+
+# Filter numeric variables to those present in the dataset
+existing_num_vars <- intersect(num_vars, names(modeling_data))
+
+# Scale numeric variables
+if (length(existing_num_vars) > 0) {
+  scaler <- preProcess(modeling_data[existing_num_vars], method = c("center", "scale"))
+  modeling_data[existing_num_vars] <- predict(scaler, modeling_data[existing_num_vars])
+}
+
+# Step 8: Combine the identifiers back with the prepared data (if needed)
+prepared_data <- cbind(identifiers, modeling_data)
+
+# Save the prepared dataset for modeling
+prepared_data |> saveRDS("datasets/processed/data_prepared.rds")
+
+# Save final type mapping
+updated_mapping <- corrected_type_mapping |>
+  mutate(Final_Type = ifelse(Type == "character", "encoded_numeric", Type))
+updated_mapping |> saveRDS("datasets/mappings/final_types.rds")
+
+# Confirmations
+cat("Dataset prepared for predictive analytics.\n")
+cat("Saved to 'datasets/data_final_for_modeling_with_id.rds'.\n")
+cat("Updated type mapping saved to 'datasets/mappings/final_types.rds'.\n")
 ```
 
 ##### Encoding
@@ -904,96 +931,7 @@ capture_output_to_html(
 cat(readLines("outputs/data_imputed_sample.html"), sep = "\n")
 ```
 
-##### Transformation
-
-```{r transformation, eval=FALSE}
-# Load required libraries
-library(dplyr)
-library(caret)
-library(readr)
-
-# Step 1: Load the imputed dataset and variable type mappings
-data_imputed <- readRDS("datasets/data_imputed.rds")
-variable_type_mapping <- readRDS("datasets/mappings/types.rds")
-
-# Step 2: Correct the types in the mapping
-corrected_type_mapping <- variable_type_mapping |>
-  mutate(Type = ifelse(Type == "list", "numeric", Type))
-
-# Step 3: Preserve patient_id as an identifier
-identifier_column <- "patient_id"
-identifiers <- data_imputed |>
-  select(all_of(identifier_column))
-
-# Step 4: Exclude identifier from modeling data
-modeling_data <- data_imputed |>
-  select(-all_of(identifier_column))
-
-# Step 5: Handle character variables (categorical encoding)
-# Identify character variables
-char_vars <- corrected_type_mapping |>
-  filter(Type == "character") |>
-  pull(Variable)
-
-# Convert character variables to numeric (one-hot encoding)
-if (length(char_vars) > 0) {
-  dummy_model <- dummyVars(" ~ .", data = modeling_data[char_vars])
-  char_encoded <- predict(dummy_model, newdata = modeling_data[char_vars]) |>
-    as.data.frame()
-  modeling_data <- cbind(modeling_data |>
-                           select(-all_of(char_vars)), char_encoded)
-}
-
-# Step 6: Drop or convert any remaining list columns
-# Identify columns of type list
-list_vars <- corrected_type_mapping |>
-  filter(Type == "numeric") |>  # Lists were reclassified as numeric
-  pull(Variable)
-
-# Drop or convert invalid list columns to numeric (if necessary)
-list_vars_in_data <- intersect(list_vars, names(modeling_data))
-if (length(list_vars_in_data) > 0) {
-  modeling_data[list_vars_in_data] <- lapply(modeling_data[list_vars_in_data], function(col) {
-    if (is.list(col)) {
-      # Example: Replace with length of each list as a numeric proxy
-      sapply(col, function(x) if (is.null(x)) 0 else length(x))
-    } else {
-      col
-    }
-  })
-}
-
-# Step 7: Normalize numeric variables
-# Identify numeric variables that exist in the dataset
-num_vars <- corrected_type_mapping |>
-  filter(Type == "numeric") |>
-  pull(Variable)
-
-# Filter numeric variables to those present in the dataset
-existing_num_vars <- intersect(num_vars, names(modeling_data))
-
-# Scale numeric variables
-if (length(existing_num_vars) > 0) {
-  scaler <- preProcess(modeling_data[existing_num_vars], method = c("center", "scale"))
-  modeling_data[existing_num_vars] <- predict(scaler, modeling_data[existing_num_vars])
-}
-
-# Step 8: Combine the identifiers back with the prepared data (if needed)
-prepared_data <- cbind(identifiers, modeling_data)
-
-# Save the prepared dataset for modeling
-prepared_data |> saveRDS("datasets/processed/data_prepared.rds")
-
-# Save final type mapping
-updated_mapping <- corrected_type_mapping |>
-  mutate(Final_Type = ifelse(Type == "character", "encoded_numeric", Type))
-updated_mapping |> saveRDS("datasets/mappings/final_types.rds")
-
-# Confirmations
-cat("Dataset prepared for predictive analytics.\n")
-cat("Saved to 'datasets/data_final_for_modeling_with_id.rds'.\n")
-cat("Updated type mapping saved to 'datasets/mappings/final_types.rds'.\n")
-```
+### Preparation
 
 #### Feature Engineering
 
@@ -1194,6 +1132,12 @@ cat("Scatter plot saved to 'figures/plots/predicted_vs_actual_weekly_load.png'\n
 
 ``` r
 {{< include scripts/helper-functions/capture-to-html.R >}}
+```
+
+#### Function to Convert Data Types
+
+``` r
+{{< include scripts/helper-functions/convert-types.R >}}
 ```
 
 #### Function to Update Variable Type Mapping {#update-variable-type-mapping}
