@@ -1,3 +1,6 @@
+# Load required libraries
+library(tidyr)
+
 # Define missing data handling options
 missing_data_options <- list(
   "Low (0-5%)" = list(
@@ -320,16 +323,16 @@ generate_data_handling_table <- function(dataset, dataset_name = deparse(substit
   # Compile results into a table
   handling_summary <- missing_data_summary %>%
     mutate(
-      `Missing %` = sprintf("%.1f%%", missing_percentage),
-      `Handling Strategy` = sapply(variable, function(v) handling_decisions[[v]]),
-      `Summary Statistics` = summary_stats
+      Missingness = sprintf("%.1f%%", missing_percentage),
+      Strategy = sapply(variable, function(v) handling_decisions[[v]]),
+      Stats = summary_stats
     ) %>%
-    select(variable, `Missing %`, type, `Summary Statistics`, `Handling Strategy`) %>%
+    select(variable, Missingness, type, Stats, Strategy) %>%
     rename(
       Variable = variable,
       Type = type
     ) %>%
-    arrange(as.numeric(gsub("%", "", `Missing %`)))
+    arrange(as.numeric(gsub("%", "", Missingness)))
   
   return(handling_summary)
 }

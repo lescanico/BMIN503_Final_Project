@@ -14,34 +14,46 @@ format:
     code-fold: true
     code-fold-default: true
     code-tools: true
+    includes:
+      in-header: "images/favicon.html"
 execute:
   message: false
   warning: false
 ---
 
-![](images/banner-removebg-preview.png){fig-align="left"}
+[![](images/banner.png){fig-alt="banner"}](https://ibi.med.upenn.edu/)
 
 ------------------------------------------------------------------------
 
 ## Overview {#sec-overview}
 
-This project leverages a decade of historical data from the Penn Behavioral Health Outpatient Psychiatry Clinic (PBH OPC) to develop predictive models aimed at optimizing resource utilization. The goal is to address operational inefficiencies in scheduling and care allocation, ultimately enhancing patient outcomes, clinic efficiency, and provider satisfaction. Integrating principles from psychiatry, healthcare operations, and data science, the project offers actionable insights into improving outpatient mental health care delivery.
+This project leverages a decade of data from the Outpatient Psychiatry Clinic (OPC) of the Penn Medicine Department of Psychiatry to develop predictive models aimed at optimizing resource utilization. The goal is to address operational inefficiencies in scheduling and care allocation, ultimately enhancing patient outcomes, clinic efficiency, and provider satisfaction. Integrating principles from psychiatry, healthcare operations, and data science, the project aims to offer actionable insights into improving outpatient mental health care delivery.
+
+Key insights were gathered from Dr. Theodore Satterthwaite (Director of Penn Lifespan Informatics and Neuroimaging Center), who provided guidance on refining the project scope and advanced predictive analytics, and Rucha Kelkar (Epic Cogito Technical Services for Penn Medicine), who offered expertise on Epic Analytics data integration features and Epic Cognitive Developer Platform.
 
 The complete project repository, including scripts and datasets, is available [here](https://github.com/lescanico/BMIN503_Final_Project).
 
-![](images/clipboard-2957942059.png)
-
 ## Introduction {#sec-introduction}
 
-Outpatient psychiatry clinics often face significant challenges in managing the balance between patient demand and resource availability. Inefficiencies, such as long wait times, underutilized provider hours, and mismatches in the level of care, negatively impact patient outcomes and clinic operations. For instance, delayed follow-ups and uncoordinated care transitions contribute to treatment disruptions and patient dissatisfaction.
+### Challenges in Outpatient Psychiatry
 
-This project addresses these challenges by applying a data-driven approach to predict resource needs and inform scheduling decisions. Predictive models enable more accurate forecasting of appointment frequency, duration, and type of provider required, reducing operational inefficiencies and supporting proactive resource planning.
+Outpatient psychiatric services face unique challenges in managing the balance between provider availability and patient demand. These challenges are exacerbated by the inherent unpredictability of patient attendance and the varying degrees of care required by psychiatric patients. Inefficient scheduling can lead to prolonged wait times, rushed appointments, and increased stress for both patients and providers, thereby impacting the quality of care delivered. Additionally, the mismatch between the type of care provided and the specific needs of patients can result in suboptimal treatment outcomes and reduced overall clinic efficiency.
+
+### Need for Advanced Analytical Approaches
+
+The traditional appointment systems in psychiatric outpatient clinics often rely on static scheduling rules that do not account for the dynamic nature of mental health conditions and treatment responses. This project recognizes the potential of leveraging historical data and machine learning to create a more adaptive scheduling system. By predicting patient demand and resource needs more accurately, the clinic can not only improve patient care but also enhance operational efficiency, ultimately fostering a more supportive environment for both patients and staff.
+
+![OPC Operational Flow](images/flow.png){fig-alt="PBH OPC Operational Flow"}
+
+### Objectives
+
+The primary objective of this project is to integrate predictive analytics into the scheduling and resource allocation processes of outpatient psychiatric services. The aim is to develop a model that can forecast patient demand and determine optimal resource distribution. This will enable clinics to tailor their staffing and scheduling strategies in real time, thereby minimizing wait times, reducing provider workload imbalances, and ensuring that patients receive timely and appropriate care.
 
 ## Methods {#sec-methods}
 
 ### Data Sourcing & Anonymization
 
-Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics platform. The raw files, originally in `.xlsx` format, were converted to `.csv` and securely stored as `patient_data.csv` and `visit_data.csv`.
+Patient and visit data spanning 10/1/2014 to 9/30/2024 were extracted from Epic Analytics. The raw files, originally in `.xlsx` format, were converted to `.csv` and securely stored as `patient_data.csv` and `visit_data.csv`.
 
 Sensitive identifiers such as medical record numbers (MRNs) were replaced with anonymized IDs. Key demographics like birth dates and postal codes were generalized.
 
@@ -56,28 +68,35 @@ patient_data_raw <- read_csv("H:/secure/patient_data.csv")
 visit_data_raw <- read_csv("H:/secure/visit_data.csv")
 
 # Generate unique patient IDs for anonymization
-mrn_mapping <- tibble(
-  MRN = unique(patient_data_raw$MRN),
-  patient_id = sprintf("%05d", seq_along(unique(patient_data_raw$MRN)))
-)
+mrn_mapping <- patient_data_raw$MRN |> 
+  unique() |> 
+  tibble(MRN = _, patient_id = sprintf("%05d", seq_along(.)))
 
-# Save mrn_mapping for potential reversibility
+# Save MRN mapping for potential reversibility
 mrn_mapping |> saveRDS("H:/secure/mrn_mapping.rds")
 
-# Anonymize data by replacing sensitive identifiers
+# Define anonymization function
 anonymize <- function(data, mapping) {
-  data %>%
-    left_join(mapping, by = "MRN") %>%
+  data |>
+    left_join(mapping, by = "MRN") |>
     mutate(
-      year_of_birth = year(mdy(`Birth Date (UTC)`)),
-      postal_code = substr(`Postal Code`, 1, 3)
-    ) %>%
+      year_of_birth = if ("Birth Date (UTC)" %in% names(data)) {
+        `Birth Date (UTC)` |> mdy() |> year()
+      } else NA,
+      postal_code = if ("Postal Code" %in% names(data)) {
+        `Postal Code` |> substr(1, 3)
+      } else NA
+    ) |>
     select(-MRN, -`Birth Date (UTC)`, -`Postal Code`)
 }
 
+# Ensure output directory exists
+"datasets/" |> dir.create(showWarnings = FALSE, recursive = TRUE)
+
 # Apply anonymization and save
-patient_data_anonymized <- anonymize(patient_data_raw, mrn_mapping)
-visit_data_anonymized <- anonymize(visit_data_raw, mrn_mapping)
+patient_data_anonymized <- patient_data_raw |> anonymize(mrn_mapping)
+visit_data_anonymized <- visit_data_raw |> anonymize(mrn_mapping)
+
 patient_data_anonymized |> saveRDS("datasets/patient_data_anonymized.rds")
 visit_data_anonymized |> saveRDS("datasets/visit_data_anonymized.rds")
 ```
@@ -153,20 +172,6 @@ visit_name_mapping <- create_name_mapping(visit_data, visit_data_renamed) |>
 
 # Combine into a single dataframe
 name_mapping <- bind_rows(patient_name_mapping, visit_name_mapping)
-
-# Capture as HTML table
-source("scripts/helper-functions/capture-to-html.R")
-
-capture_output_to_html(
-  "data_renaming.html",
-  "Data Renaming Table" = name_mapping
-)
-```
-
-> See [Function to Capture Output as HTML](#capture-output-as-html).
-
-```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_renaming.html"), sep = "\n")
 ```
 
 ##### Variable Types
@@ -278,8 +283,8 @@ create_type_conversions_mapping <- function(original_df, converted_df) {
   # Get data types for original and converted datasets
   tibble(
     Variable = names(original_df),
-    Original_Type = sapply(original_df, function(x) paste(class(x), collapse = ", ")),
-    Converted_Type = sapply(converted_df, function(x) paste(class(x), collapse = ", "))
+    Original = sapply(original_df, function(x) paste(class(x), collapse = ", ")),
+    Converted = sapply(converted_df, function(x) paste(class(x), collapse = ", "))
   )
 }
 
@@ -298,8 +303,24 @@ capture_output_to_html(
 )
 ```
 
+#### Standarization Tables
+
+```{r standarization, eval=FALSE}
+# Capture as HTML table
+source("scripts/helper-functions/capture-to-html.R")
+
+capture_output_to_html(
+  "standarization_tables.html",
+  "Standarization",
+  "Renaming Table" = name_mapping,
+  "Retyping Table" = type_conversions_mapping
+)
+```
+
+> See [Function to Capture Output as HTML].
+
 ```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_type_conversions.html"), sep = "\n")
+cat(readLines("outputs/standarization_tables.html"), sep = "\n")
 ```
 
 #### Cleaning
@@ -326,11 +347,14 @@ plot_missing_values_by_type(visit_data_converted, 50, 100)
 source("scripts/helper-functions/capture-to-html.R")
 capture_output_to_html(
   "patient_and_visit_missing_data_plots.html",
-  "Missing Data Plots" = list(
+  "Missing Data Plots",
+  "Patient Data" = list(
     "figures/plots/0-5_missing_patient_data_converted_plot.png",
     "figures/plots/5-30_missing_patient_data_converted_plot.png",
     "figures/plots/30-50_missing_patient_data_converted_plot.png",
-    "figures/plots/50-100_missing_patient_data_converted_plot.png",
+    "figures/plots/50-100_missing_patient_data_converted_plot.png"
+    ),
+  "Visit Data" = list(
     "figures/plots/0-5_missing_visit_data_converted_plot.png",
     "figures/plots/5-30_missing_visit_data_converted_plot.png",
     "figures/plots/30-50_missing_visit_data_converted_plot.png",
@@ -339,23 +363,26 @@ capture_output_to_html(
 )
 ```
 
-> See [Function to Plot Missing Values by Type].
+> See [Function to Plot Missing Values by Type](#plot-missing-values-by-type).
 
 ```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/patient_and_visit_data_missingness_plots.html"), sep = "\n")
+cat(readLines("outputs/patient_and_visit_missing_data_plots.html"), sep = "\n")
 ```
 
 ```{r handling, eval=FALSE}
-# Generate data handling table with all options
+# Generate data handling tables with all options
 source("scripts/helper-functions/generate-missing-handling-table.R")
-data_handling_table <- generate_data_handling_table(data_organized)
+
+patient_handling_table <- generate_data_handling_table(patient_data_converted)
+visit_handling_table <- generate_data_handling_table(visit_data_converted)
 
 # Capture as HTML
 source("scripts/helper-functions/capture-to-html.R")
 capture_output_to_html(
   "missing_data_handling_options.html",
-  "Data Handling Table",
-  "All Options" = data_handling_table
+  "Data Handling Tables",
+  "Patient Data" = patient_handling_table,
+  "Visit Data" = visit_handling_table
 )
 ```
 
@@ -515,22 +542,8 @@ data_organized <- data_deduplicated |>
 
 # Sample some rows
 set.seed(123)
-sample_data <- data_organized |>
-  slice_sample(n = 5)
-
-# Capture as HTML table
-source("scripts/helper-functions/capture-to-html.R")
-
-capture_output_to_html(
-  "data_organized_sample.html",
-  "Organized Data Sample" = sample_data
-)
-```
-
-> See [Function to Update Variable Type Mapping](#update-variable-type-mapping)
-
-```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_organized_sample.html"), sep = "\n")
+sample_data_organized <- data_organized |>
+  slice_sample(n = 10)
 ```
 
 ##### Aggregation
@@ -543,7 +556,7 @@ library(readr)
 
 # Custom mode function
 get_mode <- function(x) {
-  if (length(x) == 0 || all(is.na(x))) return(NA)  # Handle empty or NA input
+  if (length(x) == 0 || all(is.na(x))) return(NA) 
   uniq_vals <- unique(na.omit(x))
   uniq_vals[which.max(tabulate(match(x, uniq_vals)))]
 }
@@ -585,23 +598,13 @@ corrected_type_mapping |> saveRDS("datasets/mappings/post-aggregation-types.rds"
 
 # Sample some rows
 set.seed(123)
-sample_data <- data_aggregated |>
-  slice_sample(n = 5)
-
-# Capture as HTML table
-source("scripts/helper-functions/capture-to-html.R")
-
-capture_output_to_html(
-  "data_aggregated_sample.html",
-  "Aggregated Data Sample" = sample_data
-)
+sample_data_aggregated <- data_aggregated |>
+  slice_sample(n = 10)
 ```
 
-```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_aggregated_sample.html"), sep = "\n")
-```
+##### Encoding
 
-```{r}
+```{r encoding, eval=FALSE}
 # Load required libraries
 library(dplyr)
 library(caret)
@@ -688,11 +691,7 @@ updated_mapping |> saveRDS("datasets/mappings/final_types.rds")
 cat("Dataset prepared for predictive analytics.\n")
 cat("Saved to 'datasets/data_final_for_modeling_with_id.rds'.\n")
 cat("Updated type mapping saved to 'datasets/mappings/final_types.rds'.\n")
-```
 
-##### Encoding
-
-```{r encoding, eval=FALSE}
 # Load required libraries
 library(dplyr)
 library(tibble)
@@ -708,7 +707,7 @@ encoding_mappings <- list()
 original_column_order <- names(aggregated_data)
 
 # Process all columns except 'patient_id'
-aggregated_data_encoded <- aggregated_data |>
+data_encoded <- aggregated_data |>
   select(-patient_id) |>
   mutate(across(
     where(is.list),
@@ -777,12 +776,12 @@ aggregated_data_encoded <- aggregated_data |>
   ))
 
 # Add 'patient_id' back to its original position
-aggregated_data_encoded <- aggregated_data_encoded |>
+data_encoded <- data_encoded |>
   bind_cols(select(aggregated_data, patient_id)) |>
   select(all_of(original_column_order))  # Reorder columns to match the original dataset
 
 # Save aggregated and encoded data
-aggregated_data_encoded |> saveRDS("datasets/data_encoded.rds")
+data_encoded |> saveRDS("datasets/data_encoded.rds")
 
 # Save the encoding mappings
 dir.create("datasets/mappings", recursive = TRUE, showWarnings = FALSE)
@@ -793,8 +792,8 @@ cat("Encoding complete.\nDataset saved to 'datasets/data_encoded.rds'.\nMappings
 
 # Validate Dimensions
 validation_passed <- 
-  (aggregated_data_encoded |> nrow()) == (aggregated_data |> nrow()) &&
-  (aggregated_data_encoded |> ncol()) == (aggregated_data |> ncol())
+  (data_encoded |> nrow()) == (aggregated_data |> nrow()) &&
+  (data_encoded |> ncol()) == (aggregated_data |> ncol())
 
 if (!validation_passed) {
   stop("Validation failed: dimensions do not match.")
@@ -804,21 +803,8 @@ if (!validation_passed) {
 
 # Sample some rows
 set.seed(123)
-sample_data <- aggregated_data_encoded |>
-  slice_sample(n = 5)
-
-# Capture Organized Data Sample
-source("scripts/helper-functions/capture-to-html.R")
-
-capture_output_to_html(
-  "data_encoded_sample.html",
-  "Sample",
-  "Data Encoded" = sample_data
-)
-```
-
-```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_encoded_sample.html"), sep = "\n")
+sample_data <- data_encoded |>
+  slice_sample(n = 10)
 ```
 
 ##### Imputation
@@ -832,11 +818,11 @@ library(zoo)
 library(hms)
 
 # Step 1: Load encoded dataset and types
-aggregated_data_encoded <- readRDS("datasets/data_encoded.rds")
+data_encoded <- readRDS("datasets/data_encoded.rds")
 variable_type_mapping <- readRDS("datasets/mappings/types.rds")
 
-# Step 2: Validate that all variables in `aggregated_data_encoded` are mapped
-missing_variables <- setdiff(names(aggregated_data_encoded), variable_type_mapping$Variable)
+# Step 2: Validate that all variables in `data_encoded` are mapped
+missing_variables <- setdiff(names(data_encoded), variable_type_mapping$Variable)
 if (length(missing_variables) > 0) {
   stop("The following variables are missing in the type mapping: ", paste(missing_variables, collapse = ", "))
 }
@@ -885,7 +871,7 @@ impute_variable <- function(variable, var_type, var_name = NULL) {
 }
 
 # Apply imputation across all variables
-data_imputed <- aggregated_data_encoded %>%
+data_imputed <- data_encoded %>%
   mutate(across(
     everything(),
     ~ impute_variable(.x, 
@@ -916,19 +902,20 @@ if (all(missing_summary == 0)) {
 set.seed(123)
 sample_data <- data_imputed |>
   slice_sample(n = 10)
+```
 
-# Capture Organized Data Sample
+```{r sampling, eval=FALSE}
+# Capture Data Samples
 source("scripts/helper-functions/capture-to-html.R")
 
 capture_output_to_html(
-  "data_imputed_sample.html",
-  "Sample",
-  "Imputed Data" = sample_data
+  "data_encoded_sample.html",
+  "Sample Data",
+  "Organized" = sample_data_organized,
+  "Aggregated" = sample_data_aggregated,
+  "Encoded" = sample_data_encoded,
+  "Imputed" = sample_data_imputed
 )
-```
-
-```{r, results='asis', echo=FALSE}
-cat(readLines("outputs/data_imputed_sample.html"), sep = "\n")
 ```
 
 ### Preparation
@@ -998,10 +985,6 @@ weekly_load_data |> saveRDS("datasets/data_featured.rds")
 # Print confirmation
 cat("Feature engineering complete. Results saved to 'datasets/engineered_features/weekly_load_data.rds'.\n")
 ```
-
-### Current progress
-
-![](images/clipboard-2928763158.png)
 
 ## Results
 
@@ -1119,8 +1102,6 @@ ggsave(
 # Print confirmation
 cat("Scatter plot saved to 'figures/plots/predicted_vs_actual_weekly_load.png'\n")
 ```
-
-![](figures/plots/predicted_vs_actual_weekly_load.png)
 
 ## Conclusion {#sec-conclusion}
 

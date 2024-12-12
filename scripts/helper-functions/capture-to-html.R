@@ -15,6 +15,9 @@ capture_output_to_html <- function(file, ...) {
   cat("<link rel=\"stylesheet\" href=\"../style.css\">\n", file = con)
   cat("</head>\n<body>\n", file = con)
   
+  # Open outer scrollable container
+  cat('<div class="scrollable-container">\n', file = con)
+  
   # Iterate through arguments
   args <- list(...)
   for (i in seq_along(args)) {
@@ -26,13 +29,12 @@ capture_output_to_html <- function(file, ...) {
       # Named argument: Render as <h6> + Content
       cat(sprintf("<h6>%s</h6>\n", names(args)[i]), file = con)
       
-      # Start scrollable container
-      cat('<div class="scrollable-inner-container">\n', file = con)
-      
       if (is.character(args[[i]])) {
         # Render character vectors as preformatted text
         content <- gsub("\n", "<br>", paste(args[[i]], collapse = "\n"))
+        cat('<div class="scrollable-inner-container">\n', file = con)
         cat(sprintf("<pre>%s</pre>\n", content), file = con)
+        cat("</div>\n", file = con)
       } else if (is.data.frame(args[[i]])) {
         # Convert all columns to character
         df <- args[[i]]
@@ -40,6 +42,7 @@ capture_output_to_html <- function(file, ...) {
         df <- as.data.frame(df, stringsAsFactors = FALSE)
         
         # Render data frames as tables
+        cat('<div class="scrollable-inner-container">\n', file = con)
         cat("<table>\n<tr>", file = con)
         for (col_name in names(df)) {
           cat(sprintf("<th>%s</th>", col_name), file = con)
@@ -57,32 +60,34 @@ capture_output_to_html <- function(file, ...) {
           }
           cat("</tr>\n", file = con)
         }
-        cat("</table>\n", file = con)
+        cat("</table>\n</div>\n", file = con)
       } else if (is.list(args[[i]])) {
-        # Check for images in the list
+        # Check for images
         images <- args[[i]]
+        cat('<div class="scrollable-inner-container">\n', file = con)
         for (img_path in images) {
           if (file.exists(img_path)) {
-            cat(sprintf("<img src=\"%s\" alt=\"Image\">\n", img_path), file = con)
+            cat(sprintf("<img src=\"../%s\" alt=\"Image\">\n", img_path), file = con)
           } else {
             warning(sprintf("Image file not found: %s", img_path))
           }
         }
+        cat("</div>\n", file = con) 
       } else {
         # Render other objects as preformatted text
         content <- gsub("\n", "<br>", paste(capture.output(print(args[[i]])), collapse = "\n"))
         cat(sprintf("<pre>%s</pre>\n", content), file = con)
       }
-      
-      # End scrollable container
-      cat("</div>\n", file = con)
     }
   }
+  
+  # Close outer scrollable container
+  cat("</div>\n", file = con)
   
   # Close HTML tags
   cat("</body>\n</html>\n", file = con)
   close(con)
   
-  # Inform the user
+  # Inform result
   message("HTML saved to: ", file)
 }
