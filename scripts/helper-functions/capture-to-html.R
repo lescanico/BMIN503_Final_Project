@@ -52,6 +52,8 @@ capture_output_to_html <- function(file, ...) {
           cat("<tr>", file = con)
           for (col in names(df)) {
             value <- as.character(df[row, col])
+            value <- iconv(value, to = "UTF-8", sub = "byte")
+            value <- gsub("\r\n", "<br>", value)
             value <- gsub("\n", "<br>", value)
             value <- gsub("(\\d+)\\)", "\\1&#41;", value)
             value <- gsub("^0\\.0%$", "<0.1%", value)

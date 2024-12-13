@@ -1,5 +1,6 @@
 # Load required libraries
 library(tidyr)
+library(dplyr)
 
 # Define missing data handling options
 missing_data_options <- list(
@@ -214,9 +215,8 @@ generate_data_handling_table <- function(dataset, dataset_name = deparse(substit
   # Source the helper function for summary statistics
   source("scripts/helper-functions/calculate-summary-stats.R")
   
-  # Load variable type lookup
-  variable_type_lookup <- readRDS("datasets/mappings/types.rds")
-  variable_types <- setNames(variable_type_lookup$Type, variable_type_lookup$Variable)
+  # Get types from mapping
+  variable_types <- setNames(variable_type_mapping$Type, variable_type_mapping$Variable)
   
   # Prompt user for mode selection
   cat("Select function mode:\n")

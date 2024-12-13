@@ -40,6 +40,8 @@ convert_types <- function(df) {
           tryCatch(as_hms(as.numeric(.)), error = function(e) { message("Error in hms conversion: ", e); NA })
         } else if (type == "identifier") {
           as.character(.)
+        } else if (type == "list_as_character") {
+          as.character(.)
         } else {
           .
         }

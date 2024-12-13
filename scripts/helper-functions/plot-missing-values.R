@@ -10,7 +10,7 @@ plot_missing_values_by_type <- function(dataset, min_missing, max_missing, file_
   
   # Automatically generate a default file name if none is provided
   if (is.null(file_name)) {
-    file_name <- sprintf("figures/plots/%d-%d_missing_%s_plot.png", min_missing, max_missing, dataset_name)
+    file_name <- sprintf("figures/plots/%s_%d-%d_missing_plot.png", dataset_name, min_missing, max_missing)
   }
   
   # Create a dynamic title
@@ -41,12 +41,12 @@ plot_missing_values_by_type <- function(dataset, min_missing, max_missing, file_
         y = "Missing Percentage"
       ) +
       scale_fill_manual(values = c(
-        "Date" = "#1f77b4",       # Blue
-        "hms" = "#ffcc00",        # Yellow
-        "factor" = "#76c77c",     # Light Green
-        "numeric" = "#d62728",    # Red
-        "logical" = "#a564c9",    # Brighter Purple
-        "list" = "#b07d5b"        # Rich Brown
+        "Date" = "#1f77b4",
+        "hms" = "#ffcc00",
+        "factor" = "#76c77c",
+        "numeric" = "#d62728",
+        "logical" = "#a564c9",
+        "list_as_character" = "#b07d5b"
       )) +
       theme_minimal() +
       theme(
@@ -56,8 +56,8 @@ plot_missing_values_by_type <- function(dataset, min_missing, max_missing, file_
         axis.text.y = element_text(size = 7, hjust = 1),
         plot.title = element_text(size = 14, face = "bold", hjust = 0),
         plot.margin = margin(20, 20, 20, 20),
-        panel.background = element_rect(fill = "white", color = NA), # White background
-        plot.background = element_rect(fill = "white", color = NA)  # White background
+        panel.background = element_rect(fill = "white", color = NA),
+        plot.background = element_rect(fill = "white", color = NA)
       )
     
     # Save the plot to the file
