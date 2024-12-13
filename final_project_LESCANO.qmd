@@ -1044,24 +1044,19 @@ ggplot(filtered_data, aes(y = visits_per_year)) +
 library(dplyr)
 library(caret)
 library(ggplot2)
+library(pROC) # For ROC curve
 
 # Load featured dataset
 data_featured <- readRDS("datasets/processed/data_featured.rds")
 
 # Step 1: Data Preparation
-# Select columns without any missing values
+# Select columns without any missing values, but ensure `visits_per_year` is included
 non_na_cols <- colnames(data_featured)[colSums(is.na(data_featured)) == 0]
+non_na_cols <- union(non_na_cols, "visits_per_year") # Ensure `visits_per_year` is included
+
 data_model <- data_featured |>
-  select(all_of(non_na_cols))
-
-# Ensure `visits_per_year` is in the dataset for modeling
-if (!"visits_per_year" %in% colnames(data_model)) {
-  stop("visits_per_year is missing from non-NA columns.")
-}
-
-# Filter for relevant data and ensure no missing values
-data_model <- data_model |>
-  filter(!is.na(visits_per_year))
+  select(all_of(non_na_cols)) |>
+  filter(!is.na(visits_per_year)) # Remove rows with missing `visits_per_year`
 
 # Optional: Log-transform `visits_per_year` if skewed
 data_model <- data_model |>
