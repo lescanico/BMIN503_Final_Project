@@ -27,7 +27,7 @@ execute:
 
 This project leverages a decade of data from the Outpatient Psychiatry Clinic (OPC) of the Penn Medicine Department of Psychiatry to develop predictive models aimed at optimizing resource utilization. The goal is to address operational inefficiencies in scheduling and care allocation, ultimately enhancing patient outcomes, clinic efficiency, and provider satisfaction. Integrating principles from psychiatry, healthcare operations, and data science, the project aims to offer actionable insights into improving outpatient mental health care delivery.
 
-Key insights were gathered from Dr. Theodore Satterthwaite (Director of Penn Lifespan Informatics and Neuroimaging Center), who provided guidance on refining the project scope and advanced predictive analytics, and Rucha Kelkar (Epic Cogito Technical Services for Penn Medicine), who offered expertise on Epic Analytics data integration features and Epic Cognitive Developer Platform.
+Key insights were gathered from Dr. Theodore Satterthwaite (Director of Penn Lifespan Informatics and Neuroimaging Center), who provided guidance on refining the project scope and advanced predictive analytics, and Rucha Kelkar (Epic Cogito Technical Services for Penn Medicine), who offered expertise on Epic Analytics features and potential Epic Cognitive Developer Platform custom model integration.
 
 The complete project repository, including scripts and datasets, is available [here](https://github.com/lescanico/BMIN503_Final_Project).
 
@@ -35,7 +35,7 @@ The complete project repository, including scripts and datasets, is available [h
 
 ### Challenges in Outpatient Psychiatry
 
-Outpatient psychiatric services face unique challenges in managing the balance between provider availability and patient demand. These challenges are exacerbated by the inherent unpredictability of patient attendance and the varying degrees of care required by psychiatric patients. Inefficient scheduling can lead to prolonged wait times, rushed appointments, and increased stress for both patients and providers, thereby impacting the quality of care delivered. Additionally, the mismatch between the type of care provided and the specific needs of patients can result in suboptimal treatment outcomes and reduced overall clinic efficiency.
+Outpatient psychiatric services face unique challenges in managing the balance between provider availability and patient demand. These challenges are exacerbated by the inherent unpredictability of patient attendance and the varying degrees of care required. Inefficient scheduling can lead to prolonged wait times, rushed appointments, and increased stress for both patients and providers, thereby impacting the quality of care delivered. Additionally, the mismatch between the type of care provided and the specific needs of patients can result in suboptimal treatment outcomes and reduced overall clinic efficiency.
 
 ### Need for Advanced Analytical Approaches
 
@@ -302,8 +302,6 @@ capture_output_to_html(
 )
 ```
 
-> See [Function to Capture Output as HTML](#capture-output-as-html).
-
 ```{r, results='asis', echo=FALSE}
 cat(readLines("outputs/data_type_conversions.html"), sep = "\n")
 ```
@@ -322,6 +320,8 @@ capture_output_to_html(
 )
 ```
 
+> See [Function to Capture Output as HTML](#capture-output-as-html).
+
 ```{r, results='asis', echo=FALSE}
 cat(readLines("outputs/standarization_tables.html"), sep = "\n")
 ```
@@ -333,6 +333,8 @@ In the cleaning process, data from the patient and visit datasets were first ver
 For organization, the dataset was structured into logical groups to facilitate analysis. Columns were arranged by category, such as identifiers, demographic information, clinical details, and encounter specifics. This reorganization was aimed at improving the readability and accessibility of the dataset for subsequent analyses, ensuring that related data points were grouped together logically.
 
 ##### Missing Data Analysis
+
+In the Missing Data Analysis phase, the dataset underwent a comprehensive evaluation to identify the extent of missing data across various fields. Visualizations were created to depict the percentage of missing data in each column, helping to categorize the degree of missingness and prioritize handling strategies. These visualizations differentiated between slight, moderate, significant, and extreme levels of missing data, providing a clear graphical representation of data completeness.
 
 ```{r plotting, eval=FALSE}
 # Visualize Missing Data
@@ -377,6 +379,8 @@ cat(readLines("outputs/missing_data_plots.html"), sep = "\n")
 ```
 
 ##### Missing Data Handling
+
+For each category of missingness, suitable data handling strategies were proposed, considering the nature of the data and the percentage of missing values. Tables summarizing these strategies were generated to guide the implementation of appropriate methods for missing data imputation or exclusion, ensuring that the dataset's integrity was maintained while preparing it for further analysis.
 
 ```{r handling, eval=FALSE}
 # Generate data handling tables with all options
@@ -587,6 +591,14 @@ cat(readLines("outputs/cleaning_samples.html"), sep = "\n")
 
 #### Preparation
 
+During the aggregation, various functions were utilized to normalize data encoding, compute modes for specific variables like 'sdoh_risk_level', and convert complex data entries into more straightforward numeric representations. The dataset underwent encoding normalization to ensure uniform character encoding across all text fields. A custom function was implemented to calculate the mode for 'sdoh_risk_level' to handle categorical data effectively. Furthermore, strings of numbers separated by new lines were processed to compute their mean values, consolidating the data further.
+
+For the encoding process, all factor variables within the dataset were encoded into integers to facilitate computational efficiency and preparedness for analytical procedures. This step involved storing a mapping of the original factor levels to their new encoded forms, ensuring that no information was lost and that the transformations could be reversed or interpreted in future analyses.
+
+Additionally, the type mapping was updated to reflect changes in data structure and types post-aggregation and encoding. This involved adjusting the classifications of certain variables to better suit their role in the subsequent analysis, ensuring data integrity and appropriateness for the modeling steps that follow.
+
+Reassessment of missing data was performed after these transformations to ensure that the data handling strategies were still appropriate given the new data structure. This included visualizing missing data by type and reassessing the handling strategies to adapt to the encoded and aggregated data's needs.
+
 > **Note**: Following the aggregation process, the resulting datasets are substantially reduced in size. Therefore, they can now be saved and reloaded between code chunks to enable independent execution.
 
 ##### Aggregation
@@ -733,7 +745,7 @@ retypes |> saveRDS("datasets/mappings/retypes.rds")
 print("Retyped mapping saved.")
 ```
 
-##### Missing Data Reanalysis
+##### Missing Data Analysis Reassessment
 
 ```{r replotting, eval=FALSE}
 # Load required libraries
@@ -770,7 +782,7 @@ capture_output_to_html(
 cat(readLines("outputs/missing_data_replots.html"), sep = "\n")
 ```
 
-##### Missing Data Handling
+##### Missing Data Handling Reassessment
 
 ```{r rehandling, eval=FALSE}
 # Load required libraries
@@ -917,6 +929,26 @@ cat(readLines("outputs/preparation_samples.html"), sep = "\n")
 
 #### Feature Engineering
 
+The following basic features were obtained:
+
+-   **Visit Count**: The total number of visits each patient made.
+
+-   **First Visit**: The date of the first visit within the dataset's timeframe.
+
+-   **Last Visit**: The date of the last visit within the dataset's timeframe.
+
+-   **Visit Span Years**: The total number of years between the first and last visit, calculated as a continuous variable.
+
+-   **Near Start Boundary**: A boolean indicator showing whether the first visit occurred within the first six months of the study period (6 months is the standard OPC timeframe to define "loss to follow up").
+
+-   **Near End Boundary**: A boolean indicator showing whether the last visit occurred within the last six months of the study period.
+
+-   **Boundary Flag**: A boolean indicator that is true if either the first or last visit is near the study period boundaries.
+
+-   **Adjusted Span Years**: The number of years between the first and last visit, adjusted for boundary effects.
+
+-   **Visits Per Year**: The average number of visits per year, adjusted for any boundary effects.
+
 ```{r feature_engineering, eval=FALSE}
 # Load required libraries
 library(dplyr)
@@ -935,7 +967,7 @@ dataset_end <- as.Date("2024-09-30")
 selected_providers <- c("Physician", "Psychiatrist", "Resident", "Nurse Practitioner")
 
 # Decode
-relevant_provider_codes <- encoding$primary_provider_type |>
+selected_provider_codes <- encoding$primary_provider_type |>
   filter(Value %in% selected_providers) |>
   pull(Encoded)
 
@@ -985,9 +1017,27 @@ data_final <- data_encoded |>
 data_final |> saveRDS("datasets/processed/data_featured.rds")
 ```
 
-#### Exploratory Data Analysis
+### Exploratory Data Analysis
 
-The exploratory data analysis (EDA) of the `visits_per_year` feature reveals a right-skewed distribution, indicating that most patients have a moderate frequency of visits, with a smaller subset exhibiting extremely high visit frequencies. The summary statistics show that the minimum visits per year is 0.35, and the 1st quartile (Q1) is 5.34, meaning 25% of patients visit less than approximately 5.34 times annually. The median is 7.64 visits per year, highlighting that half of the patients have fewer than 8 visits annually. However, the mean of 12.21, which is higher than the median, suggests that outliers (e.g., patients with over 99 visits per year) pull the average upward. The 3rd quartile (Q3) of 12.74 implies that 75% of patients have visits fewer than 13 annually.
+#### Data inspection
+
+```{r inspection}
+# Load required library
+library(readr)
+
+# Load dataset
+data_featured <- readRDS("datasets/processed/data_featured.rds")
+
+# Inspect data
+dim(data_featured)
+head(data_featured)
+str(data_featured)
+summary(data_featured)
+```
+
+#### Feature EDA
+
+The exploratory data analysis of the `visits_per_year` feature reveals a right-skewed distribution, indicating that most patients have a moderate frequency of visits, with a smaller subset exhibiting extremely high visit frequencies. The summary statistics show that the minimum visits per year is 0.35, and the 1st quartile (Q1) is 5.34, meaning 25% of patients visit less than approximately 5.34 times annually. The median is 7.64 visits per year, highlighting that half of the patients have fewer than 8 visits annually. However, the mean of 12.21, which is higher than the median, suggests that outliers (e.g., patients with over 99 visits per year) pull the average upward. The 3rd quartile (Q3) of 12.74 implies that 75% of patients have visits fewer than 13 annually.
 
 The histogram shows a steep drop in frequency as visits per year increase, confirming the right-skewness of the data. Meanwhile, the boxplot highlights significant outliers above 25 visits per year, suggesting a small number of high-frequency patients that may require special attention or further investigation. Overall, the majority of patients fall within a reasonable visit range of 5 to 13 visits per year, making this range suitable for regression-based predictive models, while the outliers could be better addressed using classification-based predictive models to identify and analyze their unique characteristics.
 
@@ -1027,7 +1077,7 @@ ggplot(filtered_data, aes(x = visits_per_year)) +
 
 # Plot boxplot
 ggplot(filtered_data, aes(y = visits_per_year)) +
-  geom_boxplot(fill = "orange", alpha = 0.7) +
+  geom_boxplot(fill = "red", alpha = 0.7) +
   labs(
     title = "Boxplot of Visits Per Year",
     y = "Visits Per Year"
@@ -1037,91 +1087,157 @@ ggplot(filtered_data, aes(y = visits_per_year)) +
 
 ## Results
 
-#### Exploratory predictive modeling
+### Linear Regression
 
-```{r predictive_modeling, eval=FALSE}
-# Load required libraries
+The linear regression model demonstrated a relatively strong adjusted R-squared value of 82.91%, explaining a significant proportion of the variance in `visits_per_year`. However, while this performance metric appears promising, it masks critical limitations in the model's design and implementation that must be addressed to ensure reliability, interpretability, and fairness. A key issue lies in the reliance on principal components (PC1, PC2, PC3, and PC4) as dominant predictors. Although these components capture substantial variance, they abstract away the original variables, making it difficult to draw actionable insights or understand the underlying relationships between the predictors and the outcome. This undermines the interpretability of the model, particularly in practical applications where domain experts require clarity on which features drive predictions.
+
+Several original predictors, such as `legal_sex`, were found to be statistically non-significant, raising questions about their inclusion in the model. Their presence likely adds noise rather than value, potentially diminishing the model's predictive efficiency. Additionally, the statistically significant predictors, including `visit_date`, `primary_payer`, and `primary_payer_financial_class`, may reflect temporal or systemic biases that do not generalize well across populations or timeframes.
+
+Residual diagnostics, which were not yet analyzed, present another significant limitation. Without a thorough evaluation of residuals, it is unclear whether the model adequately captures non-linear relationships or if heteroscedasticity is present, both of which would invalidate key assumptions of linear regression. The presence of skewness and extreme outliers in the target variable, `visits_per_year`, further compounds these issues. Although a log transformation was applied, the model remains susceptible to high-leverage points that could distort coefficients and predictions.
+
+The approach to handling missing data also warrants critical scrutiny. By excluding columns with missing values, the model sacrifices potentially valuable information and may inadvertently introduce bias if the missingness is not random. More sophisticated imputation methods should be considered to preserve data integrity and improve generalizability. Moreover, the exclusion of potentially relevant variables due to multicollinearity, while necessary for linear regression, limits the scope of the analysis and may result in the loss of subtle but important predictors.
+
+Temporal variables, such as `visit_date`, add another layer of complexity. While these predictors capture time-related patterns, they are inherently tied to the specific timeframe of the dataset and may not generalize to future datasets or different populations. This introduces the risk of overfitting and reduces the model's long-term utility. The lack of fairness audits further compounds these concerns, particularly given the inclusion of variables such as `legal_sex`, which may inadvertently encode systemic biases.
+
+While the RMSE of 5.28 suggests a relatively low level of prediction error, this metric alone does not account for the model's underlying weaknesses. The focus on maximizing predictive accuracy has come at the expense of interpretability, fairness, and robustness. Future iterations of the model must address these critical limitations by incorporating alternative modeling approaches, such as tree-based methods or ensemble learning, to capture non-linear relationships and interactions. Finally, a more rigorous evaluation of residuals, handling of outliers, and imputation of missing data are necessary to build a model that is both reliable and equitable. These steps are essential to move beyond performance metrics and create a model that truly adds value to healthcare analytics.
+
+```{r linear_regression}
+# Load Required Libraries
 library(dplyr)
 library(caret)
 library(ggplot2)
-library(pROC) # For ROC curve
+library(pROC)
+library(doParallel)
+library(car)
 
-# Load featured dataset
+# Load Featured Dataset
 data_featured <- readRDS("datasets/processed/data_featured.rds")
 
-# Step 1: Data Preparation
-# Select columns without any missing values, but ensure `visits_per_year` is included
+# Prepare model data
 non_na_cols <- colnames(data_featured)[colSums(is.na(data_featured)) == 0]
 non_na_cols <- union(non_na_cols, "visits_per_year") # Ensure `visits_per_year` is included
-
 data_model <- data_featured |>
   select(all_of(non_na_cols)) |>
   filter(!is.na(visits_per_year)) # Remove rows with missing `visits_per_year`
 
-# Optional: Log-transform `visits_per_year` if skewed
+# Exclude `patient_id` and similar unique identifiers
+data_model <- data_model |> select(-patient_id)
+
+# Log-transform `visits_per_year`
 data_model <- data_model |>
   mutate(visits_per_year_log = log1p(visits_per_year)) # Use log1p to handle zeros
 
-# Step 2: Train-Test Split
-set.seed(123) # For reproducibility
+# Train-Test Split
+set.seed(123)
 train_index <- createDataPartition(data_model$visits_per_year, p = 0.8, list = FALSE)
 train_data <- data_model[train_index, ]
 test_data <- data_model[-train_index, ]
 
-# Step 3: Train a Regression Model for Visits Per Year
-# Linear Regression
+# Remove Low-Variance Features
+low_variance_cols <- nearZeroVar(train_data, saveMetrics = TRUE)
+low_variance_features <- colnames(train_data)[!low_variance_cols$nzv]
+
+# Ensure `train_data` and `test_data` are data frames
+train_data <- as.data.frame(train_data)
+test_data <- as.data.frame(test_data)
+
+# Subset to remove low-variance features
+train_data <- train_data |> select(all_of(low_variance_features))
+test_data <- test_data |> select(all_of(low_variance_features))
+
+# Dimensionality Reduction Using PCA
+train_visits_per_year <- train_data$visits_per_year
+test_visits_per_year <- test_data$visits_per_year
+train_data <- train_data[, setdiff(colnames(train_data), "visits_per_year")]
+test_data <- test_data[, setdiff(colnames(test_data), "visits_per_year")]
+
+pca_preprocess <- preProcess(as.data.frame(train_data), method = "pca", pcaComp = 30)
+train_data_pca <- predict(pca_preprocess, as.data.frame(train_data))
+test_data_pca <- predict(pca_preprocess, as.data.frame(test_data))
+
+# Check PCA-transformed datasets
+stopifnot(all(colnames(train_data_pca) == colnames(test_data_pca)))
+
+# Add visits_per_year back into PCA-transformed data
+train_data_pca$visits_per_year <- train_visits_per_year
+test_data_pca$visits_per_year <- test_visits_per_year
+
+# Downsample training data
+if (nrow(train_data_pca) > 5000) {
+  set.seed(123)
+  train_data_pca <- train_data_pca[sample(nrow(train_data_pca), size = 5000), ]
+}
+
+# Address Multicollinearity in Linear Regression
+train_data_pca <- train_data_pca %>%
+  mutate_all(~ifelse(is.infinite(.) | is.nan(.) | is.na(.), 0, .))
+
+linear_combos <- findLinearCombos(as.matrix(train_data_pca))
+if (!is.null(linear_combos$remove)) {
+  train_data_pca <- train_data_pca[, -linear_combos$remove]
+}
+
+vif_check <- vif(lm(visits_per_year ~ ., data = train_data_pca))
+high_vif_cols <- names(vif_check[vif_check > 10])
+if (length(high_vif_cols) > 0) {
+  train_data_pca <- train_data_pca[, !colnames(train_data_pca) %in% high_vif_cols]
+}
+
+# Ensure consistent column types before training
+cols_to_numeric <- c("self_pay", "portal_active_at_scheduling")
+for (col in cols_to_numeric) {
+  if (col %in% colnames(train_data_pca)) {
+    train_data_pca[[col]] <- as.numeric(train_data_pca[[col]])
+  }
+}
+
+# Train Linear Regression Model
+cl <- makeCluster(detectCores() - 1)
+registerDoParallel(cl)
 lm_model <- train(
   visits_per_year ~ ., 
-  data = train_data, 
+  data = train_data_pca, 
   method = "lm", 
-  trControl = trainControl(method = "cv", number = 5)
+  trControl = trainControl(method = "cv", number = 5, verboseIter = TRUE)
 )
+stopCluster(cl)
 
-# Print Model Summary
-summary(lm_model$finalModel)
+# Fix mismatched column types in test_data_pca
+factor_to_integer_cols <- c("legal_sex", "encounter_type", "primary_benefit_plan", 
+                            "primary_payer", "primary_payer_financial_class")
+for (col in factor_to_integer_cols) {
+  if (col %in% colnames(test_data_pca)) {
+    test_data_pca[[col]] <- as.integer(as.factor(test_data_pca[[col]]))
+  }
+}
 
-# Predict on Test Data
-lm_predictions <- predict(lm_model, newdata = test_data)
+if ("visit_date" %in% colnames(test_data_pca)) {
+  test_data_pca$visit_date <- as.numeric(test_data_pca$visit_date)
+}
 
-# Evaluate Regression Model
-lm_rmse <- sqrt(mean((lm_predictions - test_data$visits_per_year)^2))
+for (col in cols_to_numeric) {
+  if (col %in% colnames(test_data_pca)) {
+    test_data_pca[[col]] <- as.numeric(test_data_pca[[col]])
+  }
+}
+
+# Ensure consistent column types between training and test datasets
+consistent_cols <- intersect(colnames(train_data_pca), colnames(test_data_pca))
+factor_and_logical_cols <- consistent_cols[sapply(train_data_pca[consistent_cols], function(col) is.factor(col) || is.logical(col))]
+for (col in factor_and_logical_cols) {
+  train_data_pca[[col]] <- as.numeric(as.factor(train_data_pca[[col]]))
+  test_data_pca[[col]] <- as.numeric(as.factor(test_data_pca[[col]]))
+}
+
+# Evaluate Linear Regression Model
+lm_predictions <- predict(lm_model, newdata = test_data_pca)
+lm_rmse <- sqrt(mean((lm_predictions - test_data_pca$visits_per_year)^2))
 cat("Linear Regression RMSE:", lm_rmse, "\n")
 
-# Step 4: Classification Model for High-Frequency Outliers
-# Define outliers as visits_per_year > Q3 + 1.5 * IQR
-q3 <- quantile(data_model$visits_per_year, 0.75)
-iqr <- IQR(data_model$visits_per_year)
-outlier_threshold <- q3 + 1.5 * iqr
-
-# Create a binary outcome for classification
-data_model <- data_model |>
-  mutate(high_frequency = ifelse(visits_per_year > outlier_threshold, "Outlier", "Normal"))
-
-# Train-Test Split for Classification
-train_data_class <- data_model[train_index, ]
-test_data_class <- data_model[-train_index, ]
-
-# Logistic Regression
-logit_model <- train(
-  high_frequency ~ ., 
-  data = train_data_class, 
-  method = "glm", 
-  family = "binomial",
-  trControl = trainControl(method = "cv", number = 5)
-)
-
-# Predict on Test Data
-logit_predictions <- predict(logit_model, newdata = test_data_class)
-
-# Evaluate Classification Model
-confusion_matrix <- confusionMatrix(logit_predictions, test_data_class$high_frequency)
-print(confusion_matrix)
-
-# Step 5: Visualize Results
-# Regression: Actual vs. Predicted
-ggplot(data = NULL, aes(x = test_data$visits_per_year, y = lm_predictions)) +
-  geom_point(alpha = 0.7) +
-  geom_abline(slope = 1, intercept = 0, color = "red") +
+# Visualize Regression Results
+ggplot(data = NULL, aes(x = test_data_pca$visits_per_year, y = lm_predictions)) +
+  geom_point(alpha = 0.7, color = "darkblue") +
+  geom_abline(slope = 1, intercept = 0, color = "darkred", linewidth = 1.5) +
   labs(
     title = "Actual vs. Predicted Visits Per Year",
     x = "Actual Visits Per Year",
@@ -1129,15 +1245,85 @@ ggplot(data = NULL, aes(x = test_data$visits_per_year, y = lm_predictions)) +
   ) +
   theme_minimal()
 
-# Classification: ROC Curve
-roc_curve <- roc(
-  response = as.numeric(test_data_class$high_frequency == "Outlier"), 
-  predictor = as.numeric(logit_predictions == "Outlier")
-)
-plot(roc_curve, col = "blue", main = "ROC Curve for High-Frequency Classification")
+# Summary Outputs
+cat("Linear Regression Summary:\n")
+print(summary(lm_model$finalModel))
 ```
 
+This linear regression model is recognized as an initial exploratory step in the broader development of predictive modeling capabilities for outpatient psychiatry services. As the presentation deadline approached, the focus has been on establishing a foundational understanding of the data's structure and the preliminary relationships between variables. This phase has involved setting up basic model configurations, handling multicollinearity, and assessing initial model performance through measures like RMSE.
+
+Looking ahead, future iterations are planned to significantly expand and refine predictive modeling efforts:
+
+1.  **Feature Engineering Expansion**: A `Resource Utilization Score (RUS)` will be developed as:
+
+    -   A composite score (`cRUS`) for regression models, made of:
+
+        -   Schedule Utilization (`cRUS-S`): Such as Minutes per week (to be matched with available provider schedules)
+
+        -   Clinical Utilization (`cRUS-C`)
+
+            -   Diagnostic (`RUS-CD`): Such as unique number of diagnoses.
+            -   Therapeutic (`RUS-CT`): Such as unique number of medications or procedures.
+
+    -   For classification models by categories:
+
+        -   Low (`RUS-L`)
+
+        -   Medium (`RUS-M`)
+
+        -   High (`RUS-H`)
+
+        -   Very High (`RUS-VH`)
+
+    -   More granular features, including interaction terms between existing variables, time-series analysis features like rolling averages and lag variables, and polynomial features to capture non-linearity, are to be crafted.
+
+2.  **Advanced Machine Learning Algorithms**: Beyond linear regression, an array of sophisticated machine learning algorithms such as Gradient Boosting Machines (GBM), Random Forests, and Deep Learning models are to be evaluated. These models offer the potential for handling complex, non-linear patterns in the data more effectively. Classification models for high resource utilization will be necessary for prediction
+
+3.  **Hyperparameter Optimization**: Techniques like grid search, random search, and Bayesian optimization are to be employed to fine-tune model parameters, ensuring optimal performance.
+
+4.  **Dimensionality Reduction Techniques**: In addition to Principal Component Analysis (PCA), methods like t-Distributed Stochastic Neighbor Embedding (t-SNE) and Autoencoders are to be explored for their efficacy in reducing the dimensionality of data while preserving important informational cues.
+
+5.  **Model Ensembles and Stacking**: The implementation of ensemble methods, which combine predictions from multiple models to improve accuracy, and stacking techniques, where a new model is trained to synthesize the output of multiple other models, are to be considered.
+
+6.  **Robust Anomaly Detection**: To improve model reliability, anomaly detection algorithms will be integrated to identify and handle outliers and unusual patterns in the data that could skew predictions.
+
+7.  **Incremental Learning Models**: Models capable of learning incrementally from new data without the need to retrain from scratch are to be investigated to adapt to new trends in patient data over time.
+
+8.  **Time-Series Forecasting Models**: Specific models that are robust in handling sequential data, like ARIMA (AutoRegressive Integrated Moving Average) and LSTM (Long Short-Term Memory) networks, are to be assessed for predicting trends and seasonal variations in appointment scheduling.
+
+9.  **Simulations and Scenario Analysis**: Advanced simulations are to be conducted to understand the potential impacts of various scheduling scenarios. This will help in strategic planning and managing resource allocation under different hypothetical conditions.
+
+10. **Automated Data Pipelines**: To support ongoing analysis, automated data pipelines are to be developed for real-time data ingestion, cleaning, transformation, and loading (ETL). This will facilitate a seamless flow of updated data into the modeling environment.
+
+11. **Custom Model Evaluation Metrics**: Custom metrics that directly relate to clinical outcomes and operational efficiency, such as patient wait times reduction percentage and provider utilization rates, are to be developed and integrated into the model evaluation process.
+
+These technical enhancements aim not only to bolster the predictive accuracy and robustness of the models but also to align them closely with the operational dynamics and clinical decision-making processes within outpatient psychiatry settings.
+
 ## Conclusion {#sec-conclusion}
+
+### Reflections on the Project's Limitations
+
+This project, while comprehensive in its preparation to predicting resource utilization in outpatient psychiatric services, faces several limitations that need addressing in future work. Firstly, the data used in the study is confined to a single healthcare system, which may not fully represent broader demographic and clinical variables found across different geographic and healthcare settings. This limitation could affect the generalizability of the predictive models to other psychiatric outpatient services. Additionally, the inherent variability in psychiatric conditions and their treatments poses a challenge to creating universally applicable models. Patient behavior, such as adherence to scheduled visits, can be unpredictable and is influenced by numerous factors that are not always captured in the data.
+
+### Future Directions and Enhancements
+
+To overcome these limitations, future iterations of the project will aim to integrate multi-site data, enhancing the diversity and representativeness of the input data. This approach will likely help in developing more robust models that can adapt to various clinical environments. Furthermore, incorporating real-time data streams could significantly improve the model's responsiveness to changes in patient behavior and clinic operations. The introduction of natural language processing to analyze unstructured data such as clinician notes could also uncover additional insights that would enhance predictive accuracy.
+
+### Anticipated Challenges
+
+The next phases of the project will also address several anticipated challenges. One major challenge is the integration of predictive models into existing electronic health records (EHR) systems, which requires not only technical solutions but also collaboration with IT departments and adherence to strict privacy regulations. Another challenge is the potential resistance from clinic staff, who may be skeptical of AI and machine learning-based tools. Addressing these concerns through training and demonstration of value will be crucial for successful implementation.
+
+#### Ancitipated Solutions
+
+Addressing the challenge of integrating predictive models with electronic health records (EHRs), the Epic Cognitive Developer Platform emerges as a pivotal solution. This platform offers a structured approach to embedding advanced analytics directly into the EHR environment, which can significantly streamline the integration process. By leveraging this platform, the models can operate within the existing EHR infrastructure, reducing the need for extensive custom development and simplifying compliance with healthcare data standards and privacy regulations.
+
+The platform's capabilities include seamless access to real-time patient data, which is crucial for the accuracy and relevance of predictive models. It also allows for the deployment of models that can interact directly with clinical workflows, making the insights generated by the models immediately actionable. Furthermore, the platform supports iterative updates and enhancements to the models, facilitating continuous improvement without disrupting the EHR system's core functionalities.
+
+Utilizing the Epic Cognitive Developer Platform not only addresses the technical barriers to EHR integration but also helps ensure that the models are scalable and adaptable to different healthcare settings. This makes it an essential component in overcoming one of the major hurdles in the widespread adoption of AI-driven tools in healthcare.
+
+### Closing Thoughts
+
+Despite these challenges, the potential of predictive modeling to enhance resource utilization in psychiatric outpatient services is vast. By continuously refining the models and incorporating feedback from end-users, the project aims to create a dynamic tool that supports clinical decision-making and improves patient care. The ultimate goal is not only to optimize scheduling and resource allocation but also to contribute to the broader field of healthcare analytics by providing a template for similar initiatives in other specialties. The journey of this project highlights the importance of interdisciplinary collaboration, continual learning, and adaptation to technological advancements in healthcare.
 
 ## Appendix
 
@@ -1178,5 +1364,3 @@ plot(roc_curve, col = "blue", main = "ROC Curve for High-Frequency Classificatio
 ``` r
 {{< include scripts/helper-functions/calculate-summary-stats.R >}}
 ```
-
-### Additional Visualizations

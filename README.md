@@ -1,49 +1,39 @@
-# A Data-Driven Approach to Predicting and Optimizing Outpatient Psychiatry Resource Utilization
+# PURPOSe: Predicting Utilization of Resources in Psychiatry Outpatient Services
 
-This project investigates psychiatry resource utilization at the Penn Behavioral Health (PBH) Outpatient Psychiatry Clinic (OPC), with a primary goal of developing a predictive model to inform and optimize mental health resource allocation. The analysis integrates datasets from Epic Analytics, implementing advanced data preprocessing, feature engineering, and modeling techniques.
+## Project Overview
+This project is starting as my final project for BMIN503/EPID600 course in my Master of Biomedical Informatics (MBMI), focuses on optimizing resource utilization in the Outpatient Psychiatry Clinic at Penn Medicine. By leveraging a decade's worth of clinic data, this project develops predictive models that aim to enhance scheduling efficiency and care allocation, ultimately improving patient outcomes and provider satisfaction. The analysis integrates datasets from Epic Analytics, implementing advanced data preprocessing, feature engineering, and modeling techniques.
 
-## Repository Structure {#sec-repository-structure}
+## Repository Structure
 
-### **`datasets/`** {#sec-datasets}
+- `datasets/`: Directory containing anonymized datasets used in the analysis, along processed intermediate datasets.
+- `scripts/`: R scripts and helper functions used for data preprocessing, analysis, and model building.
+- `images/`: Graphical resources used in the documentation and reports.
+- `outputs/`: Outputs from the scripts including processed data, tables, and figures.
+- `README.md`: This file, providing an overview and instructions on how to navigate the repository.
 
--   Datasets required to reproduce analysis:
-    -   `patient_data_anonymized.rds`: Anonymized patient data.
-    -   `visit_data_anonymized.rds`: Anonymized visit data.
-    -   `variable_type_lookup.rds`: Lookup table mapping dataset variables to their corresponding data types for dynamic type conversion.
+## Installation
 
-### **`scripts/`** {#sec-scripts}
+To run the scripts and analyses contained in this repository, you will need R and several R packages installed. You can install the necessary packages using the following R command:
 
--   R scripts for data processing, analysis, and modeling:
-    -   `data_preprocessing.R`: Code for standardizing column names, handling type conversions dynamically using `variable_type_lookup.rds`, and saving cleaned datasets.
-    -   `data_integration.R`: Code to merge the patient and visit datasets using shared keys like patient_id. It ensures alignment, resolves duplicate columns, and saves the integrated dataset.
-    -   `missing_data_analysis.R`: Code to analyze missing data patterns an generates summary statistics and visualizations to understand data completeness.
-    -   `missing_data_handling.R`: Code to plan missing data handling based on strategies informed by the missing data analysis and `variable_type_lookup.rds`.
+```R
 
-### **`figures/`** {#sec-figures}
+install.packages(c("readr", "dplyr", "lubridate", "stringr", "tibble", "ggplot2", "caret", "pROC", "doParallel", "car", "data.table", "tidyr", "mice", "stringdist", "hms", "moments"))
+```
 
--   Visualizations and graphics generated during data analysis and modeling.
+## Usage
 
-### **`README.md`**
+To reproduce the analysis:
 
--   Documentation of the repository structure and purpose.
+1. Clone this repository to your local machine.
+2. Open the R project file in the root directory.
+3. Open .qmd file and run code chunks in order (can be ran independently after data aggregation).
 
-## Key Features {#sec-key-features}
+## Contributing
 
-1.  **Dynamic Data Type Handling**:
-    -   Type conversions are performed dynamically using `variable_type_lookup.rds`, which maps variables to their appropriate data types.
-2.  **Anonymization**:
-    -   Patient and visit data are anonymized to comply with privacy standards.
-3.  **Comprehensive Data Preprocessing**:
-    -   Column names are standardized, unnecessary fields are removed, and datasets are aligned for consistency.
-4.  **Feature Engineering**:
-    -   Creation of high-impact features such as the Resource Utilization Score (RUS).
-5.  **Predictive Modeling**:
-    -   Training and evaluation of multiple models, including linear regression, logistic regression, and advanced machine learning methods.
+Contributions to this project are welcome. Please refer to CONTRIBUTING.md for detailed information on how to contribute.
 
-## How to Run {#sec-how-to-run}
+## Acknowledgments
 
-To reproduce the analysis, follow these steps:
+- Blanca Himes for being so flexible, supportive and comprehensive in her teaching!
 
-1.  Clone the repository and navigate to the project directory.
-2.  Open the R project or launch the R scripts in RStudio.
-3.  Run the scripts in the order provided under @sec-scripts
+- All contributors who participate in the development and refinement of this project.
