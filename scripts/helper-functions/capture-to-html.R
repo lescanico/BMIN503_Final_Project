@@ -69,7 +69,8 @@ capture_output_to_html <- function(file, ...) {
         cat('<div class="scrollable-inner-container">\n', file = con)
         for (img_path in images) {
           if (file.exists(img_path)) {
-            cat(sprintf("<img src=\"../%s\" alt=\"Image\">\n", img_path), file = con)
+            img_data <- base64enc::base64encode(img_path)
+            cat(sprintf("<img src=\"data:image/png;base64,%s\" alt=\"Image\">\n", img_data), file = con)
           } else {
             warning(sprintf("Image file not found: %s", img_path))
           }

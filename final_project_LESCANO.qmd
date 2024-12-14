@@ -354,6 +354,7 @@ plot_missing_values_by_type(visit_data_converted, 50, 100)
 
 # Capture as HTML
 source("scripts/helper-functions/capture-to-html.R")
+
 capture_output_to_html(
   "missing_data_plots.html",
   "Missing Data Plots",
